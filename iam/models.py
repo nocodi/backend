@@ -9,11 +9,5 @@ class IamUser(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    class RegisterStatus(models.TextChoices):
-        CREATED = "CREATED"
-        VERIFIED = "VERIFIED"  # email verified
-
-    status = models.TextField(choices=RegisterStatus, default=RegisterStatus.CREATED)
-
     def __str__(self):
         return self.email
