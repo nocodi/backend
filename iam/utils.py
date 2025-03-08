@@ -22,8 +22,21 @@ def create_token_for_iamuser(user_id: int) -> str:
         "user_id": user_id,
     }
 
-    return jwt.encode(
+    return "Bearer " + jwt.encode(
         payload=payload,
         key=settings.JWT_SECRET,
         algorithm=settings.JWT_ALGORITHM,
     )
+
+
+def decode_token(token: str) -> int:
+    payload = jwt.decode(
+        jwt=token,
+        key=settings.JWT_SECRET,
+        algorithms=[settings.JWT_ALGORITHM],
+    )
+    if user_id := payload.get("user_id"):
+        return user_id
+        
+    raise ValueError("payload is not correct, it must contain a user_id field")    
+

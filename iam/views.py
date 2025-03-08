@@ -8,15 +8,37 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from iam.integrations.email import email_client
-from iam.serializers import SignupSerializer, SignupVerifySerializer
+from iam.serializers import SignupSerializer, SignupVerifySerializer, LoginSerializer, IamUserSerializer
 from iam.models import IamUser
 from iam.utils import create_token_for_iamuser, generate_otp
 from utils.redis import redis_client
+from iam.permissions import IsLoginedPermission
 
 
 class Login(APIView):
     def post(self, request: Request):
-        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+        serializer = LoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+
+        try:
+            user = IamUser.objects.get(email=data["email"])
+            if user.password == data["password"]:
+                return Response(
+                    status=status.HTTP_200_OK,
+                    data={
+                        "access_token": create_token_for_iamuser(
+                            user_id=user.id,
+                        ),
+                    },
+                )
+        except IamUser.DoesNotExist:
+            pass
+
+        return Response(
+            status=status.HTTP_401_UNAUTHORIZED,
+            data={"detail": "Invalid credentials"}
+        )
 
 
 class Signup(APIView):
@@ -62,7 +84,10 @@ class VerifySignup(APIView):
                 )
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
-
 class Getme(APIView):
-    def post(self, request: Request):
-        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+    permission_classes = [IsLoginedPermission]
+    def get(self, request: Request):
+        return Response(
+            data = IamUserSerializer(request.iam_user).data,
+            status=status.HTTP_200_OK,
+        )
