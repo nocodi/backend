@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "drf_spectacular",
     "iam.apps.IamConfig",
 ]
 
@@ -51,11 +52,9 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-        "iam.middleware.JWTAuthMiddleware",
-
+    "iam.middleware.JWTAuthMiddleware",
 ]
 
 ROOT_URLCONF = "nocodi.urls"
@@ -108,6 +107,19 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+REST_FRAMEWORK = {
+    # YOUR SETTINGS
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Nocodi API",
+    "DESCRIPTION": "NoCodi project API Documents",
+    "VERSION": "1.0.0",
+    "SCHEMA_PATH_PREFIX": "/api/*",
+    # 'SERVE_PERMISSIONS': ['rest_framework.permissions.IsAuthenticated'],
+    "DISABLE_ERRORS_AND_WARNINGS": True,
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
@@ -133,7 +145,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 JWT_ALGORITHM = env("JWT_ALGORITHM", default="HS256")
 JWT_SECRET = env("JWT_SECRET", default="secret")
-JWT_DURATION = env("JWT_DURATION", default = 60 * 60 * 24)
+JWT_DURATION = env("JWT_DURATION", default=60 * 60 * 24)
 
 REDIS_HOST = env("REDIS_HOST", default="localhost")
 REDIS_PORT = env("REDIS_PORT", default=6380)
@@ -142,4 +154,3 @@ SMTP_FROM_EMAIL = env("SMTP_FROM_EMAIL", default="nocodi91@gmail.com")
 SMTP_PASSWORD = env("SMTP_PASSWORD", default="password").replace("-", " ")
 
 TESTING = sys.argv[1:2] == ["test"]
-

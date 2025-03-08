@@ -37,6 +37,5 @@ def decode_token(token: str) -> int:
     )
     if user_id := payload.get("user_id"):
         return user_id
-        
-    raise ValueError("payload is not correct, it must contain a user_id field")    
 
+    raise ValueError("payload is not correct, it must contain a user_id field")

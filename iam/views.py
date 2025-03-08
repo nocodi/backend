@@ -8,16 +8,23 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from iam.integrations.email import email_client
-from iam.serializers import SignupSerializer, SignupVerifySerializer, LoginSerializer, IamUserSerializer
 from iam.models import IamUser
+from iam.permissions import IsLoginedPermission
+from iam.serializers import (
+    IamUserSerializer,
+    LoginSerializer,
+    SignupSerializer,
+    SignupVerifySerializer,
+)
 from iam.utils import create_token_for_iamuser, generate_otp
 from utils.redis import redis_client
-from iam.permissions import IsLoginedPermission
 
 
 class Login(APIView):
+    serializer_class = LoginSerializer
+
     def post(self, request: Request):
-        serializer = LoginSerializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
 
@@ -36,19 +43,19 @@ class Login(APIView):
             pass
 
         return Response(
-            status=status.HTTP_401_UNAUTHORIZED,
-            data={"detail": "Invalid credentials"}
+            status=status.HTTP_401_UNAUTHORIZED, data={"detail": "Invalid credentials"}
         )
 
 
 class Signup(APIView):
+    serializer_class = SignupSerializer
+
     def post(self, request: Request):
-        serializer = SignupSerializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
         otp = generate_otp(length=6)
-        redis_data = {"email": data["email"],
-                      "password": data["password"], "otp": otp}
+        redis_data = {"email": data["email"], "password": data["password"], "otp": otp}
         redis_data = json.dumps(redis_data)
         signup_id = str(uuid.uuid4())
         redis_client.set(f"signup::{signup_id}", redis_data, ex=120)
@@ -63,8 +70,9 @@ class Signup(APIView):
 
 
 class VerifySignup(APIView):
+    serializer_class = SignupVerifySerializer
     def post(self, request: Request):
-        serialzier = SignupVerifySerializer(data=request.data)
+        serialzier = self.serializer_class(data=request.data)
         serialzier.is_valid(raise_exception=True)
         redis_key = f"signup::{serialzier.validated_data['request_id']}"
         if redis_data := redis_client.get(redis_key):
@@ -84,10 +92,12 @@ class VerifySignup(APIView):
                 )
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
+
 class Getme(APIView):
     permission_classes = [IsLoginedPermission]
+
     def get(self, request: Request):
         return Response(
-            data = IamUserSerializer(request.iam_user).data,
+            data=IamUserSerializer(request.iam_user).data,
             status=status.HTTP_200_OK,
         )

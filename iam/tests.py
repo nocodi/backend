@@ -34,10 +34,11 @@ class AuthTest(TestCase):
             path=reverse("iam:signup_verify"),
             data=data,
         )
-        self.assertEqual(response.status_code,
-                         status.HTTP_201_CREATED, (response.content))
+        self.assertEqual(
+            response.status_code, status.HTTP_201_CREATED, (response.content)
+        )
 
-    @ unittest.mock.patch("iam.integrations.email.email_client.send")
+    @unittest.mock.patch("iam.integrations.email.email_client.send")
     def test_login(self, send_email_patch):
         email = "example@example.com"
         password = "password"
@@ -48,27 +49,24 @@ class AuthTest(TestCase):
             data={
                 "email": email,
                 "password": password + "0",
-            }
+            },
         )
         self.assertEqual(res.status_code, 401, res.content)
-
-
 
         res = self.client.get(
             path=reverse("iam:getme"),
             headers={
                 "Authorization": "",
-            }
+            },
         )
         self.assertEqual(res.status_code, 403, res.content)
 
-        
         res = self.client.post(
             path=reverse("iam:login"),
             data={
                 "email": email,
                 "password": password,
-            }
+            },
         )
         self.assertEqual(res.status_code, 200, res.content)
         self.assertIn("access_token", res.json())
@@ -77,9 +75,6 @@ class AuthTest(TestCase):
             path=reverse("iam:getme"),
             headers={
                 "Authorization": token,
-            }
+            },
         )
         self.assertEqual(res.status_code, 200, res.content)
-
-
-

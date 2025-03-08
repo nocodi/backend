@@ -8,6 +8,7 @@ class SignupSerializer(serializers.ModelSerializer):
         model = IamUser
         fields = ["email", "password"]
 
+
 class IamUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = IamUser
@@ -18,9 +19,11 @@ class IamUserSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
 
+
 class SignupVerifySerializer(serializers.Serializer):
     otp = serializers.CharField(max_length=6)
     request_id = serializers.UUIDField()
+
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
