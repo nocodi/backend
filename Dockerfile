@@ -10,7 +10,7 @@ COPY requirements.txt /src/
 
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --upgrade pip && \
-    pip install --retries 10 --index-url "${PIP_INDEX_URL}" -r requirements.txt
+    pip install --retries 10 requirements.txt
 
 COPY . /src/
 
