@@ -2,7 +2,7 @@ import json
 import uuid
 
 from rest_framework import status
-from rest_framework.generics import CreateAPIView, RetrieveAPIView
+from rest_framework.generics import CreateAPIView, RetrieveAPIView, UpdateAPIView
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -93,6 +93,7 @@ class VerifySignup(APIView):
                 return Response(
                     status=status.HTTP_201_CREATED,
                     data={
+                        "user_id": user_id,
                         "access_token": create_token_for_iamuser(
                             user_id=user_id,
                         ),
@@ -162,3 +163,18 @@ class Getme(APIView):
             data=IamUserSerializer(request.iam_user).data,
             status=status.HTTP_200_OK,
         )
+
+
+# edit user view using updateAPIView
+class UpdatePassword(UpdateAPIView):
+    permission_classes = [IsLoginedPermission]
+    serializer_class = LoginSerializer
+    queryset = IamUser.objects
+
+    def update(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.queryset.filter(id=request.iam_user.id).update(
+            password=serializer.validated_data["password"],
+        )
+        return Response(status=status.HTTP_200_OK)

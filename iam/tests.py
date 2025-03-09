@@ -41,6 +41,7 @@ class AuthTest(TestCase):
             status.HTTP_201_CREATED,
             (response.content),
         )
+        return response.json()["user_id"]
 
     @unittest.mock.patch("iam.integrations.email.email_client.send")
     def test_login(self, send_email_patch):
@@ -125,3 +126,65 @@ class AuthTest(TestCase):
             },
         )
         self.assertEqual(res.status_code, 200, res.content)
+
+    @unittest.mock.patch("iam.integrations.email.email_client.send")
+    def test_edit_user(self, email_sender):
+        email = "example@example.com"
+        password = "password"
+        user_id = self.create_user(email, password, email_sender)
+        # Login to get token
+        res = self.client.post(
+            path=reverse("iam:login"),
+            data={
+                "email": email,
+                "password": password,
+            },
+        )
+        self.assertEqual(res.status_code, 200, res.content)
+        token = res.json()["access_token"]
+
+        # Update password
+        new_password = "new_password"
+        res = self.client.put(
+            path=reverse("iam:update_password"),
+            data={
+                "email": email,
+                "password": new_password,
+            },
+            content_type="application/json",
+        )
+        self.assertEqual(res.status_code, 403, res.content)
+
+        res = self.client.put(
+            path=reverse("iam:update_password"),
+            data={
+                "email": email,
+                "password": new_password,
+            },
+            headers={
+                "Authorization": token,
+            },
+            content_type="application/json",
+        )
+        self.assertEqual(res.status_code, 200, res.content)
+
+        # Try logging in with old password - should fail
+        res = self.client.post(
+            path=reverse("iam:login"),
+            data={
+                "email": email,
+                "password": password,
+            },
+        )
+        self.assertEqual(res.status_code, 401, res.content)
+
+        # Try logging in with new password - should succeed
+        res = self.client.post(
+            path=reverse("iam:login"),
+            data={
+                "email": email,
+                "password": new_password,
+            },
+        )
+        self.assertEqual(res.status_code, 200, res.content)
+        self.assertIn("access_token", res.json())
