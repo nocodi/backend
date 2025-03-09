@@ -26,7 +26,7 @@ jobs:
 
       - name: set tag
         run: |
-          echo "tag=dev$(git log--oneline | head -n 1 | cut -d " " -f 1  )" >> $GITHUB_ENV
+          echo "tag=dev$(git log --oneline | head -n 1 | cut -d " " -f 1  )" >> $GITHUB_ENV
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3

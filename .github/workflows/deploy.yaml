@@ -10,7 +10,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-22.04
-    environment: production
+    environment:  SE shared
 
     permissions:
       contents: read
@@ -41,9 +41,7 @@ jobs:
         run: |
           image_name="ghcr.io/${{ github.repository }}"
           docker pull $image_name:${{ env.old_tag }}
-          docker tag $image_name:${{ env.old_tag }} $image_name:${{ env.new_tag }}
           docker tag $image_name:${{ env.old_tag }} $image_name:latest
-          docker push $image_name:${{ env.new_tag }}
           docker push $image_name
 
       - name: deploy
@@ -56,13 +54,7 @@ jobs:
           script: |
             set -e
             set +x
-            cd /opt/morteza_procs
-            repository=$( echo ${{ github.repository }} | cut -d '/' -f 2 )
-            if [ ! -d $repository ]; then
-              echo "You should have cloned it first manually"
-              exit 1
-            fi
-            cd "$repository/deploy"
+            cd /opt/nocodi_backend
             git pull
             docker compose -f compose.yaml up -d
       - name: notify
