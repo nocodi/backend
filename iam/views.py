@@ -12,6 +12,10 @@ from iam.models import IamUser
 from iam.permissions import IsLoginedPermission
 from iam.serializers import (
     IamUserSerializer,
+    LoginOTPSendRequestSerializer,
+    LoginOTPSendResponseSerializer,
+    LoginOTPVerifyResponseSerializer,
+    LoginResponseSerializer,
     LoginSerializer,
     SignupSerializer,
     SignupVerifySerializer,
@@ -33,17 +37,20 @@ class Login(APIView):
             if user.password == data["password"]:
                 return Response(
                     status=status.HTTP_200_OK,
-                    data={
-                        "access_token": create_token_for_iamuser(
-                            user_id=user.id,
-                        ),
-                    },
+                    data=LoginResponseSerializer(
+                        {
+                            "access_token": create_token_for_iamuser(
+                                user_id=user.id,
+                            ),
+                        },
+                    ).data,
                 )
         except IamUser.DoesNotExist:
             pass
 
         return Response(
-            status=status.HTTP_401_UNAUTHORIZED, data={"detail": "Invalid credentials"}
+            status=status.HTTP_401_UNAUTHORIZED,
+            data={"detail": "Invalid credentials"},
         )
 
 
@@ -71,6 +78,7 @@ class Signup(APIView):
 
 class VerifySignup(APIView):
     serializer_class = SignupVerifySerializer
+
     def post(self, request: Request):
         serialzier = self.serializer_class(data=request.data)
         serialzier.is_valid(raise_exception=True)
@@ -78,9 +86,9 @@ class VerifySignup(APIView):
         if redis_data := redis_client.get(redis_key):
             redis_data = json.loads(redis_data)
             if serialzier.validated_data["otp"] == redis_data["otp"]:
-
                 user_id = IamUser.objects.create(
-                    email=redis_data["email"], password=redis_data["password"]
+                    email=redis_data["email"],
+                    password=redis_data["password"],
                 ).id
                 return Response(
                     status=status.HTTP_201_CREATED,
@@ -91,6 +99,59 @@ class VerifySignup(APIView):
                     },
                 )
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class OTPLoginSend(APIView):
+    serializer_class = LoginOTPSendRequestSerializer
+
+    def post(self, request: Request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+
+        otp = generate_otp(length=6)
+        request_id = str(uuid.uuid4())
+        redis_data = {"email": data["email"], "otp": otp}
+        redis_data = json.dumps(redis_data)
+        redis_key = f"login::otp::{request_id}"
+
+        redis_client.set(redis_key, redis_data, ex=120)
+        email_client.send(
+            target=data["email"],
+            subject="Your OTP for login",
+            text=f"Your OTP is {otp}",
+        )
+        return Response(
+            status=status.HTTP_200_OK,
+            data=LoginOTPSendResponseSerializer(
+                {
+                    "request_id": request_id,
+                },
+            ).data,
+        )
+
+
+class OTPLoginVerify(APIView):
+    serializer_class = LoginOTPVerifyResponseSerializer
+
+    def post(self, request: Request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+        redis_key = f"login::otp::{data['request_id']}"
+        if redis_data := redis_client.get(redis_key):
+            redis_data = json.loads(redis_data)
+            if data["otp"] == redis_data["otp"]:
+                user = IamUser.objects.get(email=redis_data["email"])
+                return Response(
+                    status=status.HTTP_200_OK,
+                    data={
+                        "access_token": create_token_for_iamuser(
+                            user_id=user.id,
+                        ),
+                    },
+                )
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
 class Getme(APIView):

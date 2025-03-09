@@ -28,3 +28,20 @@ class SignupVerifySerializer(serializers.Serializer):
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()
+
+
+class LoginOTPSendRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+
+class LoginOTPSendResponseSerializer(serializers.Serializer):
+    request_id = serializers.UUIDField()
+
+
+class LoginOTPVerifyResponseSerializer(serializers.Serializer):
+    request_id = serializers.UUIDField()
+    otp = serializers.CharField()
+
+
+class LoginResponseSerializer(serializers.Serializer):
+    access_token = serializers.CharField()
