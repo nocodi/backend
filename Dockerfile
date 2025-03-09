@@ -10,7 +10,7 @@ COPY requirements.txt /src/
 
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --upgrade pip && \
-    pip install --retries 10 requirements.txt
+    pip install --retries 10 -r requirements.txt
 
 COPY . /src/
 
