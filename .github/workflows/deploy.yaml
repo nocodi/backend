@@ -60,5 +60,5 @@ jobs:
       - name: notify
         run: |
           curl -s https://api.telegram.org/bot${{ secrets.TGBOT_TOKEN }}/sendMessage \
-              -d '{"chat_id":"${{ secrets.TGCHAT_ID }}", "text": "paroo deployed"}' \
+          -d '{"chat_id":"${{ secrets.TGCHAT_ID }}", "message_thread_id": "${{ secrets.TGMESSAGE_THREAD_ID }}", "text": "Nocodi backend deployed"}' \
               -H 'Content-Type: Application/Json'
