@@ -6,7 +6,7 @@ from django.conf import settings
 from django.utils import timezone
 
 
-def generate_otp(length=6):
+def generate_otp(length: int = 6) -> str:
     digits = "0123456789"
     OTP = ""
     for i in range(length):

@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 import sys
 from pathlib import Path
+from typing import List
 
 from environ import Env
 
@@ -30,7 +31,7 @@ SECRET_KEY = "django-insecure-)+e)1io38_l%_x0^!54n3wcfxq23%igr8p!&l89ns&mjmmtjie
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS: List[str] = []
 
 
 # Application definition

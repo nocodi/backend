@@ -53,7 +53,7 @@ class SMTPClient(EmailClient):
 
 
 class MockEmailClient(SMTPClient):
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
     def send(self, target: str, subject: str, text: str) -> None:
@@ -61,10 +61,11 @@ class MockEmailClient(SMTPClient):
         pass
 
 
-email_client: EmailClient = None
+email_client: EmailClient
 if settings.TESTING:
     email_client = MockEmailClient()
 else:
     email_client = SMTPClient(
-        from_email=settings.SMTP_FROM_EMAIL, password=settings.SMTP_PASSWORD
+        from_email=settings.SMTP_FROM_EMAIL,
+        password=settings.SMTP_PASSWORD,
     )
