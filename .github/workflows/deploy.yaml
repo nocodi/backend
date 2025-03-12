@@ -59,6 +59,11 @@ jobs:
             docker compose -f compose.yaml up -d
       - name: notify
         run: |
+          message="🚀Nocodi backend deployed"
+          message="$message\n👤 Author: ${{ github.event.workflow_run.head_commit.author.name }}"
+          message="$message\n📝 Commit Message: ${{ github.event.workflow_run.head_commit.message }}"
+          message="$message\n🔍 Commit Hash: ${{ github.event.workflow_run.head_commit.id }}"
+
           curl -s https://api.telegram.org/bot${{ secrets.TGBOT_TOKEN }}/sendMessage \
-          -d '{"chat_id":"${{ secrets.TGCHAT_ID }}", "message_thread_id": "${{ secrets.TGMESSAGE_THREAD_ID }}", "text": "🚀Nocodi backend deployed"}' \
+          -d "{\"chat_id\":\"${{ secrets.TGCHAT_ID }}\", \"message_thread_id\": \"${{ secrets.TGMESSAGE_THREAD_ID }}\", \"text\": \"$message\"}" \
               -H 'Content-Type: Application/Json'
