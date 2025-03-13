@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "django_extensions",
     "drf_spectacular",
     "iam.apps.IamConfig",
+    "bot.apps.BotConfig",
 ]
 
 MIDDLEWARE = [

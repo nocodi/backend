@@ -8,5 +8,5 @@ class LivenessView(APIView):
     A simple view that returns 200 OK to indicate the service is alive
     """
 
-    def get(self, request: Request):
+    def get(self, request: Request) -> Response:
         return Response({"status": "ok"})
