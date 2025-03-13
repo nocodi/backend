@@ -28,9 +28,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-)+e)1io38_l%_x0^!54n3wcfxq23%igr8p!&l89ns&mjmmtjie"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env("DEBUG", default=False)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["api.nocodi.ir", "localhost"]
 
 
 # Application definition

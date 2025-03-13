@@ -23,8 +23,11 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 
+from nocodi.views import LivenessView
+
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("/liveness", LivenessView.as_view(), name="liveness"),
     path("swagger/schema", SpectacularAPIView.as_view(), name="schema"),
     path(
         "swagger/ui",
