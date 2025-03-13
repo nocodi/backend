@@ -1,5 +1,6 @@
 import json
 import uuid
+from typing import Dict
 
 from rest_framework import status
 from rest_framework.generics import CreateAPIView, RetrieveAPIView, UpdateAPIView
@@ -27,7 +28,7 @@ from utils.redis import redis_client
 class Login(APIView):
     serializer_class = LoginSerializer
 
-    def post(self, request: Request):
+    def post(self, request: Request) -> Response:
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
@@ -57,15 +58,19 @@ class Login(APIView):
 class Signup(APIView):
     serializer_class = SignupSerializer
 
-    def post(self, request: Request):
+    def post(self, request: Request) -> Response:
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
         otp = generate_otp(length=6)
-        redis_data = {"email": data["email"], "password": data["password"], "otp": otp}
-        redis_data = json.dumps(redis_data)
+        redis_data = {
+            "email": data["email"],
+            "password": data["password"],
+            "otp": otp,
+        }
+        redis_data_str: str = json.dumps(redis_data)
         signup_id = str(uuid.uuid4())
-        redis_client.set(f"signup::{signup_id}", redis_data, ex=120)
+        redis_client.set(f"signup::{signup_id}", redis_data_str, ex=120)
 
         email_client.send(
             target=data["email"],
@@ -79,7 +84,7 @@ class Signup(APIView):
 class VerifySignup(APIView):
     serializer_class = SignupVerifySerializer
 
-    def post(self, request: Request):
+    def post(self, request: Request) -> Response:
         serialzier = self.serializer_class(data=request.data)
         serialzier.is_valid(raise_exception=True)
         redis_key = f"signup::{serialzier.validated_data['request_id']}"
@@ -105,7 +110,7 @@ class VerifySignup(APIView):
 class OTPLoginSend(APIView):
     serializer_class = LoginOTPSendRequestSerializer
 
-    def post(self, request: Request):
+    def post(self, request: Request) -> Response:
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
@@ -113,10 +118,10 @@ class OTPLoginSend(APIView):
         otp = generate_otp(length=6)
         request_id = str(uuid.uuid4())
         redis_data = {"email": data["email"], "otp": otp}
-        redis_data = json.dumps(redis_data)
+        redis_data_str: str = json.dumps(redis_data)
         redis_key = f"login::otp::{request_id}"
 
-        redis_client.set(redis_key, redis_data, ex=120)
+        redis_client.set(redis_key, redis_data_str, ex=120)
         email_client.send(
             target=data["email"],
             subject="Your OTP for login",
@@ -135,7 +140,7 @@ class OTPLoginSend(APIView):
 class OTPLoginVerify(APIView):
     serializer_class = LoginOTPVerifyResponseSerializer
 
-    def post(self, request: Request):
+    def post(self, request: Request) -> Response:
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
@@ -158,7 +163,7 @@ class OTPLoginVerify(APIView):
 class Getme(APIView):
     permission_classes = [IsLoginedPermission]
 
-    def get(self, request: Request):
+    def get(self, request: Request) -> Response:
         return Response(
             data=IamUserSerializer(request.iam_user).data,
             status=status.HTTP_200_OK,
@@ -171,7 +176,7 @@ class UpdatePassword(UpdateAPIView):
     serializer_class = LoginSerializer
     queryset = IamUser.objects
 
-    def update(self, request):
+    def update(self, request: Request) -> Response:
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.queryset.filter(id=request.iam_user.id).update(
