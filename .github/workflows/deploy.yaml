@@ -30,20 +30,6 @@ jobs:
           echo "old_tag=$old_tag" >> $GITHUB_ENV
           echo "new_tag=$new_tag" >> $GITHUB_ENV
 
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Repush Docker Image
-        run: |
-          image_name="ghcr.io/${{ github.repository }}"
-          docker pull $image_name:${{ env.old_tag }}
-          docker tag $image_name:${{ env.old_tag }} $image_name:latest
-          docker push $image_name
-
       - name: deploy
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -56,7 +42,7 @@ jobs:
             set +x
             cd /opt/nocodi_backend
             git pull
-            docker compose -f compose.yaml up -d
+            docker compose -f compose.yaml up -d --build
       - name: notify
         run: |
           message="🚀Nocodi backend deployed"
