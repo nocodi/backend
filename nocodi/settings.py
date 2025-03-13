@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "iam.apps.IamConfig",
     "bot.apps.BotConfig",
+    "flow.apps.FlowConfig",
 ]
 
 MIDDLEWARE = [
