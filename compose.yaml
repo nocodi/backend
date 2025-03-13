@@ -12,6 +12,8 @@ services:
   service:
     build: .
     env_file: /etc/nocodi/backend/.env
+    ports:
+    - "4001:8000"
 
 volumes:
   postgres_data:
