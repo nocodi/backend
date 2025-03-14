@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_extensions",
+    "rest_framework",
     "drf_spectacular",
     "iam.apps.IamConfig",
     "bot.apps.BotConfig",

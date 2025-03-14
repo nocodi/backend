@@ -3,10 +3,14 @@ from rest_framework import serializers
 from iam.models import IamUser
 
 
-class SignupSerializer(serializers.ModelSerializer):
+class SignupRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = IamUser
         fields = ["email", "password"]
+
+
+class SignupResponseSerializer(serializers.Serializer):
+    request_id = serializers.UUIDField()
 
 
 class IamUserSerializer(serializers.ModelSerializer):

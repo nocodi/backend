@@ -40,4 +40,5 @@ urlpatterns = [
         name="redoc-ui",
     ),
     path("iam/", include(("iam.urls", "iam"), namespace="iam")),
+    path("bot/", include(("bot.urls", "bot"), namespace="bot")),
 ]
