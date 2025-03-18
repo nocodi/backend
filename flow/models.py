@@ -1,23 +1,21 @@
 from django.contrib.postgres.fields import ArrayField
-from django.db.models import CASCADE, CharField, ForeignKey, JSONField, Model
+from django.db.models import (
+    CASCADE,
+    CharField,
+    FloatField,
+    ForeignKey,
+    JSONField,
+    Model,
+)
 
 
 class Flow(Model):
     start_component = ForeignKey("flow.Component", on_delete=CASCADE)
 
 
-class ComponentType(Model):
-    name = CharField(max_length=255)
-    type = CharField(max_length=255)
-    fields = JSONField(default=dict, blank=True)
-
-    def __str__(self) -> str:
-        return self.name
-
-
 class Component(Model):
     name = CharField(max_length=255)
-    type = ForeignKey("flow.ComponentType", on_delete=CASCADE)
+    type = ForeignKey("bot.TelegramComponent", on_delete=CASCADE)
 
     next_component = ForeignKey(
         "flow.Component",
@@ -34,7 +32,8 @@ class Component(Model):
         related_name="next_components",
     )
 
-    fields = JSONField(default=dict)
+    position_x = FloatField(null=False, blank=False)
+    position_y = FloatField(null=False, blank=False)
 
     def __str__(self) -> str:
         return self.name
