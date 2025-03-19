@@ -258,6 +258,12 @@ class SendPhoto(TelegramComponent):
         blank=True,
         help_text="Unique identifier for the target message thread (topic) of the forum; for forum supergroups only",
     )
+    photo = models.FileField(
+        upload_to="photo/",
+        null=False,
+        blank=False,
+        help_text="Photo to send. Pass a file_id as String to send a photo that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a photo from the Internet, or upload a new photo using multipart/form-data. The photo must be at most 10 MB in size. The photo's width and height must not exceed 10000 in total. Width and height ratio must be at most 20. More information on Sending Files »",
+    )
     caption = models.CharField(
         null=True,
         blank=True,
@@ -319,6 +325,18 @@ class SendDocument(TelegramComponent):
         blank=True,
         help_text="Unique identifier for the target message thread (topic) of the forum; for forum supergroups only",
     )
+    document = models.FileField(
+        upload_to="document/",
+        null=False,
+        blank=False,
+        help_text="File to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. More information on Sending Files »",
+    )
+    thumbnail = models.FileField(
+        upload_to="thumbnail/",
+        null=True,
+        blank=True,
+        help_text="Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »",
+    )
     caption = models.CharField(
         null=True,
         blank=True,
@@ -375,6 +393,12 @@ class SendVideo(TelegramComponent):
         blank=True,
         help_text="Unique identifier for the target message thread (topic) of the forum; for forum supergroups only",
     )
+    video = models.FileField(
+        upload_to="video/",
+        null=False,
+        blank=False,
+        help_text="Video to send. Pass a file_id as String to send a video that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a video from the Internet, or upload a new video using multipart/form-data. More information on Sending Files »",
+    )
     duration = models.IntegerField(
         null=True,
         blank=True,
@@ -382,6 +406,18 @@ class SendVideo(TelegramComponent):
     )
     width = models.IntegerField(null=True, blank=True, help_text="Video width")
     height = models.IntegerField(null=True, blank=True, help_text="Video height")
+    thumbnail = models.FileField(
+        upload_to="thumbnail/",
+        null=True,
+        blank=True,
+        help_text="Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »",
+    )
+    cover = models.FileField(
+        upload_to="cover/",
+        null=True,
+        blank=True,
+        help_text="Cover for the video in the message. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »",
+    )
     start_timestamp = models.IntegerField(
         null=True,
         blank=True,
@@ -453,6 +489,12 @@ class SendAnimation(TelegramComponent):
         blank=True,
         help_text="Unique identifier for the target message thread (topic) of the forum; for forum supergroups only",
     )
+    animation = models.FileField(
+        upload_to="animation/",
+        null=False,
+        blank=False,
+        help_text="Animation to send. Pass a file_id as String to send an animation that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get an animation from the Internet, or upload a new animation using multipart/form-data. More information on Sending Files »",
+    )
     duration = models.IntegerField(
         null=True,
         blank=True,
@@ -460,6 +502,12 @@ class SendAnimation(TelegramComponent):
     )
     width = models.IntegerField(null=True, blank=True, help_text="Animation width")
     height = models.IntegerField(null=True, blank=True, help_text="Animation height")
+    thumbnail = models.FileField(
+        upload_to="thumbnail/",
+        null=True,
+        blank=True,
+        help_text="Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »",
+    )
     caption = models.CharField(
         null=True,
         blank=True,
@@ -521,6 +569,12 @@ class SendVoice(TelegramComponent):
         blank=True,
         help_text="Unique identifier for the target message thread (topic) of the forum; for forum supergroups only",
     )
+    voice = models.FileField(
+        upload_to="voice/",
+        null=False,
+        blank=False,
+        help_text="Audio file to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. More information on Sending Files »",
+    )
     caption = models.CharField(
         null=True,
         blank=True,
@@ -577,6 +631,12 @@ class SendVideoNote(TelegramComponent):
         blank=True,
         help_text="Unique identifier for the target message thread (topic) of the forum; for forum supergroups only",
     )
+    video_note = models.FileField(
+        upload_to="video_note/",
+        null=False,
+        blank=False,
+        help_text="Video note to send. Pass a file_id as String to send a video note that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. More information on Sending Files ». Sending video notes by a URL is currently unsupported",
+    )
     duration = models.IntegerField(
         null=True,
         blank=True,
@@ -586,6 +646,12 @@ class SendVideoNote(TelegramComponent):
         null=True,
         blank=True,
         help_text="Video width and height, i.e. diameter of the video message",
+    )
+    thumbnail = models.FileField(
+        upload_to="thumbnail/",
+        null=True,
+        blank=True,
+        help_text="Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »",
     )
     disable_notification = models.BooleanField(
         null=True,
@@ -2329,6 +2395,12 @@ class SendSticker(TelegramComponent):
         blank=True,
         help_text="Unique identifier for the target message thread (topic) of the forum; for forum supergroups only",
     )
+    sticker = models.FileField(
+        upload_to="sticker/",
+        null=False,
+        blank=False,
+        help_text="Sticker to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a .WEBP sticker from the Internet, or upload a new .WEBP, .TGS, or .WEBM sticker using multipart/form-data. More information on Sending Files ». Video and animated stickers can't be sent via an HTTP URL.",
+    )
     emoji = models.CharField(
         null=True,
         blank=True,
@@ -2541,6 +2613,12 @@ class SetStickerSetThumbnail(TelegramComponent):
         null=False,
         blank=False,
         help_text="User identifier of the sticker set owner",
+    )
+    thumbnail = models.FileField(
+        upload_to="thumbnail/",
+        null=True,
+        blank=True,
+        help_text="A .WEBP or .PNG image with the thumbnail, must be up to 128 kilobytes in size and have a width and height of exactly 100px, or a .TGS animation with a thumbnail up to 32 kilobytes in size (see https://core.telegram.org/stickers#animation-requirements for animated sticker technical requirements), or a .WEBM video with the thumbnail up to 32 kilobytes in size; see https://core.telegram.org/stickers#video-requirements for video sticker technical requirements. Pass a file_id as a String to send a file that already exists on the Telegram servers, pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. More information on Sending Files ». Animated and video sticker set thumbnails can't be uploaded via HTTP URL. If omitted, then the thumbnail is dropped and the first sticker is used as the thumbnail.",
     )
     format = models.CharField(
         null=False,
