@@ -1,3 +1,4 @@
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError as DRFValidationError
@@ -8,8 +9,13 @@ from flow.models import Component, Flow
 class FlowSerializer(serializers.ModelSerializer):
     class Meta:
         model = Flow
-        depth = 1
         fields = "__all__"
+
+
+class ContentTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContentType
+        fields = ["id", "model"]
 
 
 class ComponentSerializer(serializers.ModelSerializer):
