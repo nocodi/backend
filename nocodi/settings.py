@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "iam.apps.IamConfig",
     "bot.apps.BotConfig",
+    "component.apps.ComponentConfig",
     "flow.apps.FlowConfig",
 ]
 

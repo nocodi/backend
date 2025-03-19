@@ -43,6 +43,7 @@ urlpatterns = [
     ),
     path("iam/", include(("iam.urls", "iam"), namespace="iam")),
     path("bot/", include(("bot.urls", "bot"), namespace="bot")),
+    path("flow/", include(("flow.urls", "flow"), namespace="flow")),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
