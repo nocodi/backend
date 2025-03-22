@@ -51,4 +51,3 @@ uritemplate==4.1.1
 virtualenv==20.29.3
 wcwidth==0.2.13
 psycopg2-binary==2.9.10
-whitenoise==6.9.0

@@ -14,7 +14,8 @@ class JWTAuthMiddleware:
         self.get_response = get_response
 
     def __call__(self, request: Request) -> Response:
-        delattr(request, "user")
+        if hasattr(request, "user") and "/admin" not in request.path:
+            delattr(request, "user")
         if auth_header := request.headers.get("Authorization"):
             if auth_header.startswith("Bearer"):
                 token = auth_header.split(" ")[1]
