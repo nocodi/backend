@@ -162,3 +162,5 @@ SMTP_FROM_EMAIL = env("SMTP_FROM_EMAIL", default="nocodi91@gmail.com")
 SMTP_PASSWORD = env("SMTP_PASSWORD", default="password").replace("-", " ")
 
 TESTING = sys.argv[1:2] == ["test"]
+
+APPEND_SLASH = True
