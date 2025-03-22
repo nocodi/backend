@@ -14,6 +14,8 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 COPY . /src/
 
+RUN python manage.py collectstatic --noinput
+
 EXPOSE 8000
 
 # Command to run the application using Gunicorn
