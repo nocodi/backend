@@ -34,6 +34,10 @@ DEBUG = env("DEBUG", default=False)
 
 ALLOWED_HOSTS: List[str] = ["api.nocodi.ir", "localhost"]
 
+CORS_ALLOWED_ORIGINS: List[str] = [
+    "https://api.nocodi.ir",
+    "http://api.nocodi.ir",
+]
 
 # Application definition
 
@@ -47,6 +51,7 @@ INSTALLED_APPS = [
     "django_extensions",
     "drf_spectacular",
     "rest_framework",
+    "corsheaders",
     "iam.apps.IamConfig",
     "bot.apps.BotConfig",
     "flow.apps.FlowConfig",
@@ -55,6 +60,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
