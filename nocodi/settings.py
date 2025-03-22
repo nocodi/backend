@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django_extensions",
     "drf_spectacular",
+    "rest_framework",
     "iam.apps.IamConfig",
     "bot.apps.BotConfig",
     "flow.apps.FlowConfig",
