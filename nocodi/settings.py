@@ -32,7 +32,7 @@ SECRET_KEY = "django-insecure-)+e)1io38_l%_x0^!54n3wcfxq23%igr8p!&l89ns&mjmmtjie
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env("DEBUG", default=False)
 
-ALLOWED_HOSTS: List[str] = ["api.nocodi.ir", "localhost"]
+ALLOWED_HOSTS: List[str] = ["api.nocodi.ir", "localhost", "127.0.0.1"]
 
 
 # Application definition
@@ -45,10 +45,12 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_extensions",
+    "rest_framework",
     "drf_spectacular",
     "rest_framework",
     "iam.apps.IamConfig",
     "bot.apps.BotConfig",
+    "component.apps.ComponentConfig",
     "flow.apps.FlowConfig",
 ]
 
@@ -149,6 +151,9 @@ STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "static_files")]
 
+
+MEDIA_URL = "/media/"  # URL path for accessing media files
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")  # Directory to store uploaded files
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

@@ -2,6 +2,7 @@ import json
 import uuid
 from typing import Dict
 
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.generics import CreateAPIView, RetrieveAPIView, UpdateAPIView
 from rest_framework.request import Request
@@ -18,7 +19,8 @@ from iam.serializers import (
     LoginOTPVerifyResponseSerializer,
     LoginResponseSerializer,
     LoginSerializer,
-    SignupSerializer,
+    SignupRequestSerializer,
+    SignupResponseSerializer,
     SignupVerifySerializer,
 )
 from iam.utils import create_token_for_iamuser, generate_otp
@@ -56,8 +58,12 @@ class Login(APIView):
 
 
 class Signup(APIView):
-    serializer_class = SignupSerializer
+    serializer_class = SignupRequestSerializer
 
+    @extend_schema(
+        request=SignupRequestSerializer,
+        responses={201: SignupResponseSerializer},
+    )
     def post(self, request: Request) -> Response:
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -78,19 +84,23 @@ class Signup(APIView):
             text=f"Your OTP is {otp}",
         )
 
-        return Response(status=status.HTTP_201_CREATED, data={"request_id": signup_id})
+        return Response(
+            status=status.HTTP_201_CREATED,
+            data=SignupResponseSerializer({"request_id": signup_id}).data,
+        )
 
 
 class VerifySignup(APIView):
     serializer_class = SignupVerifySerializer
 
     def post(self, request: Request) -> Response:
-        serialzier = self.serializer_class(data=request.data)
-        serialzier.is_valid(raise_exception=True)
-        redis_key = f"signup::{serialzier.validated_data['request_id']}"
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        redis_key = f"signup::{serializer.validated_data['request_id']}"
         if redis_data := redis_client.get(redis_key):
             redis_data = json.loads(redis_data)
-            if serialzier.validated_data["otp"] == redis_data["otp"]:
+
+            if serializer.validated_data["otp"] == redis_data["otp"]:
                 user_id = IamUser.objects.create(
                     email=redis_data["email"],
                     password=redis_data["password"],
