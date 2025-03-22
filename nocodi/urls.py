@@ -28,14 +28,14 @@ from nocodi.views import LivenessView
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("liveness/", LivenessView.as_view(), name="liveness"),
-    path("api-doc/schema", SpectacularAPIView.as_view(), name="schema"),
+    path("api-doc/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
-        "api-doc/swagger",
+        "api-doc/swagger/",
         SpectacularSwaggerView.as_view(url_name="schema"),
         name="swagger-ui",
     ),
     path(
-        "api-doc/redoc",
+        "api-doc/redoc/",
         SpectacularRedocView.as_view(url_name="schema"),
         name="redoc-ui",
     ),
