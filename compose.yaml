@@ -2,8 +2,6 @@ services:
   redis:
     image: redis:7
     command: ["redis-server"]
-    ports:
-      - "6380:6379"
   db:
     image: postgres:16
     env_file: /etc/nocodi/backend/.env
