@@ -29,12 +29,12 @@ class Component(models.Model):
     object_id = models.PositiveIntegerField(null=True, blank=True)
     related_to_main = GenericForeignKey("content_type", "object_id")
 
-    prev_component = models.ForeignKey(
+    next_component = models.ForeignKey(
         "flow.Component",
         on_delete=models.CASCADE,
         null=True,
         blank=True,
-        related_name="next_component",
+        related_name="nextcomponent",
     )
 
     position_x = models.FloatField(null=False, blank=False)
