@@ -8,6 +8,12 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  migration:
+    build: .
+    container_name: django_migration
+    env_file: /etc/nocodi/backend/.env
+    command: python manage.py migrate
+
   backend:
     build: .
     container_name: django_backend

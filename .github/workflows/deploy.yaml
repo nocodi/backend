@@ -42,7 +42,7 @@ jobs:
             set +x
             cd /opt/nocodi_backend
             git pull
-            docker compose -f compose.yaml up -d --build
+            docker compose -f compose.yaml up -d --build --no-deps migration backend
       - name: notify
         run: |
           message="🚀Nocodi backend deployed"
