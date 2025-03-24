@@ -27,6 +27,8 @@ from iam.serializers import (
 from iam.utils import create_token_for_iamuser, generate_otp
 from utils.redis import redis_client
 
+logger = logging.getLogger(__name__)
+
 
 class Login(APIView):
     serializer_class = LoginSerializer
@@ -86,7 +88,7 @@ class Signup(APIView):
                 text=f"Your OTP is {otp}",
             )
         except Exception as e:
-            print("cant send otp", e)
+            logger.error("cant send otp", e)
 
         return Response(
             status=status.HTTP_201_CREATED,
@@ -143,7 +145,7 @@ class OTPLoginSend(APIView):
                 text=f"Your OTP is {otp}",
             )
         except Exception as e:
-            print("cant send otp", e)
+            logger.error("cant send otp", e)
 
         return Response(
             status=status.HTTP_200_OK,
