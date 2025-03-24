@@ -3,6 +3,7 @@ import smtplib
 from abc import ABC, abstractmethod
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from typing import Optional
 
 from django.conf import settings
 
@@ -22,11 +23,16 @@ class SMTPClient(EmailClient):
     def __init__(self, from_email: str, password: str):
         self.from_email = from_email
         self.password = password
+        self.__conn: Optional[smtplib.SMTP] = None
 
-        self._server = smtplib.SMTP(self.SMTP_HOST, self.SMTP_PORT)
-        self._server.starttls()  # Upgrade the connection to secure
-        self._server.login(self.from_email, self.password)  # Authenticate
+    @property
+    def conn(self) -> smtplib.SMTP:
+        if self.__conn is None or self.__conn.noop()[0] != 250:
+            self.__conn = smtplib.SMTP(self.SMTP_HOST, self.SMTP_PORT)
+            self.__conn.starttls()  # Upgrade the connection to secure
+            self.__conn.login(self.from_email, self.password)  # Authenticate
         logger.info("SMTP connection established.")
+        return self.__conn
 
     def send(self, target: str, subject: str, text: str) -> None:
         msg = MIMEMultipart()
@@ -37,7 +43,7 @@ class SMTPClient(EmailClient):
 
         try:
             # Send the email using the existing connection
-            self._server.sendmail(self.from_email, target, msg.as_string())
+            self.conn.sendmail(self.from_email, target, msg.as_string())
             logger.info(f"Email sent to {target} with subject '{subject}'")
         except Exception as e:
             logger.error(f"Failed to send email: {e}")
@@ -46,7 +52,7 @@ class SMTPClient(EmailClient):
     def close(self) -> None:
         """Close the SMTP connection."""
         try:
-            self._server.quit()
+            self.conn.quit()
             logger.info("SMTP connection closed.")
         except Exception as e:
             logger.error(f"Failed to close SMTP connection: {e}")
