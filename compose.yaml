@@ -7,11 +7,27 @@ services:
     env_file: /etc/nocodi/backend/.env
     volumes:
       - postgres_data:/var/lib/postgresql/data
-  service:
+
+  backend:
     build: .
+    container_name: django_backend
     env_file: /etc/nocodi/backend/.env
+    expose:
+      - "8000"
+    volumes:
+      - static_volume:/src/staticfiles
+
+  nginx:
+    image: nginx:1.27
+    container_name: nginx_proxy
     ports:
-    - "4001:8000"
+      - "4001:80"
+    depends_on:
+      - backend
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - static_volume:/staticfiles:ro
 
 volumes:
   postgres_data:
+  static_volume:

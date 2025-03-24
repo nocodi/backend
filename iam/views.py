@@ -1,4 +1,5 @@
 import json
+import logging
 import uuid
 from typing import Dict
 
@@ -78,11 +79,14 @@ class Signup(APIView):
         signup_id = str(uuid.uuid4())
         redis_client.set(f"signup::{signup_id}", redis_data_str, ex=120)
 
-        email_client.send(
-            target=data["email"],
-            subject="Your OTP for signup",
-            text=f"Your OTP is {otp}",
-        )
+        try:
+            email_client.send(
+                target=data["email"],
+                subject="Your OTP for signup",
+                text=f"Your OTP is {otp}",
+            )
+        except Exception as e:
+            print("cant send otp", e)
 
         return Response(
             status=status.HTTP_201_CREATED,
@@ -132,16 +136,21 @@ class OTPLoginSend(APIView):
         redis_key = f"login::otp::{request_id}"
 
         redis_client.set(redis_key, redis_data_str, ex=120)
-        email_client.send(
-            target=data["email"],
-            subject="Your OTP for login",
-            text=f"Your OTP is {otp}",
-        )
+        try:
+            email_client.send(
+                target=data["email"],
+                subject="Your OTP for login",
+                text=f"Your OTP is {otp}",
+            )
+        except Exception as e:
+            print("cant send otp", e)
+
         return Response(
             status=status.HTTP_200_OK,
             data=LoginOTPSendResponseSerializer(
                 {
                     "request_id": request_id,
+                    "otp": f"Your OTP is {otp}",
                 },
             ).data,
         )

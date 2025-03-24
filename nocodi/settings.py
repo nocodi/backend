@@ -34,6 +34,12 @@ DEBUG = env("DEBUG", default=False)
 
 ALLOWED_HOSTS: List[str] = ["api.nocodi.ir", "localhost", "127.0.0.1"]
 
+CORS_ALLOW_ALL_ORIGINS = env("CORS_ALLOW_ALL_ORIGINS", default=True)
+
+CSRF_TRUSTED_ORIGINS: List[str] = [
+    "https://api.nocodi.ir",
+    "http://api.nocodi.ir",
+]
 
 # Application definition
 
@@ -48,6 +54,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_spectacular",
     "rest_framework",
+    "corsheaders",
     "iam.apps.IamConfig",
     "bot.apps.BotConfig",
     "component.apps.ComponentConfig",
@@ -55,6 +62,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -149,7 +157,6 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "static_files")]
 
 
 MEDIA_URL = "/media/"  # URL path for accessing media files
