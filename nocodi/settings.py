@@ -70,6 +70,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "iam.middleware.JWTAuthMiddleware",
+    "nocodi.middleware.CacheMiddleware",
 ]
 
 ROOT_URLCONF = "nocodi.urls"
@@ -179,3 +180,4 @@ SMTP_PASSWORD = env("SMTP_PASSWORD", default="password").replace("-", " ")
 TESTING = sys.argv[1:2] == ["test"]
 
 APPEND_SLASH = True
+STATIC_CACHE_PATHS = env("STATIC_CACHE_PATHS", default="/api-doc/schema/").split(",")
