@@ -16,6 +16,7 @@ class FlowSerializer(serializers.ModelSerializer):
 class ContentTypeSerializer(serializers.ModelSerializer):
     schema = serializers.SerializerMethodField()
     path = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
 
     def get_schema(self, obj: ContentType) -> dict:
         model_class = obj.model_class()
@@ -41,9 +42,12 @@ class ContentTypeSerializer(serializers.ModelSerializer):
 
         return f"{base_url}/component/{slugified_name}/"
 
+    def get_description(self, obj: ContentType) -> str:
+        return obj.model_class().__doc__
+
     class Meta:
         model = ContentType
-        fields = ["id", "name", "path", "schema"]
+        fields = ["id", "name", "description", "path", "schema"]
 
 
 class ComponentSerializer(serializers.ModelSerializer):
