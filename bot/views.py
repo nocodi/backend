@@ -25,7 +25,7 @@ class CreateBotView(APIView):
             user=request.iam_user,
             name=data["name"],
             description=data["description"],
-            bot_token=data["token"],
+            token=data["token"],
         )
         return Response(
             status=201,
