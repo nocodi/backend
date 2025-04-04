@@ -6,6 +6,7 @@ from rest_framework.exceptions import ValidationError as DRFValidationError
 
 from flow.models import Component, Flow
 
+
 class ComponentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Component
@@ -17,7 +18,6 @@ class ComponentSerializer(serializers.ModelSerializer):
         try:
             return super().save(**kwargs)
         except ValidationError as e:
-            print(e)
             raise DRFValidationError({"object_id": str(e.messages[0])})
 
 
@@ -64,18 +64,3 @@ class ContentTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContentType
         fields = ["id", "name", "description", "path", "schema"]
-
-
-class ComponentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Component
-        # depth = 1
-        fields = "__all__"
-
-    def save(self, **kwargs) -> None:  # type: ignore
-        """Ensure that save() errors are returned as user errors instead of internal errors."""
-        try:
-            return super().save(**kwargs)
-        except ValidationError as e:
-            print(e)
-            raise DRFValidationError({"object_id": str(e.messages[0])})
