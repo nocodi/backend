@@ -1,7 +1,8 @@
 from django.urls import path
 
-from bot.views import MyBot
+from bot.views import CreateBotView, MyBots
 
 urlpatterns = [
-    path("my-bots/", MyBot.as_view(), name="my_bots"),
+    path("create-bot/", CreateBotView.as_view(), name="create-bot"),
+    path("my-bots/", MyBots.as_view(), name="my_bots"),
 ]
