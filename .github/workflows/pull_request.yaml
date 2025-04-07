@@ -15,7 +15,7 @@ jobs:
           to: ${{ secrets.TGCHAT_ID }}
           token: ${{ secrets.TGBOT_TOKEN }}
           message: |
-            📢 PR ${{ github.event.action | capitalize }}: ${{ github.event.pull_request.title }}
+            📢 PR ${{ github.event.pull_request.title }}
             ━━━━━━━━━━━━━━━━━
             � Repository: ${{ github.repository }}
             #️⃣ Number: #${{ github.event.pull_request.number }}
