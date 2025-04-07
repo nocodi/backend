@@ -64,7 +64,7 @@ class AuthTest(TestCase):
                 "Authorization": "",
             },
         )
-        self.assertEqual(res.status_code, 403, res.content)
+        self.assertEqual(res.status_code, 401, res.content)
 
         res = self.client.post(
             path=reverse("iam:login"),
@@ -153,7 +153,7 @@ class AuthTest(TestCase):
             },
             content_type="application/json",
         )
-        self.assertEqual(res.status_code, 403, res.content)
+        self.assertEqual(res.status_code, 401, res.content)
 
         res = self.client.put(
             path=reverse("iam:update_password"),
