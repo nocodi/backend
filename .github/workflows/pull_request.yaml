@@ -9,34 +9,9 @@ jobs:
     environment:  SE shared
     runs-on: ubuntu-latest
     steps:
-      - name: Send Telegram notification
-        uses: appleboy/telegram-action@master
-        with:
-          to: ${{ secrets.TGCHAT_ID }}
-          token: ${{ secrets.TGBOT_TOKEN }}
-          message: |
-            📢 PR ${{ github.event.pull_request.title }}
-            ━━━━━━━━━━━━━━━━━
-            � Repository: ${{ github.repository }}
-            #️⃣ Number: #${{ github.event.pull_request.number }}
-            👤 Author: @${{ github.event.pull_request.user.login }}
-            🔗 URL: ${{ github.event.pull_request.html_url }}
-            🏷 State: ${{ github.event.pull_request.state }}
-            🎯 Merged: ${{ github.event.pull_request.merged }}
-          message_thread_id: ${{ secrets.TG_PR_MESSAGE_THREAD_ID || '' }}
       - name: notify
         run: |
-# 🚀 مرج ریکوئست جدید
-# ✍️ عنوان: fix(samasa): Fixes dealdine
-# 📂 پروژه: samasa-backend
-# 👤 ایجادکننده: @irania9o
-# 📅 تاریخ: 2025-03-30 23:11:28 +0330
-# ⚙️ وضعیت: closed
-# 📜 توضیحات:
-# 👥 بازبینی‌کنندگان:
-
-# 🔗 لینک مرج ریکوئست:
-          message="🚀 New PR"
+          message="🚀 New PR Update"
           message="$message\n✍️ Title: ${{ github.event.pull_request.title }}"
           message="$message\n📂 Repository: ${{ github.event.repository.name }}"
           message="$message\n👤 Author: @${{ github.event.pull_request.user.login }}"
