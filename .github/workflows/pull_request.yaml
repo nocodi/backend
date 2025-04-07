@@ -1,0 +1,26 @@
+name: Notify Telegram on Pull Request
+
+on:
+  pull_request:
+    types: [opened, reopened, closed, merged]
+
+jobs:
+  notify-telegram:
+    environment:  SE shared
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Telegram notification
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TGCHAT_ID }}
+          token: ${{ secrets.TGBOT_TOKEN }}
+          message: |
+            📢 PR ${{ github.event.action | capitalize }}: ${{ github.event.pull_request.title }}
+            ━━━━━━━━━━━━━━━━━
+            � Repository: ${{ github.repository }}
+            #️⃣ Number: #${{ github.event.pull_request.number }}
+            👤 Author: @${{ github.event.pull_request.user.login }}
+            🔗 URL: ${{ github.event.pull_request.html_url }}
+            🏷 State: ${{ github.event.pull_request.state }}
+            🎯 Merged: ${{ github.event.pull_request.merged }}
+          message_thread_id: ${{ secrets.TG_PR_MESSAGE_THREAD_ID || '' }}
