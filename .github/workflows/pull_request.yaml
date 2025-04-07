@@ -24,3 +24,27 @@ jobs:
             🏷 State: ${{ github.event.pull_request.state }}
             🎯 Merged: ${{ github.event.pull_request.merged }}
           message_thread_id: ${{ secrets.TG_PR_MESSAGE_THREAD_ID || '' }}
+      - name: notify
+        run: |
+# 🚀 مرج ریکوئست جدید
+# ✍️ عنوان: fix(samasa): Fixes dealdine
+# 📂 پروژه: samasa-backend
+# 👤 ایجادکننده: @irania9o
+# 📅 تاریخ: 2025-03-30 23:11:28 +0330
+# ⚙️ وضعیت: closed
+# 📜 توضیحات:
+# 👥 بازبینی‌کنندگان:
+
+# 🔗 لینک مرج ریکوئست:
+          message="🚀 New PR"
+          message="$message\n✍️ Title: ${{ github.event.pull_request.title }}"
+          message="$message\n📂 Repository: ${{ github.event.repository.name }}"
+          message="$message\n👤 Author: @${{ github.event.pull_request.user.login }}"
+          message="$message\n📅 Date: ${{ github.event.pull_request.created_at }}"
+          message="$message\n⚙️ Status: ${{ github.event.action }}"
+          message="$message\n📜 Description: ${{ github.event.pull_request.body }}"
+          message="$message\n🔍 Reviewers: ${{ github.event.pull_request.requested_reviewers }}"
+          message="$message\n🔗 PR Link: ${{ github.event.pull_request.html_url }}"
+          curl -s https://api.telegram.org/bot${{ secrets.TGBOT_TOKEN }}/sendMessage \
+          -d "{\"chat_id\":\"${{ secrets.TGCHAT_ID }}\", \"message_thread_id\": \"${{ secrets.TG_PR_MESSAGE_THREAD_ID }}\", \"text\": \"$message\"}" \
+              -H 'Content-Type: Application/Json'
