@@ -32,7 +32,7 @@ SECRET_KEY = "django-insecure-)+e)1io38_l%_x0^!54n3wcfxq23%igr8p!&l89ns&mjmmtjie
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env("DEBUG", default=False)
 
-ALLOWED_HOSTS: List[str] = ["api.nocodi.ir", "localhost", "127.0.0.1"]
+ALLOWED_HOSTS: List[str] = ["api.nocodi.ir", "localhost", "127.0.0.1", "backend"]
 
 CORS_ALLOW_ALL_ORIGINS = env("CORS_ALLOW_ALL_ORIGINS", default=True)
 
