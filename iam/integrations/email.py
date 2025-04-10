@@ -27,7 +27,7 @@ class SMTPClient(EmailClient):
 
     @property
     def conn(self) -> smtplib.SMTP:
-        if self.__conn is None or self.__conn.noop()[0] != 250:
+        if True or self.__conn is None or self.__conn.noop()[0] != 250:
             self.__conn = smtplib.SMTP(self.SMTP_HOST, self.SMTP_PORT)
             self.__conn.starttls()  # Upgrade the connection to secure
             self.__conn.login(self.from_email, self.password)  # Authenticate
