@@ -152,7 +152,6 @@ class OTPLoginSend(APIView):
             data=LoginOTPSendResponseSerializer(
                 {
                     "request_id": request_id,
-                    "otp": f"Your OTP is {otp}",
                 },
             ).data,
         )

@@ -40,7 +40,6 @@ class LoginOTPSendRequestSerializer(serializers.Serializer):
 
 class LoginOTPSendResponseSerializer(serializers.Serializer):
     request_id = serializers.UUIDField()
-    otp = serializers.CharField()
 
 
 class LoginOTPVerifyResponseSerializer(serializers.Serializer):
