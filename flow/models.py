@@ -21,6 +21,7 @@ BOT_MODELS = [
 
 class Component(models.Model):
     name = models.CharField(max_length=255)
+    bot = models.ForeignKey("bot.Bot", on_delete=models.CASCADE)
     content_type = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE,
@@ -42,23 +43,6 @@ class Component(models.Model):
 
     def __str__(self) -> str:
         return self.name
-
-    def clean(self) -> None:
-        """Validate object_id belongs to content_type"""
-        if self.object_id is None:
-            return
-        model_class = self.content_type.model_class()
-        if (
-            model_class is None
-            or not model_class.objects.filter(id=self.object_id).exists()
-        ):
-            raise ValidationError(
-                f"Invalid object_id {self.object_id} for {self.content_type}.",
-            )
-
-    def save(self, *args, **kwargs) -> None:  # type: ignore
-        self.clean()  # Ensure validation before saving
-        super().save(*args, **kwargs)
 
 
 class Terminal(models.Model):
