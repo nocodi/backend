@@ -11,13 +11,14 @@ from iam.permissions import IsLoginedPermission
 
 
 class FlowViewSet(ModelViewSet):
+    permission_classes = [IsLoginedPermission]
     serializer_class = FlowSerializer
     queryset = Flow.objects.all()
 
 
 class FlowListViewSet(ListAPIView):
-    serializer_class = FlowSerializer
     permission_classes = [IsLoginedPermission]
+    serializer_class = FlowSerializer
 
     def get_queryset(self) -> QuerySet:
         bot_id = self.kwargs.get("bot_id")
@@ -33,6 +34,7 @@ class FlowListViewSet(ListAPIView):
 
 
 class ComponentViewSet(ModelViewSet):
+    permission_classes = [IsLoginedPermission]
     serializer_class = ComponentSerializer
     queryset = Component.objects.all()
 
