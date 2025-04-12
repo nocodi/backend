@@ -33,7 +33,7 @@ class ComponentSerializer(serializers.ModelSerializer):
             )
 
         try:
-            model_class = ContentType.objects.get(id=content_type).model_class()
+            model_class = ContentType.objects.get(id=content_type.id).model_class()
         except ContentType.DoesNotExist:
             raise serializers.ValidationError("Invalid content_type.")
 
