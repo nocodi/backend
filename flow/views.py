@@ -1,42 +1,42 @@
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q, QuerySet
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.generics import ListAPIView
 from rest_framework.viewsets import ModelViewSet
 
 from bot.models import Bot
+from bot.permissions import IsBotOwner
 from flow.models import Component, Flow
 from flow.serializers import ComponentSerializer, ContentTypeSerializer, FlowSerializer
 from iam.permissions import IsLoginedPermission
 
 
 class FlowViewSet(ModelViewSet):
-    permission_classes = [IsLoginedPermission]
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = FlowSerializer
-    queryset = Flow.objects.all()
-
-
-class FlowListViewSet(ListAPIView):
-    permission_classes = [IsLoginedPermission]
-    serializer_class = FlowSerializer
+    queryset = Flow.objects.none()
 
     def get_queryset(self) -> QuerySet:
-        bot_id = self.kwargs.get("bot_id")
-        if not bot_id:
-            raise PermissionDenied("Bot ID is required.")
+        return Flow.objects.filter(bot=self.kwargs.get("bot"))
 
-        try:
-            bot = Bot.objects.get(id=bot_id, user=self.request.iam_user)
-        except Bot.DoesNotExist:
-            raise PermissionDenied("You do not have access to this bot.")
-
-        return Flow.objects.filter(bot=bot)
+    def get_serializer_context(self) -> dict:
+        context = super().get_serializer_context()
+        context["bot"] = self.kwargs.get("bot")
+        return context
 
 
 class ComponentViewSet(ModelViewSet):
-    permission_classes = [IsLoginedPermission]
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = ComponentSerializer
-    queryset = Component.objects.all()
+    queryset = Component.objects.none()
+
+    def get_queryset(self) -> QuerySet:
+        return Component.objects.filter(bot_id=self.kwargs.get("bot"))
+
+    def get_serializer_context(self) -> dict:
+        context = super().get_serializer_context()
+        context["bot"] = self.kwargs.get("bot")
+        return context
 
 
 class ContentTypeListView(ListAPIView):

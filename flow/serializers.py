@@ -9,21 +9,12 @@ from flow.models import Component, Flow
 
 
 class ComponentSerializer(serializers.ModelSerializer):
-    bot = serializers.IntegerField(source="bot_id")
     content_type = serializers.IntegerField(source="content_type_id")
     next_component = serializers.IntegerField(
         source="next_component_id",
         required=False,
         default=None,
     )
-
-    def validate_bot(self, value: int) -> int:
-        """Ensure that the bot belongs to the user."""
-        try:
-            Bot.objects.get(id=value, user=self.context["request"].iam_user)
-        except Bot.DoesNotExist:
-            raise serializers.ValidationError("You do not have access to this bot.")
-        return value
 
     def validate_object_id(self, value: int) -> int:
         """Validate that the object_id exists and belongs to the given content_type."""
@@ -34,7 +25,7 @@ class ComponentSerializer(serializers.ModelSerializer):
             self.instance,
             "content_type",
             None,
-        ) or self.initial_data.get("content_type", None)
+        ) or getattr(self.initial_data, "content_type", None)
 
         if not content_type:
             raise serializers.ValidationError(
@@ -65,7 +56,8 @@ class ComponentSerializer(serializers.ModelSerializer):
             )
 
         # Get bot from context or instance
-        current_bot = getattr(self.instance, "bot", None) or self.initial_data.get(
+        current_bot = getattr(self.instance, "bot", None) or getattr(
+            self.initial_data,
             "bot",
             None,
         )
@@ -84,20 +76,44 @@ class ComponentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Component
-        depth = 10
-        fields = "__all__"
+        exclude = ["bot"]
+
+    def create(self, validated_data: dict) -> Component:
+        validated_data["bot_id"] = self.context.get("bot")
+        return super().create(validated_data)
 
     def update(self, instance: Component, validated_data: dict) -> Component:
         validated_data.pop("content_type_id", None)
         return super().update(instance, validated_data)
 
 
+class RecursiveComponentSerializer(serializers.ModelSerializer):
+    next_component = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Component
+        exclude = ["bot"]  # explicitly exclude 'bot'
+
+    def get_next_component(self, obj: Component) -> dict:
+        if obj.next_component:
+            return RecursiveComponentSerializer(
+                obj.next_component,
+                context=self.context,
+            ).data
+        return {}
+
+
 class FlowSerializer(serializers.ModelSerializer):
-    start_component = ComponentSerializer()
+    start_component = RecursiveComponentSerializer(read_only=True)
+    start = serializers.IntegerField(source="start_component_id", write_only=True)
 
     class Meta:
         model = Flow
-        fields = ["bot", "start_component"]
+        fields = ["id", "start_component", "start"]
+
+    def create(self, validated_data: dict) -> Flow:
+        validated_data["bot_id"] = self.context.get("bot")
+        return super().create(validated_data)
 
 
 class ContentTypeSerializer(serializers.ModelSerializer):
