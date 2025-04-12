@@ -862,3 +862,10 @@ class SwitchComponentSerializer(serializers.ModelSerializer):
         model = SwithComponent
         depth = 1
         fields = "__all__"
+
+
+class CodeComponentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CodeComponent
+        depth = 1
+        fields = "__all__"
