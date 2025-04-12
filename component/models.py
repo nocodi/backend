@@ -2,6 +2,10 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
 
+class Component(models.Model):
+    pass
+
+
 class TelegramComponent(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
@@ -3203,3 +3207,15 @@ class SetGameScore(TelegramComponent):
         blank=True,
         help_text="Required if chat_id and message_id are not specified. Identifier of the inline message",
     )
+
+
+class IfComponent(Component):
+    class Condition(models.TextChoices):
+        Equal = "Equal"
+        Contains = "Contains"
+        Greater = "Greater"
+        GreaterEqual = "GreaterEqual"
+
+    expression = models.CharField(max_length=1024)
+    condition = models.CharField(max_length=40, choices=Condition.choices)
+    is_reverse = models.BooleanField(default=False)
