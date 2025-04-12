@@ -68,7 +68,7 @@ class MockEmailClient(SMTPClient):
 
 
 email_client: EmailClient
-if settings.TESTING or settings.DEBUG:
+if settings.TESTING:
     email_client = MockEmailClient()
 else:
     email_client = SMTPClient(
