@@ -855,3 +855,10 @@ class IfComponentSerializer(serializers.ModelSerializer):
         model = IfComponent
         depth = 1
         fields = "__all__"
+
+
+class SwitchComponentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SwithComponent
+        depth = 1
+        fields = "__all__"

@@ -3215,3 +3215,8 @@ class IfComponent(Component):
     expression = models.CharField(max_length=1024)
     condition = models.CharField(max_length=40, choices=Condition.choices)
     is_reverse = models.BooleanField(default=False)
+
+
+class SwithComponent(Component):
+    expression = models.CharField(max_length=1024)
+    values = ArrayField(models.CharField(max_length=1024))
