@@ -848,3 +848,24 @@ class SetGameScoreSerializer(serializers.ModelSerializer):
         model = SetGameScore
         depth = 1
         fields = "__all__"
+
+
+class IfComponentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = IfComponent
+        depth = 1
+        fields = "__all__"
+
+
+class SwitchComponentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SwitchComponent
+        depth = 1
+        fields = "__all__"
+
+
+class CodeComponentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CodeComponent
+        depth = 1
+        fields = "__all__"

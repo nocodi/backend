@@ -606,3 +606,18 @@ class SendGameViewSet(ModelViewSet):
 class SetGameScoreViewSet(ModelViewSet):
     serializer_class = SetGameScoreSerializer
     queryset = SetGameScore.objects.all()
+
+
+class IfComponentSet(ModelViewSet):
+    serializer_class = IfComponentSerializer
+    queryset = IfComponent.objects.all()
+
+
+class SwitchComponentSet(ModelViewSet):
+    serializer_class = SwitchComponentSerializer
+    queryset = SwitchComponent.objects.all()
+
+
+class CodeComponentSet(ModelViewSet):
+    serializer_class = CodeComponent
+    queryset = CodeComponent.objects.all()
