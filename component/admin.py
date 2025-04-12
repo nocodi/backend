@@ -1,7 +1,7 @@
 from django.apps import apps
 from django.contrib import admin
 
-from component.models import SendMessage, SendPhoto, TelegramComponent
+from component.models import Component, SendMessage, SendPhoto
 
 app = apps.get_app_config("component")
 
@@ -9,6 +9,6 @@ app = apps.get_app_config("component")
 #     admin.site.register(model)
 
 
-admin.site.register(TelegramComponent)
+admin.site.register(Component)
 admin.site.register(SendMessage)
 admin.site.register(SendPhoto)

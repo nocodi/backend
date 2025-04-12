@@ -3,17 +3,13 @@ from django.db import models
 
 
 class Component(models.Model):
-    pass
-
-
-class TelegramComponent(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         pass
 
 
-class SendMessage(TelegramComponent):
+class SendMessage(Component):
     """Use this method to send text messages. On success, the sent Message is returned."""
 
     business_connection_id = models.CharField(
@@ -64,7 +60,7 @@ class SendMessage(TelegramComponent):
     )
 
 
-class ForwardMessage(TelegramComponent):
+class ForwardMessage(Component):
     """Use this method to forward messages of any kind. Service messages and messages with protected content can't be forwarded. On success, the sent Message is returned."""
 
     chat_id = models.CharField(
@@ -104,7 +100,7 @@ class ForwardMessage(TelegramComponent):
     )
 
 
-class ForwardMessages(TelegramComponent):
+class ForwardMessages(Component):
     """Use this method to forward multiple messages of any kind. If some of the specified messages can't be found or forwarded, they are skipped. Service messages and messages with protected content can't be forwarded. Album grouping is kept for forwarded messages. On success, an array of MessageId of the sent messages is returned."""
 
     chat_id = models.CharField(
@@ -141,7 +137,7 @@ class ForwardMessages(TelegramComponent):
     )
 
 
-class CopyMessage(TelegramComponent):
+class CopyMessage(Component):
     """Use this method to copy messages of any kind. Service messages, paid media messages, giveaway messages, giveaway winners messages, and invoice messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_id is known to the bot. The method is analogous to the method forwardMessage, but the copied message doesn't have a link to the original message. Returns the MessageId of the sent message on success."""
 
     chat_id = models.CharField(
@@ -202,7 +198,7 @@ class CopyMessage(TelegramComponent):
     )
 
 
-class CopyMessages(TelegramComponent):
+class CopyMessages(Component):
     """Use this method to copy messages of any kind. If some of the specified messages can't be found or copied, they are skipped. Service messages, paid media messages, giveaway messages, giveaway winners messages, and invoice messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_id is known to the bot. The method is analogous to the method forwardMessages, but the copied messages don't have a link to the original message. Album grouping is kept for copied messages. On success, an array of MessageId of the sent messages is returned."""
 
     chat_id = models.CharField(
@@ -244,7 +240,7 @@ class CopyMessages(TelegramComponent):
     )
 
 
-class SendPhoto(TelegramComponent):
+class SendPhoto(Component):
     """Use this method to send photos. On success, the sent Message is returned."""
 
     business_connection_id = models.CharField(
@@ -311,7 +307,7 @@ class SendPhoto(TelegramComponent):
     )
 
 
-class SendDocument(TelegramComponent):
+class SendDocument(Component):
     """Use this method to send general files. On success, the sent Message is returned. Bots can currently send files of any type of up to 50 MB in size, this limit may be changed in the future."""
 
     business_connection_id = models.CharField(
@@ -379,7 +375,7 @@ class SendDocument(TelegramComponent):
     )
 
 
-class SendVideo(TelegramComponent):
+class SendVideo(Component):
     """Use this method to send video files, Telegram clients support MPEG4 videos (other formats may be sent as Document). On success, the sent Message is returned. Bots can currently send video files of up to 50 MB in size, this limit may be changed in the future."""
 
     business_connection_id = models.CharField(
@@ -475,7 +471,7 @@ class SendVideo(TelegramComponent):
     )
 
 
-class SendAnimation(TelegramComponent):
+class SendAnimation(Component):
     """Use this method to send animation files (GIF or H.264/MPEG-4 AVC video without sound). On success, the sent Message is returned. Bots can currently send animation files of up to 50 MB in size, this limit may be changed in the future."""
 
     business_connection_id = models.CharField(
@@ -555,7 +551,7 @@ class SendAnimation(TelegramComponent):
     )
 
 
-class SendVoice(TelegramComponent):
+class SendVoice(Component):
     """Use this method to send audio files, if you want Telegram clients to display the file as a playable voice message. For this to work, your audio must be in an .OGG file encoded with OPUS, or in .MP3 format, or in .M4A format (other formats may be sent as Audio or Document). On success, the sent Message is returned. Bots can currently send voice messages of up to 50 MB in size, this limit may be changed in the future."""
 
     business_connection_id = models.CharField(
@@ -617,7 +613,7 @@ class SendVoice(TelegramComponent):
     )
 
 
-class SendVideoNote(TelegramComponent):
+class SendVideoNote(Component):
     """As of v.4.0, Telegram clients support rounded square MPEG4 videos of up to 1 minute long. Use this method to send video messages. On success, the sent Message is returned."""
 
     business_connection_id = models.CharField(
@@ -679,7 +675,7 @@ class SendVideoNote(TelegramComponent):
     )
 
 
-class SendPaidMedia(TelegramComponent):
+class SendPaidMedia(Component):
     """Use this method to send paid media. On success, the sent Message is returned."""
 
     business_connection_id = models.CharField(
@@ -735,7 +731,7 @@ class SendPaidMedia(TelegramComponent):
     )
 
 
-class SendMediaGroup(TelegramComponent):
+class SendMediaGroup(Component):
     """Use this method to send a group of photos, videos, documents or audios as an album. Documents and audio files can be only grouped in an album with messages of the same type. On success, an array of Messages that were sent is returned."""
 
     business_connection_id = models.CharField(
@@ -775,7 +771,7 @@ class SendMediaGroup(TelegramComponent):
     )
 
 
-class SendLocation(TelegramComponent):
+class SendLocation(Component):
     """Use this method to send point on the map. On success, the sent Message is returned."""
 
     business_connection_id = models.CharField(
@@ -845,7 +841,7 @@ class SendLocation(TelegramComponent):
     )
 
 
-class SendVenue(TelegramComponent):
+class SendVenue(Component):
     """Use this method to send information about a venue. On success, the sent Message is returned."""
 
     business_connection_id = models.CharField(
@@ -921,7 +917,7 @@ class SendVenue(TelegramComponent):
     )
 
 
-class SendContact(TelegramComponent):
+class SendContact(Component):
     """Use this method to send phone contacts. On success, the sent Message is returned."""
 
     business_connection_id = models.CharField(
@@ -977,7 +973,7 @@ class SendContact(TelegramComponent):
     )
 
 
-class SendPoll(TelegramComponent):
+class SendPoll(Component):
     """Use this method to send a native poll. On success, the sent Message is returned."""
 
     business_connection_id = models.CharField(
@@ -1074,7 +1070,7 @@ class SendPoll(TelegramComponent):
     )
 
 
-class SendDice(TelegramComponent):
+class SendDice(Component):
     """Use this method to send an animated emoji that will display a random value. On success, the sent Message is returned."""
 
     business_connection_id = models.CharField(
@@ -1119,7 +1115,7 @@ class SendDice(TelegramComponent):
     )
 
 
-class SetMessageReaction(TelegramComponent):
+class SetMessageReaction(Component):
     """Use this method to change the chosen reactions on a message. Service messages of some types can't be reacted to. Automatically forwarded messages from a channel to its discussion group have the same available reactions as messages in the channel. Bots can't use paid reactions. Returns True on success."""
 
     chat_id = models.CharField(
@@ -1139,7 +1135,7 @@ class SetMessageReaction(TelegramComponent):
     )
 
 
-class GetUserProfilePhotos(TelegramComponent):
+class GetUserProfilePhotos(Component):
     """Use this method to get a list of profile pictures for a user. Returns a UserProfilePhotos object."""
 
     user_id = models.IntegerField(
@@ -1159,7 +1155,7 @@ class GetUserProfilePhotos(TelegramComponent):
     )
 
 
-class SetUserEmojiStatus(TelegramComponent):
+class SetUserEmojiStatus(Component):
     """Changes the emoji status for a given user that previously allowed the bot to manage their emoji status via the Mini App method requestEmojiStatusAccess. Returns True on success."""
 
     user_id = models.IntegerField(
@@ -1179,7 +1175,7 @@ class SetUserEmojiStatus(TelegramComponent):
     )
 
 
-class GetFile(TelegramComponent):
+class GetFile(Component):
     """Use this method to get basic information about a file and prepare it for downloading. For the moment, bots can download files of up to 20MB in size. On success, a File object is returned. The file can then be downloaded via the link https://api.telegram.org/file/bot<token>/<file_path>, where <file_path> is taken from the response. It is guaranteed that the link will be valid for at least 1 hour. When the link expires, a new one can be requested by calling getFile again."""
 
     file_id = models.CharField(
@@ -1189,7 +1185,7 @@ class GetFile(TelegramComponent):
     )
 
 
-class BanChatMember(TelegramComponent):
+class BanChatMember(Component):
     """Use this method to ban a user in a group, a supergroup or a channel. In the case of supergroups and channels, the user will not be able to return to the chat on their own using invite links, etc., unless unbanned first. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns True on success."""
 
     chat_id = models.CharField(
@@ -1214,7 +1210,7 @@ class BanChatMember(TelegramComponent):
     )
 
 
-class UnbanChatMember(TelegramComponent):
+class UnbanChatMember(Component):
     """Use this method to unban a previously banned user in a supergroup or channel. The user will not return to the group or channel automatically, but will be able to join via link, etc. The bot must be an administrator for this to work. By default, this method guarantees that after the call the user is not a member of the chat, but will be able to join it. So if the user is a member of the chat they will also be removed from the chat. If you don't want this, use the parameter only_if_banned. Returns True on success."""
 
     chat_id = models.CharField(
@@ -1234,7 +1230,7 @@ class UnbanChatMember(TelegramComponent):
     )
 
 
-class RestrictChatMember(TelegramComponent):
+class RestrictChatMember(Component):
     """Use this method to restrict a user in a supergroup. The bot must be an administrator in the supergroup for this to work and must have the appropriate administrator rights. Pass True for all permissions to lift restrictions from a user. Returns True on success."""
 
     chat_id = models.CharField(
@@ -1259,7 +1255,7 @@ class RestrictChatMember(TelegramComponent):
     )
 
 
-class PromoteChatMember(TelegramComponent):
+class PromoteChatMember(Component):
     """Use this method to promote or demote a user in a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Pass False for all boolean parameters to demote a user. Returns True on success."""
 
     chat_id = models.CharField(
@@ -1349,7 +1345,7 @@ class PromoteChatMember(TelegramComponent):
     )
 
 
-class SetChatAdministratorCustomTitle(TelegramComponent):
+class SetChatAdministratorCustomTitle(Component):
     """Use this method to set a custom title for an administrator in a supergroup promoted by the bot. Returns True on success."""
 
     chat_id = models.CharField(
@@ -1370,7 +1366,7 @@ class SetChatAdministratorCustomTitle(TelegramComponent):
     )
 
 
-class BanChatSenderChat(TelegramComponent):
+class BanChatSenderChat(Component):
     """Use this method to ban a channel chat in a supergroup or a channel. Until the chat is unbanned, the owner of the banned chat won't be able to send messages on behalf of any of their channels. The bot must be an administrator in the supergroup or channel for this to work and must have the appropriate administrator rights. Returns True on success."""
 
     chat_id = models.CharField(
@@ -1385,7 +1381,7 @@ class BanChatSenderChat(TelegramComponent):
     )
 
 
-class UnbanChatSenderChat(TelegramComponent):
+class UnbanChatSenderChat(Component):
     """Use this method to unban a previously banned channel chat in a supergroup or channel. The bot must be an administrator for this to work and must have the appropriate administrator rights. Returns True on success."""
 
     chat_id = models.CharField(
@@ -1400,7 +1396,7 @@ class UnbanChatSenderChat(TelegramComponent):
     )
 
 
-class SetChatPermissions(TelegramComponent):
+class SetChatPermissions(Component):
     """Use this method to set default chat permissions for all members. The bot must be an administrator in the group or a supergroup for this to work and must have the can_restrict_members administrator rights. Returns True on success."""
 
     chat_id = models.CharField(
@@ -1415,7 +1411,7 @@ class SetChatPermissions(TelegramComponent):
     )
 
 
-class ExportChatInviteLink(TelegramComponent):
+class ExportChatInviteLink(Component):
     """Use this method to generate a new primary invite link for a chat; any previously generated primary link is revoked. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the new invite link as String on success."""
 
     chat_id = models.CharField(
@@ -1425,7 +1421,7 @@ class ExportChatInviteLink(TelegramComponent):
     )
 
 
-class CreateChatInviteLink(TelegramComponent):
+class CreateChatInviteLink(Component):
     """Use this method to create an additional invite link for a chat. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. The link can be revoked using the method revokeChatInviteLink. Returns the new invite link as ChatInviteLink object."""
 
     chat_id = models.CharField(
@@ -1456,7 +1452,7 @@ class CreateChatInviteLink(TelegramComponent):
     )
 
 
-class EditChatInviteLink(TelegramComponent):
+class EditChatInviteLink(Component):
     """Use this method to edit a non-primary invite link created by the bot. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the edited invite link as a ChatInviteLink object."""
 
     chat_id = models.CharField(
@@ -1492,7 +1488,7 @@ class EditChatInviteLink(TelegramComponent):
     )
 
 
-class CreateChatSubscriptionInviteLink(TelegramComponent):
+class CreateChatSubscriptionInviteLink(Component):
     """Use this method to create a subscription invite link for a channel chat. The bot must have the can_invite_users administrator rights. The link can be edited using the method editChatSubscriptionInviteLink or revoked using the method revokeChatInviteLink. Returns the new invite link as a ChatInviteLink object."""
 
     chat_id = models.CharField(
@@ -1518,7 +1514,7 @@ class CreateChatSubscriptionInviteLink(TelegramComponent):
     )
 
 
-class EditChatSubscriptionInviteLink(TelegramComponent):
+class EditChatSubscriptionInviteLink(Component):
     """Use this method to edit a subscription invite link created by the bot. The bot must have the can_invite_users administrator rights. Returns the edited invite link as a ChatInviteLink object."""
 
     chat_id = models.CharField(
@@ -1539,7 +1535,7 @@ class EditChatSubscriptionInviteLink(TelegramComponent):
     )
 
 
-class RevokeChatInviteLink(TelegramComponent):
+class RevokeChatInviteLink(Component):
     """Use this method to revoke an invite link created by the bot. If the primary link is revoked, a new link is automatically generated. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the revoked invite link as ChatInviteLink object."""
 
     chat_id = models.CharField(
@@ -1554,7 +1550,7 @@ class RevokeChatInviteLink(TelegramComponent):
     )
 
 
-class ApproveChatJoinRequest(TelegramComponent):
+class ApproveChatJoinRequest(Component):
     """Use this method to approve a chat join request. The bot must be an administrator in the chat for this to work and must have the can_invite_users administrator right. Returns True on success."""
 
     chat_id = models.CharField(
@@ -1569,7 +1565,7 @@ class ApproveChatJoinRequest(TelegramComponent):
     )
 
 
-class DeclineChatJoinRequest(TelegramComponent):
+class DeclineChatJoinRequest(Component):
     """Use this method to decline a chat join request. The bot must be an administrator in the chat for this to work and must have the can_invite_users administrator right. Returns True on success."""
 
     chat_id = models.CharField(
@@ -1584,7 +1580,7 @@ class DeclineChatJoinRequest(TelegramComponent):
     )
 
 
-class SetChatPhoto(TelegramComponent):
+class SetChatPhoto(Component):
     """Use this method to set a new profile photo for the chat. Photos can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns True on success."""
 
     chat_id = models.CharField(
@@ -1594,7 +1590,7 @@ class SetChatPhoto(TelegramComponent):
     )
 
 
-class DeleteChatPhoto(TelegramComponent):
+class DeleteChatPhoto(Component):
     """Use this method to delete a chat photo. Photos can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns True on success."""
 
     chat_id = models.CharField(
@@ -1604,7 +1600,7 @@ class DeleteChatPhoto(TelegramComponent):
     )
 
 
-class SetChatTitle(TelegramComponent):
+class SetChatTitle(Component):
     """Use this method to change the title of a chat. Titles can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns True on success."""
 
     chat_id = models.CharField(
@@ -1620,7 +1616,7 @@ class SetChatTitle(TelegramComponent):
     )
 
 
-class SetChatDescription(TelegramComponent):
+class SetChatDescription(Component):
     """Use this method to change the description of a group, a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns True on success."""
 
     chat_id = models.CharField(
@@ -1636,7 +1632,7 @@ class SetChatDescription(TelegramComponent):
     )
 
 
-class PinChatMessage(TelegramComponent):
+class PinChatMessage(Component):
     """Use this method to add a message to the list of pinned messages in a chat. If the chat is not a private chat, the bot must be an administrator in the chat for this to work and must have the 'can_pin_messages' administrator right in a supergroup or 'can_edit_messages' administrator right in a channel. Returns True on success."""
 
     business_connection_id = models.CharField(
@@ -1661,7 +1657,7 @@ class PinChatMessage(TelegramComponent):
     )
 
 
-class UnpinChatMessage(TelegramComponent):
+class UnpinChatMessage(Component):
     """Use this method to remove a message from the list of pinned messages in a chat. If the chat is not a private chat, the bot must be an administrator in the chat for this to work and must have the 'can_pin_messages' administrator right in a supergroup or 'can_edit_messages' administrator right in a channel. Returns True on success."""
 
     business_connection_id = models.CharField(
@@ -1681,7 +1677,7 @@ class UnpinChatMessage(TelegramComponent):
     )
 
 
-class UnpinAllChatMessages(TelegramComponent):
+class UnpinAllChatMessages(Component):
     """Use this method to clear the list of pinned messages in a chat. If the chat is not a private chat, the bot must be an administrator in the chat for this to work and must have the 'can_pin_messages' administrator right in a supergroup or 'can_edit_messages' administrator right in a channel. Returns True on success."""
 
     chat_id = models.CharField(
@@ -1691,7 +1687,7 @@ class UnpinAllChatMessages(TelegramComponent):
     )
 
 
-class LeaveChat(TelegramComponent):
+class LeaveChat(Component):
     """Use this method for your bot to leave a group, supergroup or channel. Returns True on success."""
 
     chat_id = models.CharField(
@@ -1701,7 +1697,7 @@ class LeaveChat(TelegramComponent):
     )
 
 
-class GetChat(TelegramComponent):
+class GetChat(Component):
     """Use this method to get up-to-date information about the chat. Returns a ChatFullInfo object on success."""
 
     chat_id = models.CharField(
@@ -1711,7 +1707,7 @@ class GetChat(TelegramComponent):
     )
 
 
-class GetChatAdministrators(TelegramComponent):
+class GetChatAdministrators(Component):
     """Use this method to get a list of administrators in a chat, which aren't bots. Returns an Array of ChatMember objects."""
 
     chat_id = models.CharField(
@@ -1721,7 +1717,7 @@ class GetChatAdministrators(TelegramComponent):
     )
 
 
-class GetChatMemberCount(TelegramComponent):
+class GetChatMemberCount(Component):
     """Use this method to get the number of members in a chat. Returns Int on success."""
 
     chat_id = models.CharField(
@@ -1731,7 +1727,7 @@ class GetChatMemberCount(TelegramComponent):
     )
 
 
-class GetChatMember(TelegramComponent):
+class GetChatMember(Component):
     """Use this method to get information about a member of a chat. The method is only guaranteed to work for other users if the bot is an administrator in the chat. Returns a ChatMember object on success."""
 
     chat_id = models.CharField(
@@ -1746,7 +1742,7 @@ class GetChatMember(TelegramComponent):
     )
 
 
-class SetChatStickerSet(TelegramComponent):
+class SetChatStickerSet(Component):
     """Use this method to set a new group sticker set for a supergroup. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Use the field can_set_sticker_set optionally returned in getChat requests to check if the bot can use this method. Returns True on success."""
 
     chat_id = models.CharField(
@@ -1761,7 +1757,7 @@ class SetChatStickerSet(TelegramComponent):
     )
 
 
-class DeleteChatStickerSet(TelegramComponent):
+class DeleteChatStickerSet(Component):
     """Use this method to delete a group sticker set from a supergroup. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Use the field can_set_sticker_set optionally returned in getChat requests to check if the bot can use this method. Returns True on success."""
 
     chat_id = models.CharField(
@@ -1771,7 +1767,7 @@ class DeleteChatStickerSet(TelegramComponent):
     )
 
 
-class CreateForumTopic(TelegramComponent):
+class CreateForumTopic(Component):
     """Use this method to create a topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights. Returns information about the created topic as a ForumTopic object."""
 
     chat_id = models.CharField(
@@ -1797,7 +1793,7 @@ class CreateForumTopic(TelegramComponent):
     )
 
 
-class EditForumTopic(TelegramComponent):
+class EditForumTopic(Component):
     """Use this method to edit name and icon of a topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights, unless it is the creator of the topic. Returns True on success."""
 
     chat_id = models.CharField(
@@ -1823,7 +1819,7 @@ class EditForumTopic(TelegramComponent):
     )
 
 
-class CloseForumTopic(TelegramComponent):
+class CloseForumTopic(Component):
     """Use this method to close an open topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights, unless it is the creator of the topic. Returns True on success."""
 
     chat_id = models.CharField(
@@ -1838,7 +1834,7 @@ class CloseForumTopic(TelegramComponent):
     )
 
 
-class ReopenForumTopic(TelegramComponent):
+class ReopenForumTopic(Component):
     """Use this method to reopen a closed topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights, unless it is the creator of the topic. Returns True on success."""
 
     chat_id = models.CharField(
@@ -1853,7 +1849,7 @@ class ReopenForumTopic(TelegramComponent):
     )
 
 
-class DeleteForumTopic(TelegramComponent):
+class DeleteForumTopic(Component):
     """Use this method to delete a forum topic along with all its messages in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_delete_messages administrator rights. Returns True on success."""
 
     chat_id = models.CharField(
@@ -1868,7 +1864,7 @@ class DeleteForumTopic(TelegramComponent):
     )
 
 
-class UnpinAllForumTopicMessages(TelegramComponent):
+class UnpinAllForumTopicMessages(Component):
     """Use this method to clear the list of pinned messages in a forum topic. The bot must be an administrator in the chat for this to work and must have the can_pin_messages administrator right in the supergroup. Returns True on success."""
 
     chat_id = models.CharField(
@@ -1883,7 +1879,7 @@ class UnpinAllForumTopicMessages(TelegramComponent):
     )
 
 
-class EditGeneralForumTopic(TelegramComponent):
+class EditGeneralForumTopic(Component):
     """Use this method to edit the name of the 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights. Returns True on success."""
 
     chat_id = models.CharField(
@@ -1899,7 +1895,7 @@ class EditGeneralForumTopic(TelegramComponent):
     )
 
 
-class CloseGeneralForumTopic(TelegramComponent):
+class CloseGeneralForumTopic(Component):
     """Use this method to close an open 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights. Returns True on success."""
 
     chat_id = models.CharField(
@@ -1909,7 +1905,7 @@ class CloseGeneralForumTopic(TelegramComponent):
     )
 
 
-class ReopenGeneralForumTopic(TelegramComponent):
+class ReopenGeneralForumTopic(Component):
     """Use this method to reopen a closed 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights. The topic will be automatically unhidden if it was hidden. Returns True on success."""
 
     chat_id = models.CharField(
@@ -1919,7 +1915,7 @@ class ReopenGeneralForumTopic(TelegramComponent):
     )
 
 
-class HideGeneralForumTopic(TelegramComponent):
+class HideGeneralForumTopic(Component):
     """Use this method to hide the 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights. The topic will be automatically closed if it was open. Returns True on success."""
 
     chat_id = models.CharField(
@@ -1929,7 +1925,7 @@ class HideGeneralForumTopic(TelegramComponent):
     )
 
 
-class UnhideGeneralForumTopic(TelegramComponent):
+class UnhideGeneralForumTopic(Component):
     """Use this method to unhide the 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights. Returns True on success."""
 
     chat_id = models.CharField(
@@ -1939,7 +1935,7 @@ class UnhideGeneralForumTopic(TelegramComponent):
     )
 
 
-class UnpinAllGeneralForumTopicMessages(TelegramComponent):
+class UnpinAllGeneralForumTopicMessages(Component):
     """Use this method to clear the list of pinned messages in a General forum topic. The bot must be an administrator in the chat for this to work and must have the can_pin_messages administrator right in the supergroup. Returns True on success."""
 
     chat_id = models.CharField(
@@ -1949,7 +1945,7 @@ class UnpinAllGeneralForumTopicMessages(TelegramComponent):
     )
 
 
-class GetUserChatBoosts(TelegramComponent):
+class GetUserChatBoosts(Component):
     """Use this method to get the list of boosts added to a chat by a user. Requires administrator rights in the chat. Returns a UserChatBoosts object."""
 
     chat_id = models.CharField(
@@ -1964,7 +1960,7 @@ class GetUserChatBoosts(TelegramComponent):
     )
 
 
-class GetBusinessConnection(TelegramComponent):
+class GetBusinessConnection(Component):
     """Use this method to get information about the connection of the bot with a business account. Returns a BusinessConnection object on success."""
 
     business_connection_id = models.CharField(
@@ -1974,7 +1970,7 @@ class GetBusinessConnection(TelegramComponent):
     )
 
 
-class SetMyCommands(TelegramComponent):
+class SetMyCommands(Component):
     """Use this method to change the list of the bot's commands. See this manual for more details about bot commands. Returns True on success."""
 
     language_code = models.CharField(
@@ -1984,7 +1980,7 @@ class SetMyCommands(TelegramComponent):
     )
 
 
-class DeleteMyCommands(TelegramComponent):
+class DeleteMyCommands(Component):
     """Use this method to delete the list of the bot's commands for the given scope and user language. After deletion, higher level commands will be shown to affected users. Returns True on success."""
 
     language_code = models.CharField(
@@ -1994,7 +1990,7 @@ class DeleteMyCommands(TelegramComponent):
     )
 
 
-class GetMyCommands(TelegramComponent):
+class GetMyCommands(Component):
     """Use this method to get the current list of the bot's commands for the given scope and user language. Returns an Array of BotCommand objects. If commands aren't set, an empty list is returned."""
 
     language_code = models.CharField(
@@ -2004,7 +2000,7 @@ class GetMyCommands(TelegramComponent):
     )
 
 
-class SetMyName(TelegramComponent):
+class SetMyName(Component):
     """Use this method to change the bot's name. Returns True on success."""
 
     name = models.CharField(
@@ -2020,7 +2016,7 @@ class SetMyName(TelegramComponent):
     )
 
 
-class GetMyName(TelegramComponent):
+class GetMyName(Component):
     """Use this method to get the current bot name for the given user language. Returns BotName on success."""
 
     language_code = models.CharField(
@@ -2030,7 +2026,7 @@ class GetMyName(TelegramComponent):
     )
 
 
-class SetMyDescription(TelegramComponent):
+class SetMyDescription(Component):
     """Use this method to change the bot's description, which is shown in the chat with the bot if the chat is empty. Returns True on success."""
 
     description = models.CharField(
@@ -2046,7 +2042,7 @@ class SetMyDescription(TelegramComponent):
     )
 
 
-class GetMyDescription(TelegramComponent):
+class GetMyDescription(Component):
     """Use this method to get the current bot description for the given user language. Returns BotDescription on success."""
 
     language_code = models.CharField(
@@ -2056,7 +2052,7 @@ class GetMyDescription(TelegramComponent):
     )
 
 
-class SetMyShortDescription(TelegramComponent):
+class SetMyShortDescription(Component):
     """Use this method to change the bot's short description, which is shown on the bot's profile page and is sent together with the link when users share the bot. Returns True on success."""
 
     short_description = models.CharField(
@@ -2072,7 +2068,7 @@ class SetMyShortDescription(TelegramComponent):
     )
 
 
-class GetMyShortDescription(TelegramComponent):
+class GetMyShortDescription(Component):
     """Use this method to get the current bot short description for the given user language. Returns BotShortDescription on success."""
 
     language_code = models.CharField(
@@ -2082,7 +2078,7 @@ class GetMyShortDescription(TelegramComponent):
     )
 
 
-class SetChatMenuButton(TelegramComponent):
+class SetChatMenuButton(Component):
     """Use this method to change the bot's menu button in a private chat, or the default menu button. Returns True on success."""
 
     chat_id = models.IntegerField(
@@ -2092,7 +2088,7 @@ class SetChatMenuButton(TelegramComponent):
     )
 
 
-class GetChatMenuButton(TelegramComponent):
+class GetChatMenuButton(Component):
     """Use this method to get the current value of the bot's menu button in a private chat, or the default menu button. Returns MenuButton on success."""
 
     chat_id = models.IntegerField(
@@ -2102,7 +2098,7 @@ class GetChatMenuButton(TelegramComponent):
     )
 
 
-class SetMyDefaultAdministratorRights(TelegramComponent):
+class SetMyDefaultAdministratorRights(Component):
     """Use this method to change the default administrator rights requested by the bot when it's added as an administrator to groups or channels. These rights will be suggested to users, but they are free to modify the list before adding the bot. Returns True on success."""
 
     for_channels = models.BooleanField(
@@ -2112,7 +2108,7 @@ class SetMyDefaultAdministratorRights(TelegramComponent):
     )
 
 
-class GetMyDefaultAdministratorRights(TelegramComponent):
+class GetMyDefaultAdministratorRights(Component):
     """Use this method to get the current default administrator rights of the bot. Returns ChatAdministratorRights on success."""
 
     for_channels = models.BooleanField(
@@ -2122,7 +2118,7 @@ class GetMyDefaultAdministratorRights(TelegramComponent):
     )
 
 
-class EditMessageText(TelegramComponent):
+class EditMessageText(Component):
     """Use this method to edit text and game messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent."""
 
     business_connection_id = models.CharField(
@@ -2158,7 +2154,7 @@ class EditMessageText(TelegramComponent):
     )
 
 
-class EditMessageCaption(TelegramComponent):
+class EditMessageCaption(Component):
     """Use this method to edit captions of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent."""
 
     business_connection_id = models.CharField(
@@ -2199,7 +2195,7 @@ class EditMessageCaption(TelegramComponent):
     )
 
 
-class EditMessageMedia(TelegramComponent):
+class EditMessageMedia(Component):
     """Use this method to edit animation, audio, document, photo, or video messages, or to add media to text messages. If a message is part of a message album, then it can be edited only to an audio for audio albums, only to a document for document albums and to a photo or a video otherwise. When an inline message is edited, a new file can't be uploaded; use a previously uploaded file via its file_id or specify a URL. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent."""
 
     business_connection_id = models.CharField(
@@ -2224,7 +2220,7 @@ class EditMessageMedia(TelegramComponent):
     )
 
 
-class EditMessageLiveLocation(TelegramComponent):
+class EditMessageLiveLocation(Component):
     """Use this method to edit live location messages. A location can be edited until its live_period expires or editing is explicitly disabled by a call to stopMessageLiveLocation. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned."""
 
     business_connection_id = models.CharField(
@@ -2279,7 +2275,7 @@ class EditMessageLiveLocation(TelegramComponent):
     )
 
 
-class StopMessageLiveLocation(TelegramComponent):
+class StopMessageLiveLocation(Component):
     """Use this method to stop updating a live location message before live_period expires. On success, if the message is not an inline message, the edited Message is returned, otherwise True is returned."""
 
     business_connection_id = models.CharField(
@@ -2304,7 +2300,7 @@ class StopMessageLiveLocation(TelegramComponent):
     )
 
 
-class EditMessageReplyMarkup(TelegramComponent):
+class EditMessageReplyMarkup(Component):
     """Use this method to edit only the reply markup of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent."""
 
     business_connection_id = models.CharField(
@@ -2329,7 +2325,7 @@ class EditMessageReplyMarkup(TelegramComponent):
     )
 
 
-class StopPoll(TelegramComponent):
+class StopPoll(Component):
     """Use this method to stop a poll which was sent by the bot. On success, the stopped Poll is returned."""
 
     business_connection_id = models.CharField(
@@ -2349,7 +2345,7 @@ class StopPoll(TelegramComponent):
     )
 
 
-class DeleteMessage(TelegramComponent):
+class DeleteMessage(Component):
     """Use this method to delete a message, including service messages, with the following limitations:- A message can only be deleted if it was sent less than 48 hours ago.- Service messages about a supergroup, channel, or forum topic creation can't be deleted.- A dice message in a private chat can only be deleted if it was sent more than 24 hours ago.- Bots can delete outgoing messages in private chats, groups, and supergroups.- Bots can delete incoming messages in private chats.- Bots granted can_post_messages permissions can delete outgoing messages in channels.- If the bot is an administrator of a group, it can delete any message there.- If the bot has can_delete_messages permission in a supergroup or a channel, it can delete any message there.Returns True on success."""
 
     chat_id = models.CharField(
@@ -2364,7 +2360,7 @@ class DeleteMessage(TelegramComponent):
     )
 
 
-class DeleteMessages(TelegramComponent):
+class DeleteMessages(Component):
     """Use this method to delete multiple messages simultaneously. If some of the specified messages can't be found, they are skipped. Returns True on success."""
 
     chat_id = models.CharField(
@@ -2381,7 +2377,7 @@ class DeleteMessages(TelegramComponent):
     )
 
 
-class SendSticker(TelegramComponent):
+class SendSticker(Component):
     """Use this method to send static .WEBP, animated .TGS, or video .WEBM stickers. On success, the sent Message is returned."""
 
     business_connection_id = models.CharField(
@@ -2432,7 +2428,7 @@ class SendSticker(TelegramComponent):
     )
 
 
-class GetStickerSet(TelegramComponent):
+class GetStickerSet(Component):
     """Use this method to get a sticker set. On success, a StickerSet object is returned."""
 
     name = models.CharField(
@@ -2442,7 +2438,7 @@ class GetStickerSet(TelegramComponent):
     )
 
 
-class GetCustomEmojiStickers(TelegramComponent):
+class GetCustomEmojiStickers(Component):
     """Use this method to get information about custom emoji stickers by their identifiers. Returns an Array of Sticker objects."""
 
     custom_emoji_ids = ArrayField(
@@ -2454,7 +2450,7 @@ class GetCustomEmojiStickers(TelegramComponent):
     )
 
 
-class UploadStickerFile(TelegramComponent):
+class UploadStickerFile(Component):
     """Use this method to upload a file with a sticker for later use in the createNewStickerSet, addStickerToSet, or replaceStickerInSet methods (the file can be used multiple times). Returns the uploaded File on success."""
 
     user_id = models.IntegerField(
@@ -2469,7 +2465,7 @@ class UploadStickerFile(TelegramComponent):
     )
 
 
-class CreateNewStickerSet(TelegramComponent):
+class CreateNewStickerSet(Component):
     """Use this method to create a new sticker set owned by a user. The bot will be able to edit the sticker set thus created. Returns True on success."""
 
     user_id = models.IntegerField(
@@ -2501,7 +2497,7 @@ class CreateNewStickerSet(TelegramComponent):
     )
 
 
-class AddStickerToSet(TelegramComponent):
+class AddStickerToSet(Component):
     """Use this method to add a new sticker to a set created by the bot. Emoji sticker sets can have up to 200 stickers. Other sticker sets can have up to 120 stickers. Returns True on success."""
 
     user_id = models.IntegerField(
@@ -2512,7 +2508,7 @@ class AddStickerToSet(TelegramComponent):
     name = models.CharField(null=False, blank=False, help_text="Sticker set name")
 
 
-class SetStickerPositionInSet(TelegramComponent):
+class SetStickerPositionInSet(Component):
     """Use this method to move a sticker in a set created by the bot to a specific position. Returns True on success."""
 
     sticker = models.CharField(
@@ -2527,7 +2523,7 @@ class SetStickerPositionInSet(TelegramComponent):
     )
 
 
-class DeleteStickerFromSet(TelegramComponent):
+class DeleteStickerFromSet(Component):
     """Use this method to delete a sticker from a set created by the bot. Returns True on success."""
 
     sticker = models.CharField(
@@ -2537,7 +2533,7 @@ class DeleteStickerFromSet(TelegramComponent):
     )
 
 
-class ReplaceStickerInSet(TelegramComponent):
+class ReplaceStickerInSet(Component):
     """Use this method to replace an existing sticker in a sticker set with a new one. The method is equivalent to calling deleteStickerFromSet, then addStickerToSet, then setStickerPositionInSet. Returns True on success."""
 
     user_id = models.IntegerField(
@@ -2553,7 +2549,7 @@ class ReplaceStickerInSet(TelegramComponent):
     )
 
 
-class SetStickerEmojiList(TelegramComponent):
+class SetStickerEmojiList(Component):
     """Use this method to change the list of emoji assigned to a regular or custom emoji sticker. The sticker must belong to a sticker set created by the bot. Returns True on success."""
 
     sticker = models.CharField(
@@ -2570,7 +2566,7 @@ class SetStickerEmojiList(TelegramComponent):
     )
 
 
-class SetStickerKeywords(TelegramComponent):
+class SetStickerKeywords(Component):
     """Use this method to change search keywords assigned to a regular or custom emoji sticker. The sticker must belong to a sticker set created by the bot. Returns True on success."""
 
     sticker = models.CharField(
@@ -2587,7 +2583,7 @@ class SetStickerKeywords(TelegramComponent):
     )
 
 
-class SetStickerMaskPosition(TelegramComponent):
+class SetStickerMaskPosition(Component):
     """Use this method to change the mask position of a mask sticker. The sticker must belong to a sticker set that was created by the bot. Returns True on success."""
 
     sticker = models.CharField(
@@ -2597,7 +2593,7 @@ class SetStickerMaskPosition(TelegramComponent):
     )
 
 
-class SetStickerSetTitle(TelegramComponent):
+class SetStickerSetTitle(Component):
     """Use this method to set the title of a created sticker set. Returns True on success."""
 
     name = models.CharField(null=False, blank=False, help_text="Sticker set name")
@@ -2609,7 +2605,7 @@ class SetStickerSetTitle(TelegramComponent):
     )
 
 
-class SetStickerSetThumbnail(TelegramComponent):
+class SetStickerSetThumbnail(Component):
     """Use this method to set the thumbnail of a regular or mask sticker set. The format of the thumbnail file must match the format of the stickers in the set. Returns True on success."""
 
     name = models.CharField(null=False, blank=False, help_text="Sticker set name")
@@ -2631,7 +2627,7 @@ class SetStickerSetThumbnail(TelegramComponent):
     )
 
 
-class SetCustomEmojiStickerSetThumbnail(TelegramComponent):
+class SetCustomEmojiStickerSetThumbnail(Component):
     """Use this method to set the thumbnail of a custom emoji sticker set. Returns True on success."""
 
     name = models.CharField(null=False, blank=False, help_text="Sticker set name")
@@ -2642,13 +2638,13 @@ class SetCustomEmojiStickerSetThumbnail(TelegramComponent):
     )
 
 
-class DeleteStickerSet(TelegramComponent):
+class DeleteStickerSet(Component):
     """Use this method to delete a sticker set that was created by the bot. Returns True on success."""
 
     name = models.CharField(null=False, blank=False, help_text="Sticker set name")
 
 
-class SendGift(TelegramComponent):
+class SendGift(Component):
     """Sends a gift to the given user or channel chat. The gift can't be converted to Telegram Stars by the receiver. Returns True on success."""
 
     user_id = models.IntegerField(
@@ -2684,7 +2680,7 @@ class SendGift(TelegramComponent):
     )
 
 
-class VerifyUser(TelegramComponent):
+class VerifyUser(Component):
     """Verifies a user on behalf of the organization which is represented by the bot. Returns True on success."""
 
     user_id = models.IntegerField(
@@ -2700,7 +2696,7 @@ class VerifyUser(TelegramComponent):
     )
 
 
-class VerifyChat(TelegramComponent):
+class VerifyChat(Component):
     """Verifies a chat on behalf of the organization which is represented by the bot. Returns True on success."""
 
     chat_id = models.CharField(
@@ -2716,7 +2712,7 @@ class VerifyChat(TelegramComponent):
     )
 
 
-class RemoveUserVerification(TelegramComponent):
+class RemoveUserVerification(Component):
     """Removes verification from a user who is currently verified on behalf of the organization represented by the bot. Returns True on success."""
 
     user_id = models.IntegerField(
@@ -2726,7 +2722,7 @@ class RemoveUserVerification(TelegramComponent):
     )
 
 
-class RemoveChatVerification(TelegramComponent):
+class RemoveChatVerification(Component):
     """Removes verification from a chat that is currently verified on behalf of the organization represented by the bot. Returns True on success."""
 
     chat_id = models.CharField(
@@ -2736,7 +2732,7 @@ class RemoveChatVerification(TelegramComponent):
     )
 
 
-class AnswerInlineQuery(TelegramComponent):
+class AnswerInlineQuery(Component):
     """Use this method to send answers to an inline query. On success, True is returned.No more than 50 results per query are allowed."""
 
     inline_query_id = models.CharField(
@@ -2761,7 +2757,7 @@ class AnswerInlineQuery(TelegramComponent):
     )
 
 
-class AnswerWebAppQuery(TelegramComponent):
+class AnswerWebAppQuery(Component):
     """Use this method to set the result of an interaction with a Web App and send a corresponding message on behalf of the user to the chat from which the query originated. On success, a SentWebAppMessage object is returned."""
 
     web_app_query_id = models.CharField(
@@ -2771,7 +2767,7 @@ class AnswerWebAppQuery(TelegramComponent):
     )
 
 
-class SavePreparedInlineMessage(TelegramComponent):
+class SavePreparedInlineMessage(Component):
     """Stores a message that can be sent by a user of a Mini App. Returns a PreparedInlineMessage object."""
 
     user_id = models.IntegerField(
@@ -2801,7 +2797,7 @@ class SavePreparedInlineMessage(TelegramComponent):
     )
 
 
-class SendInvoice(TelegramComponent):
+class SendInvoice(Component):
     """Use this method to send invoices. On success, the sent Message is returned."""
 
     chat_id = models.CharField(
@@ -2932,7 +2928,7 @@ class SendInvoice(TelegramComponent):
     )
 
 
-class CreateInvoiceLink(TelegramComponent):
+class CreateInvoiceLink(Component):
     """Use this method to create a link for an invoice. Returns the created invoice link as String on success."""
 
     business_connection_id = models.CharField(
@@ -3038,7 +3034,7 @@ class CreateInvoiceLink(TelegramComponent):
     )
 
 
-class AnswerShippingQuery(TelegramComponent):
+class AnswerShippingQuery(Component):
     """If you sent an invoice requesting a shipping address and the parameter is_flexible was specified, the Bot API will send an Update with a shipping_query field to the bot. Use this method to reply to shipping queries. On success, True is returned."""
 
     shipping_query_id = models.CharField(
@@ -3058,7 +3054,7 @@ class AnswerShippingQuery(TelegramComponent):
     )
 
 
-class AnswerPreCheckoutQuery(TelegramComponent):
+class AnswerPreCheckoutQuery(Component):
     """Once the user has confirmed their payment and shipping details, the Bot API sends the final confirmation in the form of an Update with the field pre_checkout_query. Use this method to respond to such pre-checkout queries. On success, True is returned. Note: The Bot API must receive an answer within 10 seconds after the pre-checkout query was sent."""
 
     pre_checkout_query_id = models.CharField(
@@ -3078,7 +3074,7 @@ class AnswerPreCheckoutQuery(TelegramComponent):
     )
 
 
-class GetStarTransactions(TelegramComponent):
+class GetStarTransactions(Component):
     """Returns the bot's Telegram Star transactions in chronological order. On success, returns a StarTransactions object."""
 
     offset = models.IntegerField(
@@ -3093,7 +3089,7 @@ class GetStarTransactions(TelegramComponent):
     )
 
 
-class RefundStarPayment(TelegramComponent):
+class RefundStarPayment(Component):
     """Refunds a successful payment in Telegram Stars. Returns True on success."""
 
     user_id = models.IntegerField(
@@ -3108,7 +3104,7 @@ class RefundStarPayment(TelegramComponent):
     )
 
 
-class EditUserStarSubscription(TelegramComponent):
+class EditUserStarSubscription(Component):
     """Allows the bot to cancel or re-enable extension of a subscription paid in Telegram Stars. Returns True on success."""
 
     user_id = models.IntegerField(
@@ -3128,7 +3124,7 @@ class EditUserStarSubscription(TelegramComponent):
     )
 
 
-class SendGame(TelegramComponent):
+class SendGame(Component):
     """Use this method to send a game. On success, the sent Message is returned."""
 
     business_connection_id = models.CharField(
@@ -3173,7 +3169,7 @@ class SendGame(TelegramComponent):
     )
 
 
-class SetGameScore(TelegramComponent):
+class SetGameScore(Component):
     """Use this method to set the score of the specified user in a game message. On success, if the message is not an inline message, the Message is returned, otherwise True is returned. Returns an error, if the new score is not greater than the user's current score in the chat and force is False."""
 
     user_id = models.IntegerField(null=False, blank=False, help_text="User identifier")
