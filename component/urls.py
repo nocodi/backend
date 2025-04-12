@@ -147,6 +147,8 @@ router.register(r"refund-star-payment", RefundStarPaymentViewSet)
 router.register(r"edit-user-star-subscription", EditUserStarSubscriptionViewSet)
 router.register(r"send-game", SendGameViewSet)
 router.register(r"set-game-score", SetGameScoreViewSet)
+router.register(r"if-component", IfComponentSet)
+router.register(r"switch-component", SwitchComponentSet)
 
 
 urlpatterns = [
