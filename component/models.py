@@ -3206,21 +3206,34 @@ class SetGameScore(Component):
 
 
 class IfComponent(Component):
+    """Use this method to create a conditional component. Returns True on success."""
+
     class Condition(models.TextChoices):
         Equal = "Equal"
         Contains = "Contains"
         Greater = "Greater"
         GreaterEqual = "GreaterEqual"
 
-    expression = models.CharField(max_length=1024)
-    condition = models.CharField(max_length=40, choices=Condition.choices)
-    is_reverse = models.BooleanField(default=False)
+    expression = models.CharField(max_length=1024, help_text="Expression to evaluate")
+    condition = models.CharField(
+        max_length=40,
+        choices=Condition.choices,
+        help_text="Condition to evaluate",
+    )
+    is_reverse = models.BooleanField(default=False, help_text="Is reverse?")
 
 
-class SwithComponent(Component):
-    expression = models.CharField(max_length=1024)
-    values = ArrayField(models.CharField(max_length=1024))
+class SwitchComponent(Component):
+    """Use this method to create a switch component. Returns True on success."""
+
+    expression = models.CharField(max_length=1024, help_text="Expression to evaluate")
+    values = ArrayField(
+        models.CharField(max_length=1024),
+        help_text="Values to evaluate",
+    )
 
 
 class CodeComponent(Component):
-    code = models.TextField()
+    """Use this method to create a code component. Returns True on success."""
+
+    code = models.TextField(help_text="Code to execute", null=False, blank=False)

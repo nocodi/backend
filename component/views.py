@@ -615,7 +615,7 @@ class IfComponentSet(ModelViewSet):
 
 class SwitchComponentSet(ModelViewSet):
     serializer_class = SwitchComponentSerializer
-    queryset = SwithComponent.objects.all()
+    queryset = SwitchComponent.objects.all()
 
 
 class CodeComponentSet(ModelViewSet):

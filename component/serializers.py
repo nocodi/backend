@@ -859,7 +859,7 @@ class IfComponentSerializer(serializers.ModelSerializer):
 
 class SwitchComponentSerializer(serializers.ModelSerializer):
     class Meta:
-        model = SwithComponent
+        model = SwitchComponent
         depth = 1
         fields = "__all__"
 
