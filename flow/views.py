@@ -41,6 +41,6 @@ class ComponentViewSet(ModelViewSet):
 
 class ContentTypeListView(ListAPIView):
     queryset = ContentType.objects.filter(
-        Q(app_label="component") & ~Q(model="telegramcomponent"),
+        Q(app_label="component") & ~Q(model="component"),
     )
     serializer_class = ContentTypeSerializer
