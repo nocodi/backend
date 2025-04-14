@@ -132,7 +132,7 @@ class ContentTypeSerializer(serializers.ModelSerializer):
                 "required": not field.null and not field.blank,
             }
             for field in model_class._meta.fields
-            if field.name != "telegramcomponent_ptr"
+            if field.name != "component_ptr"
             and field.name != "timestamp"
             and field.name != "id"
         }
