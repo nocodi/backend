@@ -78,21 +78,21 @@ class ComponentViewSet(ModelViewSet):
                 data[field_name] = value
 
         if reply_markup:
+            keyboard = model_to_dict(
+                reply_markup,
+                exclude=["id", "keyboard_ptr", "keyboard", "inline_keyboard"],
+            )
             if hasattr(reply_markup, "keyboard"):
-                keyboard = model_to_dict(
-                    reply_markup,
-                    exclude=["id", "keyboard_ptr", "keyboard"],
-                )
                 keyboard["keyboard"] = []
                 for row in reply_markup.keyboard.all():
                     keyboard["keyboard"].append([row.text])
 
-                data["reply_markup"] = keyboard
             elif hasattr(reply_markup, "inline_keyboard"):
-                inline_keyboard = []
+                keyboard["inline_keyboard"] = []
                 for row in reply_markup.inline_keyboard.all():
-                    inline_keyboard.append([row.text])
-                data["reply_markup"] = {"inline_keyboard": inline_keyboard}
+                    keyboard["inline_keyboard"].append([model_to_dict(row)])
+
+            data["reply_markup"] = keyboard
 
         bot_token = Bot.objects.get(id=bot).token
         telegram_api_url = f"https://tapi.bale.ai/bot{bot_token}/{related_model_instance.__class__.__name__}"

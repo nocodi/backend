@@ -82,6 +82,10 @@ class ReplyKeyboardMarkup(Keyboard):
 
 
 class ReplyKeyboardRemove(Keyboard):
+    remove_keyboard = models.BooleanField(
+        default=True,
+        help_text="Requests clients to remove the custom keyboard (user will not be able to summon this keyboard; if you want to hide the keyboard from sight but keep it accessible, use one_time_keyboard in ReplyKeyboardMarkup)",
+    )
     selective = models.BooleanField(
         default=False,
         help_text="Use this parameter if you want to remove the keyboard for specific users only",
@@ -92,6 +96,14 @@ class ReplyKeyboardRemove(Keyboard):
 
 
 class ForceReply(Keyboard):
+    force_reply = models.BooleanField(
+        default=True,
+        help_text="Shows reply interface to the user, as if they manually selected the bot's message and tapped 'Reply'",
+    )
+    input_field_placeholder = models.CharField(
+        max_length=64,
+        help_text="Optional. The placeholder to be shown in the input field when the reply is active; 1-64 characters",
+    )
     selective = models.BooleanField(
         default=False,
         help_text="Use this parameter if you want to force reply from specific users only",
