@@ -1,4 +1,6 @@
+import requests
 from django.db.models import QuerySet
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -21,6 +23,15 @@ class CreateBotView(APIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
+
+        bot = requests.get(
+            "https://tapi.bale.ai/bot{}/getMe".format(data["token"]),
+        ).json()
+        if bot.get("ok") is False:
+            raise ValidationError("Invalid token")
+        if bot.get("result", {}).get("is_bot") is False:
+            raise ValidationError("Token is not a bot token")
+
         bot = Bot.objects.create(
             user=request.iam_user,
             name=data["name"],
