@@ -1,8 +1,8 @@
+import requests
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q, QuerySet
 from django.db.models.fields.files import FileField
 from django.forms import model_to_dict
-from requests import RequestException, post
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied, ValidationError
@@ -47,19 +47,27 @@ class ComponentViewSet(ModelViewSet):
 
     @action(detail=True, methods=["get"], url_path="run")
     def run(self, request: Request, bot: int, pk: int) -> Response:
-        component = self.get_object()
-        related_model_instance = component.content_type.model_class().objects.get(
-            id=component.object_id,
+        related_model_instance = (
+            self.get_object().content_type.get_object_for_this_type()
         )
-        raw_data = model_to_dict(related_model_instance)
+        reply_markup = related_model_instance.content_type.get_object_for_this_type()
 
-        excluded_keys = {"nobe", "id", "component_ptr", "component_ptr_id", "time"}
+        raw_data = model_to_dict(
+            related_model_instance,
+            exclude=[
+                "id",
+                "component_ptr",
+                "component_ptr_id",
+                "timestamp",
+                "object_id",
+                "component_type",
+                "content_type",
+            ],
+        )
         data = {}
         files = {}
 
         for field_name, value in raw_data.items():
-            if field_name in excluded_keys or value is None:
-                continue
             field_object = related_model_instance._meta.get_field(field_name)
             if isinstance(field_object, FileField):
                 file_field = getattr(related_model_instance, field_name)
@@ -69,13 +77,29 @@ class ComponentViewSet(ModelViewSet):
             else:
                 data[field_name] = value
 
+        if reply_markup:
+            if hasattr(reply_markup, "keyboard"):
+                keyboard = model_to_dict(
+                    reply_markup,
+                    exclude=["id", "keyboard_ptr", "keyboard"],
+                )
+                keyboard["keyboard"] = []
+                for row in reply_markup.keyboard.all():
+                    keyboard["keyboard"].append([row.text])
+
+                data["reply_markup"] = keyboard
+            elif hasattr(reply_markup, "inline_keyboard"):
+                inline_keyboard = []
+                for row in reply_markup.inline_keyboard.all():
+                    inline_keyboard.append([row.text])
+                data["reply_markup"] = {"inline_keyboard": inline_keyboard}
+
         bot_token = Bot.objects.get(id=bot).token
         telegram_api_url = f"https://tapi.bale.ai/bot{bot_token}/{related_model_instance.__class__.__name__}"
-
         try:
-            response = post(telegram_api_url, data=data, files=files)
+            response = requests.post(telegram_api_url, files=files, json=data)
             response.raise_for_status()
-        except RequestException as e:
+        except requests.RequestException as e:
             return Response(
                 {"error": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
