@@ -1,4 +1,5 @@
 import requests
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q, QuerySet
 from django.db.models.fields.files import FileField
@@ -95,7 +96,7 @@ class ComponentViewSet(ModelViewSet):
             data["reply_markup"] = keyboard
 
         bot_token = Bot.objects.get(id=bot).token
-        telegram_api_url = f"https://tapi.bale.ai/bot{bot_token}/{related_model_instance.__class__.__name__}"
+        telegram_api_url = f"{settings.BALE_API_URL}/bot{bot_token}/{related_model_instance.__class__.__name__}"
         try:
             response = requests.post(telegram_api_url, files=files, json=data)
             response.raise_for_status()

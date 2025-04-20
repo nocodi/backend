@@ -184,3 +184,6 @@ TESTING = sys.argv[1:2] == ["test"]
 
 APPEND_SLASH = True
 STATIC_CACHE_PATHS = env("STATIC_CACHE_PATHS", default="/api-doc/schema/").split(",")
+
+# Bale API Settings
+BALE_API_URL = env("BALE_API_URL", default="https://tapi.bale.ai")

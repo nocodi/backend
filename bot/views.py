@@ -1,11 +1,12 @@
 import requests
+from django.conf import settings
 from django.db.models import QuerySet
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
+from rest_framework import status
 from bot.models import Bot
 from bot.serializers import (
     CreateBotRequestSerializer,
@@ -24,9 +25,17 @@ class CreateBotView(APIView):
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
 
-        bot = requests.get(
-            "https://tapi.bale.ai/bot{}/getMe".format(data["token"]),
-        ).json()
+        response = requests.get(
+            f"{settings.BALE_API_URL}/bot{data['token']}/getMe",
+        )
+
+        if response.status_code != 200 and response.status_code != 400:
+            return Response(
+                {"error": "Bale API service is unavailable"},
+                status=status.HTTP_424_FAILED_DEPENDENCY,
+            )
+
+        bot = response.json()
         if bot.get("ok") is False:
             raise ValidationError("Invalid token")
         if bot.get("result", {}).get("is_bot") is False:
