@@ -14,7 +14,8 @@ from rest_framework.viewsets import ModelViewSet
 
 from bot.models import Bot
 from bot.permissions import IsBotOwner
-from flow.models import Component, Flow
+from component.models import Component
+from flow.models import Flow
 from flow.serializers import ComponentSerializer, ContentTypeSerializer, FlowSerializer
 from iam.permissions import IsLoginedPermission
 

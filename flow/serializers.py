@@ -5,7 +5,8 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError as DRFValidationError
 
 from bot.models import Bot
-from flow.models import Component, Flow
+from component.models import Component
+from flow.models import Flow
 
 
 class ComponentSerializer(serializers.ModelSerializer):

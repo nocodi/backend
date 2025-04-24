@@ -18,8 +18,7 @@ from bot.serializers import (
     CreateBotResponseSerializer,
     MyBotsResponseSerializer,
 )
-from component.models import InlineKeyboardMarkup
-from flow.models import Component
+from component.models import Component, InlineKeyboardMarkup
 from iam.permissions import IsLoginedPermission
 
 
@@ -71,7 +70,7 @@ class MyBots(ListAPIView):
 class GenerateCodeView(APIView):
     permission_classes = [IsLoginedPermission, IsBotOwner]
 
-    def get(self, request, bot: int):
+    def get(self, request: Request, bot: int) -> None:
         try:
             bot_instance = Bot.objects.get(id=bot, user=request.iam_user)
         except Bot.DoesNotExist:
@@ -118,10 +117,25 @@ class GenerateCodeView(APIView):
 
         components = Component.objects.filter(
             bot_id=bot,
-            content_type__model="onmessage",
+            component_type=Component.ComponentType.TRIGGER,
         )
+        print(len(components))
         for component in components:
-            on_message_component = component.content_type.get_object_for_this_type()
+            print(
+                component.component_content_type,
+                component.component_content_type.__dict__,
+            )
+            if component.component_content_type.model != "onmessage":
+                return Response(
+                    {
+                        "error": f"Only OnMessage trigger components are supported. you requested {component.__class__.__name__}",
+                    },
+                    status=status.HTTP_501_NOT_IMPLEMENTED,
+                )
+
+            on_message_component = (
+                component.component_content_type.get_object_for_this_type()
+            )
             command_name = on_message_component.text.strip("/")
             append_to_text = ""
             if on_message_component.case_sensitive:
@@ -132,20 +146,28 @@ class GenerateCodeView(APIView):
                 [
                     f"@dp.message(F.text{append_to_text} == '{on_message_component.text}')",
                     f"async def {command_name}(message: Message):",
+                    f"    pass",  # in order no next component
                 ],
             )
 
-            next_component = component.next_component
+            if component.next_component.count() > 1:
+                return Response(
+                    {"error": "Only one next component is supported"},
+                    status=status.HTTP_501_NOT_IMPLEMENTED,
+                )
+            next_component = component.next_component.first()
             if next_component:
                 next_component_text = (
-                    next_component.content_type.get_object_for_this_type()
+                    next_component.component_content_type.get_object_for_this_type()
                 )
                 method = next_component_text.__class__.__name__
                 method = "".join(
                     ["_" + c.lower() if c.isupper() else c for c in method],
                 ).lstrip("_")
 
-                keyboard = next_component_text.content_type.get_object_for_this_type()
+                keyboard = (
+                    next_component_text.component_content_type.get_object_for_this_type()
+                )
                 # builder = InlineKeyboardBuilder()
 
                 if isinstance(keyboard, InlineKeyboardMarkup):

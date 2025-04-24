@@ -5,8 +5,9 @@ from django.urls import reverse
 from rest_framework import status
 
 from bot.models import Bot
-from component.models import OnMessage
+from component.models import Component, OnMessage
 from component.telegram.models import SendMessage
+from flow.models import ContentType
 from iam.models import IamUser
 from iam.utils import create_token_for_iamuser
 
@@ -25,14 +26,21 @@ class CodeTest(TestCase):
             description="Test bot for testing",
             user=self.user,
         )
+        on_message_component = OnMessage.objects.create(
+            bot=self.bot,
+            text="Hello",
+            position_x=1,
+            position_y=1,
+            component_type=Component.ComponentType.TRIGGER,
+        )
         send_message_component = SendMessage.objects.create(
+            bot=self.bot,
             chat_id=123456789,
             text="Hello, World!",
+            position_x=1,
+            position_y=1,
+            previous_component=on_message_component,
         )
-        on_message_component = OnMessage.objects.create(
-            text="Hello",
-        )
-        print(on_message_component.__dict__)
 
     def test_foo(self):
         token = create_token_for_iamuser(self.user.id)

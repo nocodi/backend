@@ -55,6 +55,7 @@ class OnMessage(Component):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.type = Component.ComponentType.TRIGGER
+        self.component_type = Component.ComponentType.TRIGGER
 
     text = models.CharField(
         null=True,

@@ -126,7 +126,40 @@ class Component(models.Model):
         default=ComponentType.TELEGRAM,
         help_text="Type of the component",
     )
-    timestamp = models.DateTimeField(auto_now_add=True)
+
+    # override objects.create
+    def save(self, *args: list, **kwargs: dict) -> None:
+        """Automatically sets content type"""
+        self.component_content_type = ContentType.objects.get(
+            model=self.__class__.__name__.lower(),
+        )
+        super().save(*args, **kwargs)
+
+    component_content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+    component_name = models.CharField(
+        max_length=255,
+        null=True,
+    )  # in order to not interfere with some component 'name' field, I added redundant 'component'
+
+    bot = models.ForeignKey("bot.Bot", on_delete=models.CASCADE)
+
+    previous_component = models.ForeignKey(
+        "Component",
+        on_delete=models.PROTECT,
+        null=True,
+        related_name="next_component",
+    )
+
+    position_x = models.FloatField(null=False, blank=False)
+    position_y = models.FloatField(null=False, blank=False)
+
+    def __str__(self) -> str:
+        return self.component_name or "Empty Component"
 
     class Meta:
         pass
