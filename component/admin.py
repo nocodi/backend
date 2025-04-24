@@ -7,6 +7,7 @@ from component.models import (
     InlineKeyboardMarkup,
     Keyboard,
     KeyboardButton,
+    OnMessage,
     ReplyKeyboardMarkup,
     ReplyKeyboardRemove,
     SendDocument,
@@ -20,7 +21,7 @@ app = apps.get_app_config("component")
 # for model_name, model in app.models.items():
 #     admin.site.register(model)
 
-
+admin.site.register(OnMessage)
 admin.site.register(SendMessage)
 admin.site.register(SendPhoto)
 admin.site.register(SendVideo)

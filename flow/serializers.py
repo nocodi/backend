@@ -135,6 +135,9 @@ class ContentTypeSerializer(serializers.ModelSerializer):
             if field.name != "component_ptr"
             and field.name != "timestamp"
             and field.name != "id"
+            and field.name != "object_id"
+            and field.name != "content_type"
+            and field.name != "component_type"
         }
         return schema
 
