@@ -88,6 +88,7 @@ class GenerateCodeView(APIView):
             "from aiogram.client.session.aiohttp import AiohttpSession",
             "from aiogram.fsm.storage.memory import MemoryStorage",
             "from aiogram.client.telegram import TelegramAPIServer",
+            "from aiogram.utils.keyboard import InlineKeyboardBuilder",
             "",
         ]
 
@@ -144,10 +145,18 @@ class GenerateCodeView(APIView):
                     ["_" + c.lower() if c.isupper() else c for c in method],
                 ).lstrip("_")
 
-                # keyboard = next_component_text.content_type.get_object_for_this_type()
+                keyboard = next_component_text.content_type.get_object_for_this_type()
                 # builder = InlineKeyboardBuilder()
 
-                # if isinstance(keyboard, InlineKeyboardMarkup):
+                if isinstance(keyboard, InlineKeyboardMarkup):
+                    code.extend(["    builder = InlineKeyboardBuilder()"])
+                    for k in keyboard.inline_keyboard.all():
+                        code.extend(
+                            [
+                                f"    builder.button(text='{k.text}', callback_data='{k.callback_data}')",
+                            ],
+                        )
+                    code.extend(["    keyboard = builder.as_markup()"])
                 #     for k in keyboard.inline_keyboard.all():
                 #         builder.button(text=k.text, callback_data=k.callback_data)
                 #     keyboard = builder.as_markup()
@@ -174,8 +183,8 @@ class GenerateCodeView(APIView):
                         else:
                             param_strings.append(f"{k}={v}")
 
-                # if keyboard:
-                #     param_strings.append(f"reply_markup={keyboard}")
+                if keyboard:
+                    param_strings.append(f"reply_markup=keyboard")
 
                 params_str = ", ".join(param_strings)
                 code.extend(
