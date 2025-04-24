@@ -1,5 +1,4 @@
 import requests
-from aiogram.utils.keyboard import InlineKeyboardBuilder, KeyboardBuilder
 from django.conf import settings
 from django.db.models import QuerySet
 from django.forms.models import model_to_dict
@@ -146,7 +145,6 @@ class GenerateCodeView(APIView):
                 ).lstrip("_")
 
                 keyboard = next_component_text.content_type.get_object_for_this_type()
-                # builder = InlineKeyboardBuilder()
 
                 if isinstance(keyboard, InlineKeyboardMarkup):
                     code.extend(["    builder = InlineKeyboardBuilder()"])
