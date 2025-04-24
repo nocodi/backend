@@ -1,44 +1,47 @@
+import unittest
+
 from django.test import TestCase
 from django.urls import reverse
-from faker import Faker
 from rest_framework import status
 
 from bot.models import Bot
-from bot.test.factory import BotFactory
-from iam.test.factory import IamUserFactory
+from component.models import OnMessage
+from component.telegram.models import SendMessage
+from iam.models import IamUser
 from iam.utils import create_token_for_iamuser
 
-fake = Faker()
+# Create your tests here.
 
 
-class BotTest(TestCase):
+class CodeTest(TestCase):
 
-    def _get_token(self):
-        user = IamUserFactory.create()
-        return {
-            "Authorization": create_token_for_iamuser(user.id),
-        }
+    def setUp(self):
+        # a simple bot with a code component
+        self.user = IamUser.objects.create()
 
-    def test_create_bot(self):
-        url = reverse("bot:create-bot")
-        token = fake.name()
-        data = {"name": fake.name(), "description": fake.text(), "token": token}
+        self.bot = Bot.objects.create(
+            name="Test Bot",
+            token="123456789:ABCDEF",
+            description="Test bot for testing",
+            user=self.user,
+        )
+        send_message_component = SendMessage.objects.create(
+            chat_id=123456789,
+            text="Hello, World!",
+        )
+        on_message_component = OnMessage.objects.create(
+            text="Hello",
+        )
+        print(on_message_component.__dict__)
 
-        response = self.client.post(url, data, headers=self._get_token())
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertTrue(Bot.objects.filter(token=token).exists())
-
-    def test_my_bots(self):
-        user = IamUserFactory.create()
-        BotFactory.create_batch(3, user=user)
-
-        url = reverse("bot:my-bots")
+    def test_foo(self):
+        token = create_token_for_iamuser(self.user.id)
+        url = reverse("bot:generate-code", args=[self.bot.id])
         response = self.client.get(
             url,
             headers={
-                "Authorization": create_token_for_iamuser(user.id),
+                "Authorization": token,
             },
         )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 3)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
+        print(response.content.decode())

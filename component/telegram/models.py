@@ -188,6 +188,7 @@ class SendMessage(Component):
         | Q(model="replykeyboardmarkup")
         | Q(model="replykeyboardremove")
         | Q(model="forcereply"),
+        null=True,
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
     related_to_main = GenericForeignKey("content_type", "object_id")
