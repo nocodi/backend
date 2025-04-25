@@ -16,3 +16,8 @@ class SwitchComponentSet(ModelViewSet):
 class CodeComponentSet(ModelViewSet):
     serializer_class = CodeComponent
     queryset = CodeComponent.objects.all()
+
+
+class OnMessageSet(ModelViewSet):
+    serializer_class = OnMessageSerializer
+    queryset = OnMessage.objects.all()
