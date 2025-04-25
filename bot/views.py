@@ -120,7 +120,9 @@ class GenerateCodeView(APIView):
             content_type__model="onmessage",
         )
         for component in components:
-            on_message_component = component.content_type.get_object_for_this_type()
+            on_message_component = component.content_type.model_class().objects.get(
+                id=component.object_id,
+            )
             command_name = on_message_component.text.strip("/")
             append_to_text = ""
             if on_message_component.case_sensitive:
@@ -137,24 +139,32 @@ class GenerateCodeView(APIView):
             next_component = component.next_component
             if next_component:
                 next_component_text = (
-                    next_component.content_type.get_object_for_this_type()
+                    next_component.content_type.model_class().objects.get(
+                        id=next_component.object_id,
+                    )
                 )
                 method = next_component_text.__class__.__name__
                 method = "".join(
                     ["_" + c.lower() if c.isupper() else c for c in method],
                 ).lstrip("_")
 
-                keyboard = next_component_text.content_type.get_object_for_this_type()
-
-                if isinstance(keyboard, InlineKeyboardMarkup):
-                    code.extend(["    builder = InlineKeyboardBuilder()"])
-                    for k in keyboard.inline_keyboard.all():
-                        code.extend(
-                            [
-                                f"    builder.button(text='{k.text}', callback_data='{k.callback_data}')",
-                            ],
+                keyboard = None
+                if next_component_text.content_type:
+                    keyboard = (
+                        next_component_text.content_type.model_class().objects.get(
+                            id=next_component_text.object_id,
                         )
-                    code.extend(["    keyboard = builder.as_markup()"])
+                    )
+
+                    if isinstance(keyboard, InlineKeyboardMarkup):
+                        code.extend(["    builder = InlineKeyboardBuilder()"])
+                        for k in keyboard.inline_keyboard.all():
+                            code.extend(
+                                [
+                                    f"    builder.button(text='{k.text}', callback_data='{k.callback_data}')",
+                                ],
+                            )
+                        code.extend(["    keyboard = builder.as_markup()"])
                 #     for k in keyboard.inline_keyboard.all():
                 #         builder.button(text=k.text, callback_data=k.callback_data)
                 #     keyboard = builder.as_markup()
