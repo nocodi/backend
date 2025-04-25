@@ -99,7 +99,7 @@ class OnMessage(Component):
 
         code += [
             f"async def {self.code_function_name}(message: Message):",
-            f"    await {next_component.code_function_name}(message)",  # in order no next component
+            f"    await {next_component.code_function_name}(message.model_dump_json())",  # in order no next component
         ]
         return "\n".join(code)
 
