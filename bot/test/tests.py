@@ -55,4 +55,4 @@ class CodeTest(TestCase):
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
-        print(response.content.decode())
+        # print(response.content.decode())
