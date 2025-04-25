@@ -1,31 +1,32 @@
 from rest_framework import serializers
 
 from component.models import *
+from component.telegram.serializers import ModelSerializerCustom
 
 
-class IfComponentSerializer(serializers.ModelSerializer):
+class IfComponentSerializer(ModelSerializerCustom):
     class Meta:
         model = IfComponent
         depth = 1
-        fields = "__all__"
+        exclude = ["component_type"]
 
 
-class SwitchComponentSerializer(serializers.ModelSerializer):
+class SwitchComponentSerializer(ModelSerializerCustom):
     class Meta:
         model = SwitchComponent
         depth = 1
-        fields = "__all__"
+        exclude = ["component_type"]
 
 
-class CodeComponentSerializer(serializers.ModelSerializer):
+class CodeComponentSerializer(ModelSerializerCustom):
     class Meta:
         model = CodeComponent
         depth = 1
-        fields = "__all__"
+        exclude = ["component_type"]
 
 
-class OnMessageSerializer(serializers.ModelSerializer):
+class OnMessageSerializer(ModelSerializerCustom):
     class Meta:
         model = OnMessage
         depth = 1
-        fields = "__all__"
+        exclude = ["component_type"]
