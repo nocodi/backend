@@ -1,3 +1,5 @@
+import os
+
 import requests
 from aiogram.utils.keyboard import InlineKeyboardBuilder, KeyboardBuilder
 from django.conf import settings
@@ -79,46 +81,12 @@ class GenerateCodeView(APIView):
             )
 
         # imports
-        code = [
-            "import asyncio",
-            "import logging",
-            "from aiogram import Bot, Dispatcher, F",
-            "from aiogram.types import Message",
-            "from aiogram.client.session.aiohttp import AiohttpSession",
-            "from aiogram.fsm.storage.memory import MemoryStorage",
-            "from aiogram.client.telegram import TelegramAPIServer",
-            "from aiogram.utils.keyboard import InlineKeyboardBuilder",
-            "",
-        ]
-
-        # logging
-        code.extend(
-            [
-                "logging.basicConfig(",
-                "    level=logging.DEBUG,",
-                "    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'",
-                ")",
-                "logger = logging.getLogger(__name__)",
-                "",
-            ],
-        )
-
-        # bot
-        code.extend(
-            [
-                "memory = MemoryStorage()",
-                "dp = Dispatcher(storage=memory)",
-                "",
-                f"session = AiohttpSession(api=TelegramAPIServer.from_base('{settings.BALE_API_URL}'))",
-                f"bot = Bot(token='{bot_instance.token}', session=session)",
-                "",
-            ],
-        )
 
         components = Component.objects.filter(
             bot_id=bot,
             component_type=Component.ComponentType.TRIGGER,
         )
+        bot_component_codes = ""
         for component in components:
             if component.component_content_type.model != "onmessage":
                 return Response(
@@ -136,23 +104,16 @@ class GenerateCodeView(APIView):
                         pk=next_component.pk,
                     )
                 )
-                code.append(object.generate_code())
-                code.append("")
+                bot_component_codes += object.generate_code()
+                bot_component_codes += "\n" * 2
 
-        code.extend(
-            [
-                "async def main():",
-                "    try:",
-                "        logger.info('Bot initialized successfully')",
-                "        await dp.start_polling(bot)",
-                "    except Exception as e:",
-                "        logger.error(f'Bot polling failed: {e}')",
-                "        raise",
-            ],
+        with open("bot/bot_templates/main.txt") as f:
+            base = f.read()
+        code = base.format(
+            FUNCTION_CODES=bot_component_codes,
+            TOKEN=bot_instance.token,
+            BASE_URL=settings.BALE_API_URL,
         )
-
-        code.extend(["if __name__ == '__main__':", "    asyncio.run(main())", ""])
-
-        response = HttpResponse("\n".join(code), content_type="text/x-python")
+        response = HttpResponse(code, content_type="text/x-python")
         response["Content-Disposition"] = 'attachment; filename="bot.py"'
         return response

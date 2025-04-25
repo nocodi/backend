@@ -132,9 +132,10 @@ class Component(models.Model):
 
     def save(self, *args: list, **kwargs: dict) -> None:
         """Automatically sets content type"""
-        self.component_content_type = ContentType.objects.get(
-            model=self.__class__.__name__.lower(),
-        )
+        if self.pk is None:
+            self.component_content_type = ContentType.objects.get(
+                model=self.__class__.__name__.lower(),
+            )
         super().save(*args, **kwargs)
 
     component_content_type = models.ForeignKey(
