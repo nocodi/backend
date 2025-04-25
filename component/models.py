@@ -72,6 +72,37 @@ class OnMessage(Component):
         help_text="Whether the text matching should be case sensitive",
     )
 
+    def generate_code(self) -> str:
+
+        underlying_object: OnMessage = (
+            self.component_content_type.get_object_for_this_type()
+        )
+        if underlying_object.next_component.count() == 0:
+            return ""
+        if underlying_object.next_component.count() > 1:
+            raise Exception("Only one next component is allowed")
+        next_component: Component = underlying_object.next_component.get()
+        next_component = (
+            next_component.component_content_type.get_object_for_this_type()
+        )
+
+        append_to_text = ""
+        if underlying_object.case_sensitive:
+            append_to_text = ".lower()"
+
+        if underlying_object.text:
+            code = [
+                f"@dp.message(F.text{append_to_text} == '{underlying_object.text}')",
+            ]
+        else:
+            code = [f"@dp.message()"]
+
+        code += [
+            f"async def {self.code_function_name}(message: Message):",
+            f"    await {next_component.code_function_name}(message)",  # in order no next component
+        ]
+        return "\n".join(code)
+
 
 class OnCallbackQuery(Component):
     """Trigger component that executes when a callback query is received."""

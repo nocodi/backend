@@ -1,8 +1,11 @@
+from typing import List
+
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.db.models import Q
+from django.forms.models import model_to_dict
 
 
 class Keyboard(models.Model):
@@ -127,7 +130,6 @@ class Component(models.Model):
         help_text="Type of the component",
     )
 
-    # override objects.create
     def save(self, *args: list, **kwargs: dict) -> None:
         """Automatically sets content type"""
         self.component_content_type = ContentType.objects.get(
@@ -163,6 +165,93 @@ class Component(models.Model):
 
     class Meta:
         pass
+
+    @property
+    def code_function_name(self) -> str:  # -> name of the function in generated code
+        return f"{self.__class__.__name__.lower()}_{self.pk}"
+
+    def generate_code(self) -> str:
+        if self.component_type != Component.ComponentType.TELEGRAM:
+            raise NotImplementedError
+
+        underlying_object = self.component_content_type.get_object_for_this_type()
+        class_name = underlying_object.__class__.__name__
+        method = ""
+        for c in class_name:
+            if c.isupper():
+                method += "_"
+            method += c.lower()
+        method = method.lstrip("_")
+
+        code = [f"async def {underlying_object.code_function_name}(input_data: dict):"]
+        if underlying_object.content_type:
+            keyboard = underlying_object.content_type.get_object_for_this_type()
+        else:
+            keyboard = None
+
+        if isinstance(keyboard, InlineKeyboardMarkup):
+            code.extend(["    builder = InlineKeyboardBuilder()"])
+            for k in keyboard.inline_keyboard.all():
+                code.extend(
+                    [
+                        f"    builder.button(text='{k.text}', callback_data='{k.callback_data}')",
+                    ],
+                )
+            code.extend(["    keyboard = builder.as_markup()"])
+        #     for k in keyboard.inline_keyboard.all():
+        #         builder.button(text=k.text, callback_data=k.callback_data)
+        #     keyboard = builder.as_markup()
+        # else:
+        #     print("KEYBOARD")
+
+        component_data = model_to_dict(
+            underlying_object,
+            exclude=[
+                "id",
+                "component_ptr",
+                "component_ptr_id",
+                "timestamp",
+                "object_id",
+                "component_type",
+                "content_type",
+                "component_content_type",
+                "bot",
+                "previous_component",
+                "position_x",
+                "position_y",
+            ],
+        )
+        param_strings = []
+        for k, v in component_data.items():
+            if v is not None:
+                if isinstance(v, str):
+                    param_strings.append(f"{k}='{v}'")
+                else:
+                    param_strings.append(f"{k}={v}")
+
+        if keyboard:
+            param_strings.append(f"reply_markup=keyboard")
+
+        params_str = ", ".join(param_strings)
+        code.extend(
+            [
+                f"    await bot.{method}({params_str})",
+            ],
+        )
+        return "\n".join(code)
+
+    def get_all_next_components(self) -> List["Component"]:
+        """gets all next components by performing DFS"""
+        ans = {}
+        stack = [self]
+        while stack:
+            current = stack.pop()
+            if current.id not in ans:
+                ans[current.id] = current
+                for next_component in current.next_component.all():
+                    if next_component.id not in ans:
+                        stack.append(next_component)
+        return list(ans.values())
 
 
 class SendMessage(Component):

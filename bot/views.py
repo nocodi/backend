@@ -119,12 +119,7 @@ class GenerateCodeView(APIView):
             bot_id=bot,
             component_type=Component.ComponentType.TRIGGER,
         )
-        print(len(components))
         for component in components:
-            print(
-                component.component_content_type,
-                component.component_content_type.__dict__,
-            )
             if component.component_content_type.model != "onmessage":
                 return Response(
                     {
@@ -133,87 +128,14 @@ class GenerateCodeView(APIView):
                     status=status.HTTP_501_NOT_IMPLEMENTED,
                 )
 
-            on_message_component = (
-                component.component_content_type.get_object_for_this_type()
-            )
-            command_name = on_message_component.text.strip("/")
-            append_to_text = ""
-            if on_message_component.case_sensitive:
-                print(on_message_component.case_sensitive)
-                append_to_text = ".lower()"
-
-            code.extend(
-                [
-                    f"@dp.message(F.text{append_to_text} == '{on_message_component.text}')",
-                    f"async def {command_name}(message: Message):",
-                    f"    pass",  # in order no next component
-                ],
-            )
-
-            if component.next_component.count() > 1:
-                return Response(
-                    {"error": "Only one next component is supported"},
-                    status=status.HTTP_501_NOT_IMPLEMENTED,
-                )
-            next_component = component.next_component.first()
-            if next_component:
-                next_component_text = (
+            for next_component in component.get_all_next_components():
+                # if next_component.id == component.id:
+                #     continue
+                object = (
                     next_component.component_content_type.get_object_for_this_type()
                 )
-                method = next_component_text.__class__.__name__
-                method = "".join(
-                    ["_" + c.lower() if c.isupper() else c for c in method],
-                ).lstrip("_")
-
-                keyboard = (
-                    next_component_text.component_content_type.get_object_for_this_type()
-                )
-                # builder = InlineKeyboardBuilder()
-
-                if isinstance(keyboard, InlineKeyboardMarkup):
-                    code.extend(["    builder = InlineKeyboardBuilder()"])
-                    for k in keyboard.inline_keyboard.all():
-                        code.extend(
-                            [
-                                f"    builder.button(text='{k.text}', callback_data='{k.callback_data}')",
-                            ],
-                        )
-                    code.extend(["    keyboard = builder.as_markup()"])
-                #     for k in keyboard.inline_keyboard.all():
-                #         builder.button(text=k.text, callback_data=k.callback_data)
-                #     keyboard = builder.as_markup()
-                # else:
-                #     print("KEYBOARD")
-
-                component_data = model_to_dict(
-                    next_component_text,
-                    exclude=[
-                        "id",
-                        "component_ptr",
-                        "component_ptr_id",
-                        "timestamp",
-                        "object_id",
-                        "component_type",
-                        "content_type",
-                    ],
-                )
-                param_strings = []
-                for k, v in component_data.items():
-                    if v is not None:
-                        if isinstance(v, str):
-                            param_strings.append(f"{k}='{v}'")
-                        else:
-                            param_strings.append(f"{k}={v}")
-
-                if keyboard:
-                    param_strings.append(f"reply_markup=keyboard")
-
-                params_str = ", ".join(param_strings)
-                code.extend(
-                    [
-                        f"    await bot.{method}({params_str})",
-                    ],
-                )
+                code.append(object.generate_code())
+                code.append("")
 
         code.extend(
             [
