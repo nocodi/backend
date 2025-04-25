@@ -22,3 +22,17 @@ class CodeComponentSerializer(serializers.ModelSerializer):
         model = CodeComponent
         depth = 1
         fields = "__all__"
+
+
+class OnMessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OnMessage
+        depth = 1
+        fields = "__all__"
+
+
+class OnCallbackQuerySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OnCallbackQuery
+        depth = 1
+        fields = "__all__"
