@@ -188,6 +188,8 @@ class SendMessage(Component):
         | Q(model="replykeyboardmarkup")
         | Q(model="replykeyboardremove")
         | Q(model="forcereply"),
+        null=True,
+        blank=True,
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
     related_to_main = GenericForeignKey("content_type", "object_id")
@@ -336,6 +338,8 @@ class CopyMessage(Component):
         | Q(model="replykeyboardmarkup")
         | Q(model="replykeyboardremove")
         | Q(model="forcereply"),
+        null=True,
+        blank=True,
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
     related_to_main = GenericForeignKey("content_type", "object_id")
@@ -455,6 +459,8 @@ class SendPhoto(Component):
         | Q(model="replykeyboardmarkup")
         | Q(model="replykeyboardremove")
         | Q(model="forcereply"),
+        null=True,
+        blank=True,
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
     related_to_main = GenericForeignKey("content_type", "object_id")
@@ -533,6 +539,8 @@ class SendDocument(Component):
         | Q(model="replykeyboardmarkup")
         | Q(model="replykeyboardremove")
         | Q(model="forcereply"),
+        null=True,
+        blank=True,
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
     related_to_main = GenericForeignKey("content_type", "object_id")
@@ -639,6 +647,8 @@ class SendVideo(Component):
         | Q(model="replykeyboardmarkup")
         | Q(model="replykeyboardremove")
         | Q(model="forcereply"),
+        null=True,
+        blank=True,
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
     related_to_main = GenericForeignKey("content_type", "object_id")
@@ -729,6 +739,8 @@ class SendAnimation(Component):
         | Q(model="replykeyboardmarkup")
         | Q(model="replykeyboardremove")
         | Q(model="forcereply"),
+        null=True,
+        blank=True,
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
     related_to_main = GenericForeignKey("content_type", "object_id")
@@ -801,6 +813,8 @@ class SendVoice(Component):
         | Q(model="replykeyboardmarkup")
         | Q(model="replykeyboardremove")
         | Q(model="forcereply"),
+        null=True,
+        blank=True,
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
     related_to_main = GenericForeignKey("content_type", "object_id")
@@ -873,6 +887,8 @@ class SendVideoNote(Component):
         | Q(model="replykeyboardmarkup")
         | Q(model="replykeyboardremove")
         | Q(model="forcereply"),
+        null=True,
+        blank=True,
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
     related_to_main = GenericForeignKey("content_type", "object_id")
@@ -939,6 +955,8 @@ class SendPaidMedia(Component):
         | Q(model="replykeyboardmarkup")
         | Q(model="replykeyboardremove")
         | Q(model="forcereply"),
+        null=True,
+        blank=True,
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
     related_to_main = GenericForeignKey("content_type", "object_id")
@@ -1059,6 +1077,8 @@ class SendLocation(Component):
         | Q(model="replykeyboardmarkup")
         | Q(model="replykeyboardremove")
         | Q(model="forcereply"),
+        null=True,
+        blank=True,
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
     related_to_main = GenericForeignKey("content_type", "object_id")
@@ -1145,6 +1165,8 @@ class SendVenue(Component):
         | Q(model="replykeyboardmarkup")
         | Q(model="replykeyboardremove")
         | Q(model="forcereply"),
+        null=True,
+        blank=True,
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
     related_to_main = GenericForeignKey("content_type", "object_id")
@@ -1211,6 +1233,8 @@ class SendContact(Component):
         | Q(model="replykeyboardmarkup")
         | Q(model="replykeyboardremove")
         | Q(model="forcereply"),
+        null=True,
+        blank=True,
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
     related_to_main = GenericForeignKey("content_type", "object_id")
@@ -1318,6 +1342,8 @@ class SendPoll(Component):
         | Q(model="replykeyboardmarkup")
         | Q(model="replykeyboardremove")
         | Q(model="forcereply"),
+        null=True,
+        blank=True,
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
     related_to_main = GenericForeignKey("content_type", "object_id")
@@ -1373,6 +1399,8 @@ class SendDice(Component):
         | Q(model="replykeyboardmarkup")
         | Q(model="replykeyboardremove")
         | Q(model="forcereply"),
+        null=True,
+        blank=True,
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
     related_to_main = GenericForeignKey("content_type", "object_id")
@@ -2419,6 +2447,8 @@ class EditMessageText(Component):
         ContentType,
         on_delete=models.CASCADE,
         limit_choices_to=Q(model="inlinekeyboardmarkup"),
+        null=True,
+        blank=True,
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
     related_to_main = GenericForeignKey("content_type", "object_id")
@@ -2467,6 +2497,8 @@ class EditMessageCaption(Component):
         ContentType,
         on_delete=models.CASCADE,
         limit_choices_to=Q(model="inlinekeyboardmarkup"),
+        null=True,
+        blank=True,
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
     related_to_main = GenericForeignKey("content_type", "object_id")
@@ -2499,6 +2531,8 @@ class EditMessageMedia(Component):
         ContentType,
         on_delete=models.CASCADE,
         limit_choices_to=Q(model="inlinekeyboardmarkup"),
+        null=True,
+        blank=True,
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
     related_to_main = GenericForeignKey("content_type", "object_id")
@@ -2561,6 +2595,8 @@ class EditMessageLiveLocation(Component):
         ContentType,
         on_delete=models.CASCADE,
         limit_choices_to=Q(model="inlinekeyboardmarkup"),
+        null=True,
+        blank=True,
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
     related_to_main = GenericForeignKey("content_type", "object_id")
@@ -2593,6 +2629,8 @@ class StopMessageLiveLocation(Component):
         ContentType,
         on_delete=models.CASCADE,
         limit_choices_to=Q(model="inlinekeyboardmarkup"),
+        null=True,
+        blank=True,
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
     related_to_main = GenericForeignKey("content_type", "object_id")
@@ -2625,6 +2663,8 @@ class EditMessageReplyMarkup(Component):
         ContentType,
         on_delete=models.CASCADE,
         limit_choices_to=Q(model="inlinekeyboardmarkup"),
+        null=True,
+        blank=True,
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
     related_to_main = GenericForeignKey("content_type", "object_id")
@@ -2652,6 +2692,8 @@ class StopPoll(Component):
         ContentType,
         on_delete=models.CASCADE,
         limit_choices_to=Q(model="inlinekeyboardmarkup"),
+        null=True,
+        blank=True,
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
     related_to_main = GenericForeignKey("content_type", "object_id")
@@ -3217,6 +3259,8 @@ class SendSticker(Component):
         | Q(model="replykeyboardmarkup")
         | Q(model="replykeyboardremove")
         | Q(model="forcereply"),
+        null=True,
+        blank=True,
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
     related_to_main = GenericForeignKey("content_type", "object_id")
@@ -3636,6 +3680,8 @@ class SendInvoice(Component):
         ContentType,
         on_delete=models.CASCADE,
         limit_choices_to=Q(model="inlinekeyboardmarkup"),
+        null=True,
+        blank=True,
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
     related_to_main = GenericForeignKey("content_type", "object_id")
@@ -3884,6 +3930,8 @@ class SendGame(Component):
         ContentType,
         on_delete=models.CASCADE,
         limit_choices_to=Q(model="inlinekeyboardmarkup"),
+        null=True,
+        blank=True,
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
     related_to_main = GenericForeignKey("content_type", "object_id")
