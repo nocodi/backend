@@ -132,7 +132,9 @@ class GenerateCodeView(APIView):
                 # if next_component.id == component.id:
                 #     continue
                 object = (
-                    next_component.component_content_type.get_object_for_this_type()
+                    next_component.component_content_type.model_class().objects.get(
+                        pk=next_component.pk,
+                    )
                 )
                 code.append(object.generate_code())
                 code.append("")

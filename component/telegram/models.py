@@ -174,7 +174,9 @@ class Component(models.Model):
         if self.component_type != Component.ComponentType.TELEGRAM:
             raise NotImplementedError
 
-        underlying_object = self.component_content_type.get_object_for_this_type()
+        underlying_object = self.component_content_type.model_class().objects.get(
+            pk=self.pk,
+        )
         class_name = underlying_object.__class__.__name__
         method = ""
         for c in class_name:
@@ -238,6 +240,17 @@ class Component(models.Model):
                 f"    await bot.{method}({params_str})",
             ],
         )
+        for next_component in underlying_object.next_component.all():
+            next_component = (
+                next_component.component_content_type.model_class().objects.get(
+                    pk=next_component.pk,
+                )
+            )
+            code.extend(
+                [
+                    f"    await {next_component.code_function_name}(input_data)",
+                ],
+            )
         return "\n".join(code)
 
     def get_all_next_components(self) -> List["Component"]:

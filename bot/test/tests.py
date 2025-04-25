@@ -35,11 +35,20 @@ class CodeTest(TestCase):
             position_x=1,
             position_y=1,
             component_type=Component.ComponentType.TRIGGER,
+            text="Hello",
+        )
+        send_message_comp = SendMessage.objects.create(
+            bot=self.bot,
+            chat_id=1239963443,
+            text="Hello, World!",
+            position_x=1,
+            position_y=1,
+            previous_component=on_message_component,
         )
         SendMessage.objects.create(
             bot=self.bot,
             chat_id=1239963443,
-            text="Hello, World!",
+            text="Bye World",
             position_x=1,
             position_y=1,
             previous_component=on_message_component,
