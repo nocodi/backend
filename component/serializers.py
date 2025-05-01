@@ -30,3 +30,10 @@ class OnMessageSerializer(ModelSerializerCustom):
         model = OnMessage
         depth = 1
         exclude = ["component_type"]
+
+
+class OnCallbackQuerySerializer(ModelSerializerCustom):
+    class Meta:
+        model = OnCallbackQuery
+        depth = 1
+        exclude = ["component_type"]

@@ -23,3 +23,8 @@ class CodeComponentSet(ModelViewSetCustom):
 class OnMessageSet(ModelViewSetCustom):
     serializer_class = OnMessageSerializer
     queryset = OnMessage.objects.all()
+
+
+class OnCallbackQuerySet(ModelViewSetCustom):
+    serializer_class = OnCallbackQuerySerializer
+    queryset = OnCallbackQuery.objects.all()
