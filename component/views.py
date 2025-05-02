@@ -1,4 +1,5 @@
 from django.db.models import QuerySet
+from rest_framework.generics import ListAPIView
 from rest_framework.viewsets import ModelViewSet
 
 from component.serializers import *
@@ -28,3 +29,10 @@ class OnMessageSet(ModelViewSetCustom):
 class OnCallbackQuerySet(ModelViewSetCustom):
     serializer_class = OnCallbackQuerySerializer
     queryset = OnCallbackQuery.objects.all()
+
+
+class ContentTypeListView(ListAPIView):
+    queryset = ContentType.objects.filter(
+        Q(app_label="component") & ~Q(model="component") & ~Q(model="keyboard"),
+    )
+    serializer_class = ContentTypeSerializer

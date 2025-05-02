@@ -43,7 +43,6 @@ urlpatterns = [
     ),
     path("iam/", include(("iam.urls", "iam"), namespace="iam")),
     path("bot/", include(("bot.urls", "bot"), namespace="bot")),
-    path("flow/", include(("flow.urls", "flow"), namespace="flow")),
     path(
         "component/<int:bot>/",
         include(("component.urls", "component"), namespace="component"),
