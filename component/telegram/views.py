@@ -1,698 +1,850 @@
+from django.db.models import QuerySet
 from rest_framework.viewsets import ModelViewSet
 
+from bot.permissions import IsBotOwner
 from component.telegram.serializers import *
+from iam.permissions import IsLoginedPermission
 
 
-class SendMessageViewSet(ModelViewSet):
+class ModelViewSetCustom(ModelViewSet):
+    def get_serializer_context(self) -> dict:
+        context = super().get_serializer_context()
+        context["bot"] = self.kwargs.get("bot")
+        return context
+
+    def get_queryset(self) -> QuerySet:
+        return self.get_queryset().filter(bot=self.kwargs.get("bot"))
+
+
+class SendMessageViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SendMessageSerializer
     queryset = SendMessage.objects.all()
 
 
-class ForwardMessageViewSet(ModelViewSet):
+class ForwardMessageViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = ForwardMessageSerializer
     queryset = ForwardMessage.objects.all()
 
 
-class ForwardMessagesViewSet(ModelViewSet):
+class ForwardMessagesViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = ForwardMessagesSerializer
     queryset = ForwardMessages.objects.all()
 
 
-class CopyMessageViewSet(ModelViewSet):
+class CopyMessageViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = CopyMessageSerializer
     queryset = CopyMessage.objects.all()
 
 
-class CopyMessagesViewSet(ModelViewSet):
+class CopyMessagesViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = CopyMessagesSerializer
     queryset = CopyMessages.objects.all()
 
 
-class SendPhotoViewSet(ModelViewSet):
+class SendPhotoViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SendPhotoSerializer
     queryset = SendPhoto.objects.all()
 
 
-class SendDocumentViewSet(ModelViewSet):
+class SendDocumentViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SendDocumentSerializer
     queryset = SendDocument.objects.all()
 
 
-class SendVideoViewSet(ModelViewSet):
+class SendVideoViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SendVideoSerializer
     queryset = SendVideo.objects.all()
 
 
-class SendAnimationViewSet(ModelViewSet):
+class SendAnimationViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SendAnimationSerializer
     queryset = SendAnimation.objects.all()
 
 
-class SendVoiceViewSet(ModelViewSet):
+class SendVoiceViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SendVoiceSerializer
     queryset = SendVoice.objects.all()
 
 
-class SendVideoNoteViewSet(ModelViewSet):
+class SendVideoNoteViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SendVideoNoteSerializer
     queryset = SendVideoNote.objects.all()
 
 
-class SendPaidMediaViewSet(ModelViewSet):
+class SendPaidMediaViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SendPaidMediaSerializer
     queryset = SendPaidMedia.objects.all()
 
 
-class SendMediaGroupViewSet(ModelViewSet):
+class SendMediaGroupViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SendMediaGroupSerializer
     queryset = SendMediaGroup.objects.all()
 
 
-class SendLocationViewSet(ModelViewSet):
+class SendLocationViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SendLocationSerializer
     queryset = SendLocation.objects.all()
 
 
-class SendVenueViewSet(ModelViewSet):
+class SendVenueViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SendVenueSerializer
     queryset = SendVenue.objects.all()
 
 
-class SendContactViewSet(ModelViewSet):
+class SendContactViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SendContactSerializer
     queryset = SendContact.objects.all()
 
 
-class SendPollViewSet(ModelViewSet):
+class SendPollViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SendPollSerializer
     queryset = SendPoll.objects.all()
 
 
-class SendDiceViewSet(ModelViewSet):
+class SendDiceViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SendDiceSerializer
     queryset = SendDice.objects.all()
 
 
-class SetMessageReactionViewSet(ModelViewSet):
+class SetMessageReactionViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SetMessageReactionSerializer
     queryset = SetMessageReaction.objects.all()
 
 
-class GetUserProfilePhotosViewSet(ModelViewSet):
+class GetUserProfilePhotosViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = GetUserProfilePhotosSerializer
     queryset = GetUserProfilePhotos.objects.all()
 
 
-class SetUserEmojiStatusViewSet(ModelViewSet):
+class SetUserEmojiStatusViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SetUserEmojiStatusSerializer
     queryset = SetUserEmojiStatus.objects.all()
 
 
-class GetFileViewSet(ModelViewSet):
+class GetFileViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = GetFileSerializer
     queryset = GetFile.objects.all()
 
 
-class BanChatMemberViewSet(ModelViewSet):
+class BanChatMemberViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = BanChatMemberSerializer
     queryset = BanChatMember.objects.all()
 
 
-class UnbanChatMemberViewSet(ModelViewSet):
+class UnbanChatMemberViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = UnbanChatMemberSerializer
     queryset = UnbanChatMember.objects.all()
 
 
-class RestrictChatMemberViewSet(ModelViewSet):
+class RestrictChatMemberViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = RestrictChatMemberSerializer
     queryset = RestrictChatMember.objects.all()
 
 
-class PromoteChatMemberViewSet(ModelViewSet):
+class PromoteChatMemberViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = PromoteChatMemberSerializer
     queryset = PromoteChatMember.objects.all()
 
 
-class SetChatAdministratorCustomTitleViewSet(ModelViewSet):
+class SetChatAdministratorCustomTitleViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SetChatAdministratorCustomTitleSerializer
     queryset = SetChatAdministratorCustomTitle.objects.all()
 
 
-class BanChatSenderChatViewSet(ModelViewSet):
+class BanChatSenderChatViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = BanChatSenderChatSerializer
     queryset = BanChatSenderChat.objects.all()
 
 
-class UnbanChatSenderChatViewSet(ModelViewSet):
+class UnbanChatSenderChatViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = UnbanChatSenderChatSerializer
     queryset = UnbanChatSenderChat.objects.all()
 
 
-class SetChatPermissionsViewSet(ModelViewSet):
+class SetChatPermissionsViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SetChatPermissionsSerializer
     queryset = SetChatPermissions.objects.all()
 
 
-class ExportChatInviteLinkViewSet(ModelViewSet):
+class ExportChatInviteLinkViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = ExportChatInviteLinkSerializer
     queryset = ExportChatInviteLink.objects.all()
 
 
-class CreateChatInviteLinkViewSet(ModelViewSet):
+class CreateChatInviteLinkViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = CreateChatInviteLinkSerializer
     queryset = CreateChatInviteLink.objects.all()
 
 
-class EditChatInviteLinkViewSet(ModelViewSet):
+class EditChatInviteLinkViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = EditChatInviteLinkSerializer
     queryset = EditChatInviteLink.objects.all()
 
 
-class CreateChatSubscriptionInviteLinkViewSet(ModelViewSet):
+class CreateChatSubscriptionInviteLinkViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = CreateChatSubscriptionInviteLinkSerializer
     queryset = CreateChatSubscriptionInviteLink.objects.all()
 
 
-class EditChatSubscriptionInviteLinkViewSet(ModelViewSet):
+class EditChatSubscriptionInviteLinkViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = EditChatSubscriptionInviteLinkSerializer
     queryset = EditChatSubscriptionInviteLink.objects.all()
 
 
-class RevokeChatInviteLinkViewSet(ModelViewSet):
+class RevokeChatInviteLinkViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = RevokeChatInviteLinkSerializer
     queryset = RevokeChatInviteLink.objects.all()
 
 
-class ApproveChatJoinRequestViewSet(ModelViewSet):
+class ApproveChatJoinRequestViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = ApproveChatJoinRequestSerializer
     queryset = ApproveChatJoinRequest.objects.all()
 
 
-class DeclineChatJoinRequestViewSet(ModelViewSet):
+class DeclineChatJoinRequestViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = DeclineChatJoinRequestSerializer
     queryset = DeclineChatJoinRequest.objects.all()
 
 
-class SetChatPhotoViewSet(ModelViewSet):
+class SetChatPhotoViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SetChatPhotoSerializer
     queryset = SetChatPhoto.objects.all()
 
 
-class DeleteChatPhotoViewSet(ModelViewSet):
+class DeleteChatPhotoViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = DeleteChatPhotoSerializer
     queryset = DeleteChatPhoto.objects.all()
 
 
-class SetChatTitleViewSet(ModelViewSet):
+class SetChatTitleViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SetChatTitleSerializer
     queryset = SetChatTitle.objects.all()
 
 
-class SetChatDescriptionViewSet(ModelViewSet):
+class SetChatDescriptionViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SetChatDescriptionSerializer
     queryset = SetChatDescription.objects.all()
 
 
-class PinChatMessageViewSet(ModelViewSet):
+class PinChatMessageViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = PinChatMessageSerializer
     queryset = PinChatMessage.objects.all()
 
 
-class UnpinChatMessageViewSet(ModelViewSet):
+class UnpinChatMessageViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = UnpinChatMessageSerializer
     queryset = UnpinChatMessage.objects.all()
 
 
-class UnpinAllChatMessagesViewSet(ModelViewSet):
+class UnpinAllChatMessagesViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = UnpinAllChatMessagesSerializer
     queryset = UnpinAllChatMessages.objects.all()
 
 
-class LeaveChatViewSet(ModelViewSet):
+class LeaveChatViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = LeaveChatSerializer
     queryset = LeaveChat.objects.all()
 
 
-class GetChatViewSet(ModelViewSet):
+class GetChatViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = GetChatSerializer
     queryset = GetChat.objects.all()
 
 
-class GetChatAdministratorsViewSet(ModelViewSet):
+class GetChatAdministratorsViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = GetChatAdministratorsSerializer
     queryset = GetChatAdministrators.objects.all()
 
 
-class GetChatMemberCountViewSet(ModelViewSet):
+class GetChatMemberCountViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = GetChatMemberCountSerializer
     queryset = GetChatMemberCount.objects.all()
 
 
-class GetChatMemberViewSet(ModelViewSet):
+class GetChatMemberViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = GetChatMemberSerializer
     queryset = GetChatMember.objects.all()
 
 
-class SetChatStickerSetViewSet(ModelViewSet):
+class SetChatStickerSetViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SetChatStickerSetSerializer
     queryset = SetChatStickerSet.objects.all()
 
 
-class DeleteChatStickerSetViewSet(ModelViewSet):
+class DeleteChatStickerSetViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = DeleteChatStickerSetSerializer
     queryset = DeleteChatStickerSet.objects.all()
 
 
-class CreateForumTopicViewSet(ModelViewSet):
+class CreateForumTopicViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = CreateForumTopicSerializer
     queryset = CreateForumTopic.objects.all()
 
 
-class EditForumTopicViewSet(ModelViewSet):
+class EditForumTopicViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = EditForumTopicSerializer
     queryset = EditForumTopic.objects.all()
 
 
-class CloseForumTopicViewSet(ModelViewSet):
+class CloseForumTopicViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = CloseForumTopicSerializer
     queryset = CloseForumTopic.objects.all()
 
 
-class ReopenForumTopicViewSet(ModelViewSet):
+class ReopenForumTopicViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = ReopenForumTopicSerializer
     queryset = ReopenForumTopic.objects.all()
 
 
-class DeleteForumTopicViewSet(ModelViewSet):
+class DeleteForumTopicViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = DeleteForumTopicSerializer
     queryset = DeleteForumTopic.objects.all()
 
 
-class UnpinAllForumTopicMessagesViewSet(ModelViewSet):
+class UnpinAllForumTopicMessagesViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = UnpinAllForumTopicMessagesSerializer
     queryset = UnpinAllForumTopicMessages.objects.all()
 
 
-class EditGeneralForumTopicViewSet(ModelViewSet):
+class EditGeneralForumTopicViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = EditGeneralForumTopicSerializer
     queryset = EditGeneralForumTopic.objects.all()
 
 
-class CloseGeneralForumTopicViewSet(ModelViewSet):
+class CloseGeneralForumTopicViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = CloseGeneralForumTopicSerializer
     queryset = CloseGeneralForumTopic.objects.all()
 
 
-class ReopenGeneralForumTopicViewSet(ModelViewSet):
+class ReopenGeneralForumTopicViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = ReopenGeneralForumTopicSerializer
     queryset = ReopenGeneralForumTopic.objects.all()
 
 
-class HideGeneralForumTopicViewSet(ModelViewSet):
+class HideGeneralForumTopicViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = HideGeneralForumTopicSerializer
     queryset = HideGeneralForumTopic.objects.all()
 
 
-class UnhideGeneralForumTopicViewSet(ModelViewSet):
+class UnhideGeneralForumTopicViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = UnhideGeneralForumTopicSerializer
     queryset = UnhideGeneralForumTopic.objects.all()
 
 
-class UnpinAllGeneralForumTopicMessagesViewSet(ModelViewSet):
+class UnpinAllGeneralForumTopicMessagesViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = UnpinAllGeneralForumTopicMessagesSerializer
     queryset = UnpinAllGeneralForumTopicMessages.objects.all()
 
 
-class GetUserChatBoostsViewSet(ModelViewSet):
+class GetUserChatBoostsViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = GetUserChatBoostsSerializer
     queryset = GetUserChatBoosts.objects.all()
 
 
-class GetBusinessConnectionViewSet(ModelViewSet):
+class GetBusinessConnectionViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = GetBusinessConnectionSerializer
     queryset = GetBusinessConnection.objects.all()
 
 
-class SetMyCommandsViewSet(ModelViewSet):
+class SetMyCommandsViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SetMyCommandsSerializer
     queryset = SetMyCommands.objects.all()
 
 
-class DeleteMyCommandsViewSet(ModelViewSet):
+class DeleteMyCommandsViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = DeleteMyCommandsSerializer
     queryset = DeleteMyCommands.objects.all()
 
 
-class GetMyCommandsViewSet(ModelViewSet):
+class GetMyCommandsViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = GetMyCommandsSerializer
     queryset = GetMyCommands.objects.all()
 
 
-class SetMyNameViewSet(ModelViewSet):
+class SetMyNameViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SetMyNameSerializer
     queryset = SetMyName.objects.all()
 
 
-class GetMyNameViewSet(ModelViewSet):
+class GetMyNameViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = GetMyNameSerializer
     queryset = GetMyName.objects.all()
 
 
-class SetMyDescriptionViewSet(ModelViewSet):
+class SetMyDescriptionViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SetMyDescriptionSerializer
     queryset = SetMyDescription.objects.all()
 
 
-class GetMyDescriptionViewSet(ModelViewSet):
+class GetMyDescriptionViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = GetMyDescriptionSerializer
     queryset = GetMyDescription.objects.all()
 
 
-class SetMyShortDescriptionViewSet(ModelViewSet):
+class SetMyShortDescriptionViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SetMyShortDescriptionSerializer
     queryset = SetMyShortDescription.objects.all()
 
 
-class GetMyShortDescriptionViewSet(ModelViewSet):
+class GetMyShortDescriptionViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = GetMyShortDescriptionSerializer
     queryset = GetMyShortDescription.objects.all()
 
 
-class SetChatMenuButtonViewSet(ModelViewSet):
+class SetChatMenuButtonViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SetChatMenuButtonSerializer
     queryset = SetChatMenuButton.objects.all()
 
 
-class GetChatMenuButtonViewSet(ModelViewSet):
+class GetChatMenuButtonViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = GetChatMenuButtonSerializer
     queryset = GetChatMenuButton.objects.all()
 
 
-class SetMyDefaultAdministratorRightsViewSet(ModelViewSet):
+class SetMyDefaultAdministratorRightsViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SetMyDefaultAdministratorRightsSerializer
     queryset = SetMyDefaultAdministratorRights.objects.all()
 
 
-class GetMyDefaultAdministratorRightsViewSet(ModelViewSet):
+class GetMyDefaultAdministratorRightsViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = GetMyDefaultAdministratorRightsSerializer
     queryset = GetMyDefaultAdministratorRights.objects.all()
 
 
-class EditMessageTextViewSet(ModelViewSet):
+class EditMessageTextViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = EditMessageTextSerializer
     queryset = EditMessageText.objects.all()
 
 
-class EditMessageCaptionViewSet(ModelViewSet):
+class EditMessageCaptionViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = EditMessageCaptionSerializer
     queryset = EditMessageCaption.objects.all()
 
 
-class EditMessageMediaViewSet(ModelViewSet):
+class EditMessageMediaViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = EditMessageMediaSerializer
     queryset = EditMessageMedia.objects.all()
 
 
-class EditMessageLiveLocationViewSet(ModelViewSet):
+class EditMessageLiveLocationViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = EditMessageLiveLocationSerializer
     queryset = EditMessageLiveLocation.objects.all()
 
 
-class StopMessageLiveLocationViewSet(ModelViewSet):
+class StopMessageLiveLocationViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = StopMessageLiveLocationSerializer
     queryset = StopMessageLiveLocation.objects.all()
 
 
-class EditMessageReplyMarkupViewSet(ModelViewSet):
+class EditMessageReplyMarkupViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = EditMessageReplyMarkupSerializer
     queryset = EditMessageReplyMarkup.objects.all()
 
 
-class StopPollViewSet(ModelViewSet):
+class StopPollViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = StopPollSerializer
     queryset = StopPoll.objects.all()
 
 
-class DeleteMessageViewSet(ModelViewSet):
+class DeleteMessageViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = DeleteMessageSerializer
     queryset = DeleteMessage.objects.all()
 
 
-class DeleteMessagesViewSet(ModelViewSet):
+class DeleteMessagesViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = DeleteMessagesSerializer
     queryset = DeleteMessages.objects.all()
 
 
-class SendGiftViewSet(ModelViewSet):
+class SendGiftViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SendGiftSerializer
     queryset = SendGift.objects.all()
 
 
-class GiftPremiumSubscriptionViewSet(ModelViewSet):
+class GiftPremiumSubscriptionViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = GiftPremiumSubscriptionSerializer
     queryset = GiftPremiumSubscription.objects.all()
 
 
-class VerifyUserViewSet(ModelViewSet):
+class VerifyUserViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = VerifyUserSerializer
     queryset = VerifyUser.objects.all()
 
 
-class VerifyChatViewSet(ModelViewSet):
+class VerifyChatViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = VerifyChatSerializer
     queryset = VerifyChat.objects.all()
 
 
-class RemoveUserVerificationViewSet(ModelViewSet):
+class RemoveUserVerificationViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = RemoveUserVerificationSerializer
     queryset = RemoveUserVerification.objects.all()
 
 
-class RemoveChatVerificationViewSet(ModelViewSet):
+class RemoveChatVerificationViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = RemoveChatVerificationSerializer
     queryset = RemoveChatVerification.objects.all()
 
 
-class ReadBusinessMessageViewSet(ModelViewSet):
+class ReadBusinessMessageViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = ReadBusinessMessageSerializer
     queryset = ReadBusinessMessage.objects.all()
 
 
-class DeleteBusinessMessagesViewSet(ModelViewSet):
+class DeleteBusinessMessagesViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = DeleteBusinessMessagesSerializer
     queryset = DeleteBusinessMessages.objects.all()
 
 
-class SetBusinessAccountNameViewSet(ModelViewSet):
+class SetBusinessAccountNameViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SetBusinessAccountNameSerializer
     queryset = SetBusinessAccountName.objects.all()
 
 
-class SetBusinessAccountUsernameViewSet(ModelViewSet):
+class SetBusinessAccountUsernameViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SetBusinessAccountUsernameSerializer
     queryset = SetBusinessAccountUsername.objects.all()
 
 
-class SetBusinessAccountBioViewSet(ModelViewSet):
+class SetBusinessAccountBioViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SetBusinessAccountBioSerializer
     queryset = SetBusinessAccountBio.objects.all()
 
 
-class SetBusinessAccountProfilePhotoViewSet(ModelViewSet):
+class SetBusinessAccountProfilePhotoViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SetBusinessAccountProfilePhotoSerializer
     queryset = SetBusinessAccountProfilePhoto.objects.all()
 
 
-class RemoveBusinessAccountProfilePhotoViewSet(ModelViewSet):
+class RemoveBusinessAccountProfilePhotoViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = RemoveBusinessAccountProfilePhotoSerializer
     queryset = RemoveBusinessAccountProfilePhoto.objects.all()
 
 
-class SetBusinessAccountGiftSettingsViewSet(ModelViewSet):
+class SetBusinessAccountGiftSettingsViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SetBusinessAccountGiftSettingsSerializer
     queryset = SetBusinessAccountGiftSettings.objects.all()
 
 
-class GetBusinessAccountStarBalanceViewSet(ModelViewSet):
+class GetBusinessAccountStarBalanceViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = GetBusinessAccountStarBalanceSerializer
     queryset = GetBusinessAccountStarBalance.objects.all()
 
 
-class TransferBusinessAccountStarsViewSet(ModelViewSet):
+class TransferBusinessAccountStarsViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = TransferBusinessAccountStarsSerializer
     queryset = TransferBusinessAccountStars.objects.all()
 
 
-class GetBusinessAccountGiftsViewSet(ModelViewSet):
+class GetBusinessAccountGiftsViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = GetBusinessAccountGiftsSerializer
     queryset = GetBusinessAccountGifts.objects.all()
 
 
-class ConvertGiftToStarsViewSet(ModelViewSet):
+class ConvertGiftToStarsViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = ConvertGiftToStarsSerializer
     queryset = ConvertGiftToStars.objects.all()
 
 
-class UpgradeGiftViewSet(ModelViewSet):
+class UpgradeGiftViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = UpgradeGiftSerializer
     queryset = UpgradeGift.objects.all()
 
 
-class TransferGiftViewSet(ModelViewSet):
+class TransferGiftViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = TransferGiftSerializer
     queryset = TransferGift.objects.all()
 
 
-class PostStoryViewSet(ModelViewSet):
+class PostStoryViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = PostStorySerializer
     queryset = PostStory.objects.all()
 
 
-class EditStoryViewSet(ModelViewSet):
+class EditStoryViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = EditStorySerializer
     queryset = EditStory.objects.all()
 
 
-class DeleteStoryViewSet(ModelViewSet):
+class DeleteStoryViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = DeleteStorySerializer
     queryset = DeleteStory.objects.all()
 
 
-class SendStickerViewSet(ModelViewSet):
+class SendStickerViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SendStickerSerializer
     queryset = SendSticker.objects.all()
 
 
-class GetStickerSetViewSet(ModelViewSet):
+class GetStickerSetViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = GetStickerSetSerializer
     queryset = GetStickerSet.objects.all()
 
 
-class GetCustomEmojiStickersViewSet(ModelViewSet):
+class GetCustomEmojiStickersViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = GetCustomEmojiStickersSerializer
     queryset = GetCustomEmojiStickers.objects.all()
 
 
-class UploadStickerFileViewSet(ModelViewSet):
+class UploadStickerFileViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = UploadStickerFileSerializer
     queryset = UploadStickerFile.objects.all()
 
 
-class CreateNewStickerSetViewSet(ModelViewSet):
+class CreateNewStickerSetViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = CreateNewStickerSetSerializer
     queryset = CreateNewStickerSet.objects.all()
 
 
-class AddStickerToSetViewSet(ModelViewSet):
+class AddStickerToSetViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = AddStickerToSetSerializer
     queryset = AddStickerToSet.objects.all()
 
 
-class SetStickerPositionInSetViewSet(ModelViewSet):
+class SetStickerPositionInSetViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SetStickerPositionInSetSerializer
     queryset = SetStickerPositionInSet.objects.all()
 
 
-class DeleteStickerFromSetViewSet(ModelViewSet):
+class DeleteStickerFromSetViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = DeleteStickerFromSetSerializer
     queryset = DeleteStickerFromSet.objects.all()
 
 
-class ReplaceStickerInSetViewSet(ModelViewSet):
+class ReplaceStickerInSetViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = ReplaceStickerInSetSerializer
     queryset = ReplaceStickerInSet.objects.all()
 
 
-class SetStickerEmojiListViewSet(ModelViewSet):
+class SetStickerEmojiListViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SetStickerEmojiListSerializer
     queryset = SetStickerEmojiList.objects.all()
 
 
-class SetStickerKeywordsViewSet(ModelViewSet):
+class SetStickerKeywordsViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SetStickerKeywordsSerializer
     queryset = SetStickerKeywords.objects.all()
 
 
-class SetStickerMaskPositionViewSet(ModelViewSet):
+class SetStickerMaskPositionViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SetStickerMaskPositionSerializer
     queryset = SetStickerMaskPosition.objects.all()
 
 
-class SetStickerSetTitleViewSet(ModelViewSet):
+class SetStickerSetTitleViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SetStickerSetTitleSerializer
     queryset = SetStickerSetTitle.objects.all()
 
 
-class SetStickerSetThumbnailViewSet(ModelViewSet):
+class SetStickerSetThumbnailViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SetStickerSetThumbnailSerializer
     queryset = SetStickerSetThumbnail.objects.all()
 
 
-class SetCustomEmojiStickerSetThumbnailViewSet(ModelViewSet):
+class SetCustomEmojiStickerSetThumbnailViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SetCustomEmojiStickerSetThumbnailSerializer
     queryset = SetCustomEmojiStickerSetThumbnail.objects.all()
 
 
-class DeleteStickerSetViewSet(ModelViewSet):
+class DeleteStickerSetViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = DeleteStickerSetSerializer
     queryset = DeleteStickerSet.objects.all()
 
 
-class AnswerInlineQueryViewSet(ModelViewSet):
+class AnswerInlineQueryViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = AnswerInlineQuerySerializer
     queryset = AnswerInlineQuery.objects.all()
 
 
-class AnswerWebAppQueryViewSet(ModelViewSet):
+class AnswerWebAppQueryViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = AnswerWebAppQuerySerializer
     queryset = AnswerWebAppQuery.objects.all()
 
 
-class SavePreparedInlineMessageViewSet(ModelViewSet):
+class SavePreparedInlineMessageViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SavePreparedInlineMessageSerializer
     queryset = SavePreparedInlineMessage.objects.all()
 
 
-class SendInvoiceViewSet(ModelViewSet):
+class SendInvoiceViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SendInvoiceSerializer
     queryset = SendInvoice.objects.all()
 
 
-class CreateInvoiceLinkViewSet(ModelViewSet):
+class CreateInvoiceLinkViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = CreateInvoiceLinkSerializer
     queryset = CreateInvoiceLink.objects.all()
 
 
-class AnswerShippingQueryViewSet(ModelViewSet):
+class AnswerShippingQueryViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = AnswerShippingQuerySerializer
     queryset = AnswerShippingQuery.objects.all()
 
 
-class AnswerPreCheckoutQueryViewSet(ModelViewSet):
+class AnswerPreCheckoutQueryViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = AnswerPreCheckoutQuerySerializer
     queryset = AnswerPreCheckoutQuery.objects.all()
 
 
-class GetStarTransactionsViewSet(ModelViewSet):
+class GetStarTransactionsViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = GetStarTransactionsSerializer
     queryset = GetStarTransactions.objects.all()
 
 
-class RefundStarPaymentViewSet(ModelViewSet):
+class RefundStarPaymentViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = RefundStarPaymentSerializer
     queryset = RefundStarPayment.objects.all()
 
 
-class EditUserStarSubscriptionViewSet(ModelViewSet):
+class EditUserStarSubscriptionViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = EditUserStarSubscriptionSerializer
     queryset = EditUserStarSubscription.objects.all()
 
 
-class SendGameViewSet(ModelViewSet):
+class SendGameViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SendGameSerializer
     queryset = SendGame.objects.all()
 
 
-class SetGameScoreViewSet(ModelViewSet):
+class SetGameScoreViewSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SetGameScoreSerializer
     queryset = SetGameScore.objects.all()

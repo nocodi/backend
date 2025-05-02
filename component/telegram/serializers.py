@@ -3,974 +3,841 @@ from rest_framework import serializers
 from component.telegram.models import *
 
 
-class SendMessageSerializer(serializers.ModelSerializer):
+class ModelSerializerCustom(serializers.ModelSerializer):
+    def create(self, validated_data: dict) -> Component:
+        validated_data["bot_id"] = self.context.get("bot")
+        return super().create(validated_data)
+
+
+class SendMessageSerializer(ModelSerializerCustom):
     class Meta:
         model = SendMessage
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class ForwardMessageSerializer(serializers.ModelSerializer):
+class ForwardMessageSerializer(ModelSerializerCustom):
     class Meta:
         model = ForwardMessage
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class ForwardMessagesSerializer(serializers.ModelSerializer):
+class ForwardMessagesSerializer(ModelSerializerCustom):
     class Meta:
         model = ForwardMessages
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class CopyMessageSerializer(serializers.ModelSerializer):
+class CopyMessageSerializer(ModelSerializerCustom):
     class Meta:
         model = CopyMessage
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class CopyMessagesSerializer(serializers.ModelSerializer):
+class CopyMessagesSerializer(ModelSerializerCustom):
     class Meta:
         model = CopyMessages
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SendPhotoSerializer(serializers.ModelSerializer):
+class SendPhotoSerializer(ModelSerializerCustom):
     class Meta:
         model = SendPhoto
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SendDocumentSerializer(serializers.ModelSerializer):
+class SendDocumentSerializer(ModelSerializerCustom):
     class Meta:
         model = SendDocument
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SendVideoSerializer(serializers.ModelSerializer):
+class SendVideoSerializer(ModelSerializerCustom):
     class Meta:
         model = SendVideo
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SendAnimationSerializer(serializers.ModelSerializer):
+class SendAnimationSerializer(ModelSerializerCustom):
     class Meta:
         model = SendAnimation
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SendVoiceSerializer(serializers.ModelSerializer):
+class SendVoiceSerializer(ModelSerializerCustom):
     class Meta:
         model = SendVoice
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SendVideoNoteSerializer(serializers.ModelSerializer):
+class SendVideoNoteSerializer(ModelSerializerCustom):
     class Meta:
         model = SendVideoNote
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SendPaidMediaSerializer(serializers.ModelSerializer):
+class SendPaidMediaSerializer(ModelSerializerCustom):
     class Meta:
         model = SendPaidMedia
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SendMediaGroupSerializer(serializers.ModelSerializer):
+class SendMediaGroupSerializer(ModelSerializerCustom):
     class Meta:
         model = SendMediaGroup
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SendLocationSerializer(serializers.ModelSerializer):
+class SendLocationSerializer(ModelSerializerCustom):
     class Meta:
         model = SendLocation
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SendVenueSerializer(serializers.ModelSerializer):
+class SendVenueSerializer(ModelSerializerCustom):
     class Meta:
         model = SendVenue
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SendContactSerializer(serializers.ModelSerializer):
+class SendContactSerializer(ModelSerializerCustom):
     class Meta:
         model = SendContact
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SendPollSerializer(serializers.ModelSerializer):
+class SendPollSerializer(ModelSerializerCustom):
     class Meta:
         model = SendPoll
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SendDiceSerializer(serializers.ModelSerializer):
+class SendDiceSerializer(ModelSerializerCustom):
     class Meta:
         model = SendDice
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SetMessageReactionSerializer(serializers.ModelSerializer):
+class SetMessageReactionSerializer(ModelSerializerCustom):
     class Meta:
         model = SetMessageReaction
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class GetUserProfilePhotosSerializer(serializers.ModelSerializer):
+class GetUserProfilePhotosSerializer(ModelSerializerCustom):
     class Meta:
         model = GetUserProfilePhotos
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SetUserEmojiStatusSerializer(serializers.ModelSerializer):
+class SetUserEmojiStatusSerializer(ModelSerializerCustom):
     class Meta:
         model = SetUserEmojiStatus
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class GetFileSerializer(serializers.ModelSerializer):
+class GetFileSerializer(ModelSerializerCustom):
     class Meta:
         model = GetFile
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class BanChatMemberSerializer(serializers.ModelSerializer):
+class BanChatMemberSerializer(ModelSerializerCustom):
     class Meta:
         model = BanChatMember
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class UnbanChatMemberSerializer(serializers.ModelSerializer):
+class UnbanChatMemberSerializer(ModelSerializerCustom):
     class Meta:
         model = UnbanChatMember
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class RestrictChatMemberSerializer(serializers.ModelSerializer):
+class RestrictChatMemberSerializer(ModelSerializerCustom):
     class Meta:
         model = RestrictChatMember
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class PromoteChatMemberSerializer(serializers.ModelSerializer):
+class PromoteChatMemberSerializer(ModelSerializerCustom):
     class Meta:
         model = PromoteChatMember
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SetChatAdministratorCustomTitleSerializer(serializers.ModelSerializer):
+class SetChatAdministratorCustomTitleSerializer(ModelSerializerCustom):
     class Meta:
         model = SetChatAdministratorCustomTitle
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class BanChatSenderChatSerializer(serializers.ModelSerializer):
+class BanChatSenderChatSerializer(ModelSerializerCustom):
     class Meta:
         model = BanChatSenderChat
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class UnbanChatSenderChatSerializer(serializers.ModelSerializer):
+class UnbanChatSenderChatSerializer(ModelSerializerCustom):
     class Meta:
         model = UnbanChatSenderChat
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SetChatPermissionsSerializer(serializers.ModelSerializer):
+class SetChatPermissionsSerializer(ModelSerializerCustom):
     class Meta:
         model = SetChatPermissions
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class ExportChatInviteLinkSerializer(serializers.ModelSerializer):
+class ExportChatInviteLinkSerializer(ModelSerializerCustom):
     class Meta:
         model = ExportChatInviteLink
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class CreateChatInviteLinkSerializer(serializers.ModelSerializer):
+class CreateChatInviteLinkSerializer(ModelSerializerCustom):
     class Meta:
         model = CreateChatInviteLink
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class EditChatInviteLinkSerializer(serializers.ModelSerializer):
+class EditChatInviteLinkSerializer(ModelSerializerCustom):
     class Meta:
         model = EditChatInviteLink
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class CreateChatSubscriptionInviteLinkSerializer(serializers.ModelSerializer):
+class CreateChatSubscriptionInviteLinkSerializer(ModelSerializerCustom):
     class Meta:
         model = CreateChatSubscriptionInviteLink
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class EditChatSubscriptionInviteLinkSerializer(serializers.ModelSerializer):
+class EditChatSubscriptionInviteLinkSerializer(ModelSerializerCustom):
     class Meta:
         model = EditChatSubscriptionInviteLink
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class RevokeChatInviteLinkSerializer(serializers.ModelSerializer):
+class RevokeChatInviteLinkSerializer(ModelSerializerCustom):
     class Meta:
         model = RevokeChatInviteLink
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class ApproveChatJoinRequestSerializer(serializers.ModelSerializer):
+class ApproveChatJoinRequestSerializer(ModelSerializerCustom):
     class Meta:
         model = ApproveChatJoinRequest
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class DeclineChatJoinRequestSerializer(serializers.ModelSerializer):
+class DeclineChatJoinRequestSerializer(ModelSerializerCustom):
     class Meta:
         model = DeclineChatJoinRequest
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SetChatPhotoSerializer(serializers.ModelSerializer):
+class SetChatPhotoSerializer(ModelSerializerCustom):
     class Meta:
         model = SetChatPhoto
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class DeleteChatPhotoSerializer(serializers.ModelSerializer):
+class DeleteChatPhotoSerializer(ModelSerializerCustom):
     class Meta:
         model = DeleteChatPhoto
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SetChatTitleSerializer(serializers.ModelSerializer):
+class SetChatTitleSerializer(ModelSerializerCustom):
     class Meta:
         model = SetChatTitle
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SetChatDescriptionSerializer(serializers.ModelSerializer):
+class SetChatDescriptionSerializer(ModelSerializerCustom):
     class Meta:
         model = SetChatDescription
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class PinChatMessageSerializer(serializers.ModelSerializer):
+class PinChatMessageSerializer(ModelSerializerCustom):
     class Meta:
         model = PinChatMessage
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class UnpinChatMessageSerializer(serializers.ModelSerializer):
+class UnpinChatMessageSerializer(ModelSerializerCustom):
     class Meta:
         model = UnpinChatMessage
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class UnpinAllChatMessagesSerializer(serializers.ModelSerializer):
+class UnpinAllChatMessagesSerializer(ModelSerializerCustom):
     class Meta:
         model = UnpinAllChatMessages
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class LeaveChatSerializer(serializers.ModelSerializer):
+class LeaveChatSerializer(ModelSerializerCustom):
     class Meta:
         model = LeaveChat
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class GetChatSerializer(serializers.ModelSerializer):
+class GetChatSerializer(ModelSerializerCustom):
     class Meta:
         model = GetChat
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class GetChatAdministratorsSerializer(serializers.ModelSerializer):
+class GetChatAdministratorsSerializer(ModelSerializerCustom):
     class Meta:
         model = GetChatAdministrators
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class GetChatMemberCountSerializer(serializers.ModelSerializer):
+class GetChatMemberCountSerializer(ModelSerializerCustom):
     class Meta:
         model = GetChatMemberCount
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class GetChatMemberSerializer(serializers.ModelSerializer):
+class GetChatMemberSerializer(ModelSerializerCustom):
     class Meta:
         model = GetChatMember
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SetChatStickerSetSerializer(serializers.ModelSerializer):
+class SetChatStickerSetSerializer(ModelSerializerCustom):
     class Meta:
         model = SetChatStickerSet
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class DeleteChatStickerSetSerializer(serializers.ModelSerializer):
+class DeleteChatStickerSetSerializer(ModelSerializerCustom):
     class Meta:
         model = DeleteChatStickerSet
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class CreateForumTopicSerializer(serializers.ModelSerializer):
+class CreateForumTopicSerializer(ModelSerializerCustom):
     class Meta:
         model = CreateForumTopic
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class EditForumTopicSerializer(serializers.ModelSerializer):
+class EditForumTopicSerializer(ModelSerializerCustom):
     class Meta:
         model = EditForumTopic
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class CloseForumTopicSerializer(serializers.ModelSerializer):
+class CloseForumTopicSerializer(ModelSerializerCustom):
     class Meta:
         model = CloseForumTopic
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class ReopenForumTopicSerializer(serializers.ModelSerializer):
+class ReopenForumTopicSerializer(ModelSerializerCustom):
     class Meta:
         model = ReopenForumTopic
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class DeleteForumTopicSerializer(serializers.ModelSerializer):
+class DeleteForumTopicSerializer(ModelSerializerCustom):
     class Meta:
         model = DeleteForumTopic
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class UnpinAllForumTopicMessagesSerializer(serializers.ModelSerializer):
+class UnpinAllForumTopicMessagesSerializer(ModelSerializerCustom):
     class Meta:
         model = UnpinAllForumTopicMessages
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class EditGeneralForumTopicSerializer(serializers.ModelSerializer):
+class EditGeneralForumTopicSerializer(ModelSerializerCustom):
     class Meta:
         model = EditGeneralForumTopic
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class CloseGeneralForumTopicSerializer(serializers.ModelSerializer):
+class CloseGeneralForumTopicSerializer(ModelSerializerCustom):
     class Meta:
         model = CloseGeneralForumTopic
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class ReopenGeneralForumTopicSerializer(serializers.ModelSerializer):
+class ReopenGeneralForumTopicSerializer(ModelSerializerCustom):
     class Meta:
         model = ReopenGeneralForumTopic
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class HideGeneralForumTopicSerializer(serializers.ModelSerializer):
+class HideGeneralForumTopicSerializer(ModelSerializerCustom):
     class Meta:
         model = HideGeneralForumTopic
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class UnhideGeneralForumTopicSerializer(serializers.ModelSerializer):
+class UnhideGeneralForumTopicSerializer(ModelSerializerCustom):
     class Meta:
         model = UnhideGeneralForumTopic
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class UnpinAllGeneralForumTopicMessagesSerializer(serializers.ModelSerializer):
+class UnpinAllGeneralForumTopicMessagesSerializer(ModelSerializerCustom):
     class Meta:
         model = UnpinAllGeneralForumTopicMessages
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class GetUserChatBoostsSerializer(serializers.ModelSerializer):
+class GetUserChatBoostsSerializer(ModelSerializerCustom):
     class Meta:
         model = GetUserChatBoosts
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class GetBusinessConnectionSerializer(serializers.ModelSerializer):
+class GetBusinessConnectionSerializer(ModelSerializerCustom):
     class Meta:
         model = GetBusinessConnection
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SetMyCommandsSerializer(serializers.ModelSerializer):
+class SetMyCommandsSerializer(ModelSerializerCustom):
     class Meta:
         model = SetMyCommands
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class DeleteMyCommandsSerializer(serializers.ModelSerializer):
+class DeleteMyCommandsSerializer(ModelSerializerCustom):
     class Meta:
         model = DeleteMyCommands
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class GetMyCommandsSerializer(serializers.ModelSerializer):
+class GetMyCommandsSerializer(ModelSerializerCustom):
     class Meta:
         model = GetMyCommands
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SetMyNameSerializer(serializers.ModelSerializer):
+class SetMyNameSerializer(ModelSerializerCustom):
     class Meta:
         model = SetMyName
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class GetMyNameSerializer(serializers.ModelSerializer):
+class GetMyNameSerializer(ModelSerializerCustom):
     class Meta:
         model = GetMyName
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SetMyDescriptionSerializer(serializers.ModelSerializer):
+class SetMyDescriptionSerializer(ModelSerializerCustom):
     class Meta:
         model = SetMyDescription
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class GetMyDescriptionSerializer(serializers.ModelSerializer):
+class GetMyDescriptionSerializer(ModelSerializerCustom):
     class Meta:
         model = GetMyDescription
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SetMyShortDescriptionSerializer(serializers.ModelSerializer):
+class SetMyShortDescriptionSerializer(ModelSerializerCustom):
     class Meta:
         model = SetMyShortDescription
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class GetMyShortDescriptionSerializer(serializers.ModelSerializer):
+class GetMyShortDescriptionSerializer(ModelSerializerCustom):
     class Meta:
         model = GetMyShortDescription
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SetChatMenuButtonSerializer(serializers.ModelSerializer):
+class SetChatMenuButtonSerializer(ModelSerializerCustom):
     class Meta:
         model = SetChatMenuButton
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class GetChatMenuButtonSerializer(serializers.ModelSerializer):
+class GetChatMenuButtonSerializer(ModelSerializerCustom):
     class Meta:
         model = GetChatMenuButton
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SetMyDefaultAdministratorRightsSerializer(serializers.ModelSerializer):
+class SetMyDefaultAdministratorRightsSerializer(ModelSerializerCustom):
     class Meta:
         model = SetMyDefaultAdministratorRights
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class GetMyDefaultAdministratorRightsSerializer(serializers.ModelSerializer):
+class GetMyDefaultAdministratorRightsSerializer(ModelSerializerCustom):
     class Meta:
         model = GetMyDefaultAdministratorRights
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class EditMessageTextSerializer(serializers.ModelSerializer):
+class EditMessageTextSerializer(ModelSerializerCustom):
     class Meta:
         model = EditMessageText
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class EditMessageCaptionSerializer(serializers.ModelSerializer):
+class EditMessageCaptionSerializer(ModelSerializerCustom):
     class Meta:
         model = EditMessageCaption
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class EditMessageMediaSerializer(serializers.ModelSerializer):
+class EditMessageMediaSerializer(ModelSerializerCustom):
     class Meta:
         model = EditMessageMedia
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class EditMessageLiveLocationSerializer(serializers.ModelSerializer):
+class EditMessageLiveLocationSerializer(ModelSerializerCustom):
     class Meta:
         model = EditMessageLiveLocation
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class StopMessageLiveLocationSerializer(serializers.ModelSerializer):
+class StopMessageLiveLocationSerializer(ModelSerializerCustom):
     class Meta:
         model = StopMessageLiveLocation
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class EditMessageReplyMarkupSerializer(serializers.ModelSerializer):
+class EditMessageReplyMarkupSerializer(ModelSerializerCustom):
     class Meta:
         model = EditMessageReplyMarkup
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class StopPollSerializer(serializers.ModelSerializer):
+class StopPollSerializer(ModelSerializerCustom):
     class Meta:
         model = StopPoll
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class DeleteMessageSerializer(serializers.ModelSerializer):
+class DeleteMessageSerializer(ModelSerializerCustom):
     class Meta:
         model = DeleteMessage
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class DeleteMessagesSerializer(serializers.ModelSerializer):
+class DeleteMessagesSerializer(ModelSerializerCustom):
     class Meta:
         model = DeleteMessages
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SendGiftSerializer(serializers.ModelSerializer):
+class SendGiftSerializer(ModelSerializerCustom):
     class Meta:
         model = SendGift
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class GiftPremiumSubscriptionSerializer(serializers.ModelSerializer):
+class GiftPremiumSubscriptionSerializer(ModelSerializerCustom):
     class Meta:
         model = GiftPremiumSubscription
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class VerifyUserSerializer(serializers.ModelSerializer):
+class VerifyUserSerializer(ModelSerializerCustom):
     class Meta:
         model = VerifyUser
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class VerifyChatSerializer(serializers.ModelSerializer):
+class VerifyChatSerializer(ModelSerializerCustom):
     class Meta:
         model = VerifyChat
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class RemoveUserVerificationSerializer(serializers.ModelSerializer):
+class RemoveUserVerificationSerializer(ModelSerializerCustom):
     class Meta:
         model = RemoveUserVerification
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class RemoveChatVerificationSerializer(serializers.ModelSerializer):
+class RemoveChatVerificationSerializer(ModelSerializerCustom):
     class Meta:
         model = RemoveChatVerification
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class ReadBusinessMessageSerializer(serializers.ModelSerializer):
+class ReadBusinessMessageSerializer(ModelSerializerCustom):
     class Meta:
         model = ReadBusinessMessage
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class DeleteBusinessMessagesSerializer(serializers.ModelSerializer):
+class DeleteBusinessMessagesSerializer(ModelSerializerCustom):
     class Meta:
         model = DeleteBusinessMessages
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SetBusinessAccountNameSerializer(serializers.ModelSerializer):
+class SetBusinessAccountNameSerializer(ModelSerializerCustom):
     class Meta:
         model = SetBusinessAccountName
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SetBusinessAccountUsernameSerializer(serializers.ModelSerializer):
+class SetBusinessAccountUsernameSerializer(ModelSerializerCustom):
     class Meta:
         model = SetBusinessAccountUsername
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SetBusinessAccountBioSerializer(serializers.ModelSerializer):
+class SetBusinessAccountBioSerializer(ModelSerializerCustom):
     class Meta:
         model = SetBusinessAccountBio
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SetBusinessAccountProfilePhotoSerializer(serializers.ModelSerializer):
+class SetBusinessAccountProfilePhotoSerializer(ModelSerializerCustom):
     class Meta:
         model = SetBusinessAccountProfilePhoto
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class RemoveBusinessAccountProfilePhotoSerializer(serializers.ModelSerializer):
+class RemoveBusinessAccountProfilePhotoSerializer(ModelSerializerCustom):
     class Meta:
         model = RemoveBusinessAccountProfilePhoto
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SetBusinessAccountGiftSettingsSerializer(serializers.ModelSerializer):
+class SetBusinessAccountGiftSettingsSerializer(ModelSerializerCustom):
     class Meta:
         model = SetBusinessAccountGiftSettings
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class GetBusinessAccountStarBalanceSerializer(serializers.ModelSerializer):
+class GetBusinessAccountStarBalanceSerializer(ModelSerializerCustom):
     class Meta:
         model = GetBusinessAccountStarBalance
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class TransferBusinessAccountStarsSerializer(serializers.ModelSerializer):
+class TransferBusinessAccountStarsSerializer(ModelSerializerCustom):
     class Meta:
         model = TransferBusinessAccountStars
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class GetBusinessAccountGiftsSerializer(serializers.ModelSerializer):
+class GetBusinessAccountGiftsSerializer(ModelSerializerCustom):
     class Meta:
         model = GetBusinessAccountGifts
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class ConvertGiftToStarsSerializer(serializers.ModelSerializer):
+class ConvertGiftToStarsSerializer(ModelSerializerCustom):
     class Meta:
         model = ConvertGiftToStars
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class UpgradeGiftSerializer(serializers.ModelSerializer):
+class UpgradeGiftSerializer(ModelSerializerCustom):
     class Meta:
         model = UpgradeGift
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class TransferGiftSerializer(serializers.ModelSerializer):
+class TransferGiftSerializer(ModelSerializerCustom):
     class Meta:
         model = TransferGift
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class PostStorySerializer(serializers.ModelSerializer):
+class PostStorySerializer(ModelSerializerCustom):
     class Meta:
         model = PostStory
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class EditStorySerializer(serializers.ModelSerializer):
+class EditStorySerializer(ModelSerializerCustom):
     class Meta:
         model = EditStory
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class DeleteStorySerializer(serializers.ModelSerializer):
+class DeleteStorySerializer(ModelSerializerCustom):
     class Meta:
         model = DeleteStory
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SendStickerSerializer(serializers.ModelSerializer):
+class SendStickerSerializer(ModelSerializerCustom):
     class Meta:
         model = SendSticker
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class GetStickerSetSerializer(serializers.ModelSerializer):
+class GetStickerSetSerializer(ModelSerializerCustom):
     class Meta:
         model = GetStickerSet
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class GetCustomEmojiStickersSerializer(serializers.ModelSerializer):
+class GetCustomEmojiStickersSerializer(ModelSerializerCustom):
     class Meta:
         model = GetCustomEmojiStickers
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class UploadStickerFileSerializer(serializers.ModelSerializer):
+class UploadStickerFileSerializer(ModelSerializerCustom):
     class Meta:
         model = UploadStickerFile
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class CreateNewStickerSetSerializer(serializers.ModelSerializer):
+class CreateNewStickerSetSerializer(ModelSerializerCustom):
     class Meta:
         model = CreateNewStickerSet
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class AddStickerToSetSerializer(serializers.ModelSerializer):
+class AddStickerToSetSerializer(ModelSerializerCustom):
     class Meta:
         model = AddStickerToSet
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SetStickerPositionInSetSerializer(serializers.ModelSerializer):
+class SetStickerPositionInSetSerializer(ModelSerializerCustom):
     class Meta:
         model = SetStickerPositionInSet
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class DeleteStickerFromSetSerializer(serializers.ModelSerializer):
+class DeleteStickerFromSetSerializer(ModelSerializerCustom):
     class Meta:
         model = DeleteStickerFromSet
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class ReplaceStickerInSetSerializer(serializers.ModelSerializer):
+class ReplaceStickerInSetSerializer(ModelSerializerCustom):
     class Meta:
         model = ReplaceStickerInSet
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SetStickerEmojiListSerializer(serializers.ModelSerializer):
+class SetStickerEmojiListSerializer(ModelSerializerCustom):
     class Meta:
         model = SetStickerEmojiList
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SetStickerKeywordsSerializer(serializers.ModelSerializer):
+class SetStickerKeywordsSerializer(ModelSerializerCustom):
     class Meta:
         model = SetStickerKeywords
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SetStickerMaskPositionSerializer(serializers.ModelSerializer):
+class SetStickerMaskPositionSerializer(ModelSerializerCustom):
     class Meta:
         model = SetStickerMaskPosition
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SetStickerSetTitleSerializer(serializers.ModelSerializer):
+class SetStickerSetTitleSerializer(ModelSerializerCustom):
     class Meta:
         model = SetStickerSetTitle
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SetStickerSetThumbnailSerializer(serializers.ModelSerializer):
+class SetStickerSetThumbnailSerializer(ModelSerializerCustom):
     class Meta:
         model = SetStickerSetThumbnail
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SetCustomEmojiStickerSetThumbnailSerializer(serializers.ModelSerializer):
+class SetCustomEmojiStickerSetThumbnailSerializer(ModelSerializerCustom):
     class Meta:
         model = SetCustomEmojiStickerSetThumbnail
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class DeleteStickerSetSerializer(serializers.ModelSerializer):
+class DeleteStickerSetSerializer(ModelSerializerCustom):
     class Meta:
         model = DeleteStickerSet
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class AnswerInlineQuerySerializer(serializers.ModelSerializer):
+class AnswerInlineQuerySerializer(ModelSerializerCustom):
     class Meta:
         model = AnswerInlineQuery
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class AnswerWebAppQuerySerializer(serializers.ModelSerializer):
+class AnswerWebAppQuerySerializer(ModelSerializerCustom):
     class Meta:
         model = AnswerWebAppQuery
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SavePreparedInlineMessageSerializer(serializers.ModelSerializer):
+class SavePreparedInlineMessageSerializer(ModelSerializerCustom):
     class Meta:
         model = SavePreparedInlineMessage
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SendInvoiceSerializer(serializers.ModelSerializer):
+class SendInvoiceSerializer(ModelSerializerCustom):
     class Meta:
         model = SendInvoice
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class CreateInvoiceLinkSerializer(serializers.ModelSerializer):
+class CreateInvoiceLinkSerializer(ModelSerializerCustom):
     class Meta:
         model = CreateInvoiceLink
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class AnswerShippingQuerySerializer(serializers.ModelSerializer):
+class AnswerShippingQuerySerializer(ModelSerializerCustom):
     class Meta:
         model = AnswerShippingQuery
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class AnswerPreCheckoutQuerySerializer(serializers.ModelSerializer):
+class AnswerPreCheckoutQuerySerializer(ModelSerializerCustom):
     class Meta:
         model = AnswerPreCheckoutQuery
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class GetStarTransactionsSerializer(serializers.ModelSerializer):
+class GetStarTransactionsSerializer(ModelSerializerCustom):
     class Meta:
         model = GetStarTransactions
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class RefundStarPaymentSerializer(serializers.ModelSerializer):
+class RefundStarPaymentSerializer(ModelSerializerCustom):
     class Meta:
         model = RefundStarPayment
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class EditUserStarSubscriptionSerializer(serializers.ModelSerializer):
+class EditUserStarSubscriptionSerializer(ModelSerializerCustom):
     class Meta:
         model = EditUserStarSubscription
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SendGameSerializer(serializers.ModelSerializer):
+class SendGameSerializer(ModelSerializerCustom):
     class Meta:
         model = SendGame
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]
 
 
-class SetGameScoreSerializer(serializers.ModelSerializer):
+class SetGameScoreSerializer(ModelSerializerCustom):
     class Meta:
         model = SetGameScore
-        depth = 1
-        fields = "__all__"
+        exclude = ["component_type", "bot"]

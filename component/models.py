@@ -55,6 +55,7 @@ class OnMessage(Component):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.type = Component.ComponentType.TRIGGER
+        self.component_type = Component.ComponentType.TRIGGER
 
     text = models.CharField(
         null=True,
@@ -70,6 +71,38 @@ class OnMessage(Component):
         default=False,
         help_text="Whether the text matching should be case sensitive",
     )
+
+    def generate_code(self) -> str:
+
+        underlying_object: OnMessage = (
+            self.component_content_type.get_object_for_this_type()
+        )
+        if underlying_object.next_component.count() == 0:
+            return ""
+
+        append_to_text = ""
+        if underlying_object.case_sensitive:
+            append_to_text = ".lower()"
+
+        if underlying_object.text:
+            code = [
+                f"@dp.message(F.text{append_to_text} == '{underlying_object.text}')",
+            ]
+        else:
+            code = [f"@dp.message()"]
+
+        code += [f"async def {self.code_function_name}(message: Message):"]
+
+        for next_component in underlying_object.next_component.all():
+            next_component = (
+                next_component.component_content_type.model_class().objects.get(
+                    pk=next_component.pk,
+                )
+            )
+            code.append(
+                f"    await {next_component.code_function_name}(message.model_dump_json())",
+            )  # in order no next component return "\n".join(code)
+        return "\n".join(code)
 
 
 class OnCallbackQuery(Component):

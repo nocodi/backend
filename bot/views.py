@@ -1,3 +1,5 @@
+import os
+
 import requests
 from django.conf import settings
 from django.db.models import QuerySet
@@ -17,8 +19,7 @@ from bot.serializers import (
     CreateBotResponseSerializer,
     MyBotsResponseSerializer,
 )
-from component.models import InlineKeyboardMarkup
-from flow.models import Component
+from component.models import Component, InlineKeyboardMarkup
 from iam.permissions import IsLoginedPermission
 
 
@@ -66,11 +67,10 @@ class MyBots(ListAPIView):
     def get_queryset(self) -> QuerySet:
         return Bot.objects.filter(user=self.request.iam_user)
 
-
 class GenerateCodeView(APIView):
     permission_classes = [IsLoginedPermission, IsBotOwner]
 
-    def get(self, request, bot: int):
+    def get(self, request: Request, bot: int) -> None:
         try:
             bot_instance = Bot.objects.get(id=bot, user=request.iam_user)
         except Bot.DoesNotExist:
@@ -79,142 +79,39 @@ class GenerateCodeView(APIView):
             )
 
         # imports
-        code = [
-            "import asyncio",
-            "import logging",
-            "from aiogram import Bot, Dispatcher, F",
-            "from aiogram.types import Message",
-            "from aiogram.client.session.aiohttp import AiohttpSession",
-            "from aiogram.fsm.storage.memory import MemoryStorage",
-            "from aiogram.client.telegram import TelegramAPIServer",
-            "from aiogram.utils.keyboard import InlineKeyboardBuilder",
-            "",
-        ]
-
-        # logging
-        code.extend(
-            [
-                "logging.basicConfig(",
-                "    level=logging.DEBUG,",
-                "    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'",
-                ")",
-                "logger = logging.getLogger(__name__)",
-                "",
-            ],
-        )
-
-        # bot
-        code.extend(
-            [
-                "memory = MemoryStorage()",
-                "dp = Dispatcher(storage=memory)",
-                "",
-                f"session = AiohttpSession(api=TelegramAPIServer.from_base('{settings.BALE_API_URL}'))",
-                f"bot = Bot(token='{bot_instance.token}', session=session)",
-                "",
-            ],
-        )
 
         components = Component.objects.filter(
             bot_id=bot,
-            content_type__model="onmessage",
+            component_type=Component.ComponentType.TRIGGER,
         )
+        bot_component_codes = ""
         for component in components:
-            on_message_component = component.content_type.model_class().objects.get(
-                id=component.object_id,
-            )
-            command_name = on_message_component.text.strip("/")
-            append_to_text = ""
-            if on_message_component.case_sensitive:
-                print(on_message_component.case_sensitive)
-                append_to_text = ".lower()"
+            if component.component_content_type.model != "onmessage":
+                return Response(
+                    {
+                        "error": f"Only OnMessage trigger components are supported. you requested {component.__class__.__name__}",
+                    },
+                    status=status.HTTP_501_NOT_IMPLEMENTED,
+                )
 
-            code.extend(
-                [
-                    f"@dp.message(F.text{append_to_text} == '{on_message_component.text}')",
-                    f"async def {command_name}(message: Message):",
-                ],
-            )
-
-            next_component = component.next_component
-            if next_component:
-                next_component_text = (
-                    next_component.content_type.model_class().objects.get(
-                        id=next_component.object_id,
+            for next_component in component.get_all_next_components():
+                # if next_component.id == component.id:
+                #     continue
+                object = (
+                    next_component.component_content_type.model_class().objects.get(
+                        pk=next_component.pk,
                     )
                 )
-                method = next_component_text.__class__.__name__
-                method = "".join(
-                    ["_" + c.lower() if c.isupper() else c for c in method],
-                ).lstrip("_")
+                bot_component_codes += object.generate_code()
+                bot_component_codes += "\n" * 2
 
-                keyboard = None
-                if next_component_text.content_type:
-                    keyboard = (
-                        next_component_text.content_type.model_class().objects.get(
-                            id=next_component_text.object_id,
-                        )
-                    )
-
-                    if isinstance(keyboard, InlineKeyboardMarkup):
-                        code.extend(["    builder = InlineKeyboardBuilder()"])
-                        for k in keyboard.inline_keyboard.all():
-                            code.extend(
-                                [
-                                    f"    builder.button(text='{k.text}', callback_data='{k.callback_data}')",
-                                ],
-                            )
-                        code.extend(["    keyboard = builder.as_markup()"])
-                #     for k in keyboard.inline_keyboard.all():
-                #         builder.button(text=k.text, callback_data=k.callback_data)
-                #     keyboard = builder.as_markup()
-                # else:
-                #     print("KEYBOARD")
-
-                component_data = model_to_dict(
-                    next_component_text,
-                    exclude=[
-                        "id",
-                        "component_ptr",
-                        "component_ptr_id",
-                        "timestamp",
-                        "object_id",
-                        "component_type",
-                        "content_type",
-                    ],
-                )
-                param_strings = []
-                for k, v in component_data.items():
-                    if v is not None:
-                        if isinstance(v, str):
-                            param_strings.append(f"{k}='{v}'")
-                        else:
-                            param_strings.append(f"{k}={v}")
-
-                if keyboard:
-                    param_strings.append(f"reply_markup=keyboard")
-
-                params_str = ", ".join(param_strings)
-                code.extend(
-                    [
-                        f"    await bot.{method}({params_str})",
-                    ],
-                )
-
-        code.extend(
-            [
-                "async def main():",
-                "    try:",
-                "        logger.info('Bot initialized successfully')",
-                "        await dp.start_polling(bot)",
-                "    except Exception as e:",
-                "        logger.error(f'Bot polling failed: {e}')",
-                "        raise",
-            ],
+        with open("bot/bot_templates/main.txt") as f:
+            base = f.read()
+        code = base.format(
+            FUNCTION_CODES=bot_component_codes,
+            TOKEN=bot_instance.token,
+            BASE_URL=settings.BALE_API_URL,
         )
-
-        code.extend(["if __name__ == '__main__':", "    asyncio.run(main())", ""])
-
-        response = HttpResponse("\n".join(code), content_type="text/x-python")
+        response = HttpResponse(code, content_type="text/x-python")
         response["Content-Disposition"] = 'attachment; filename="bot.py"'
         return response

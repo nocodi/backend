@@ -1,8 +1,11 @@
+from typing import List
+
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.db.models import Q
+from django.forms.models import model_to_dict
 
 
 class Keyboard(models.Model):
@@ -126,10 +129,143 @@ class Component(models.Model):
         default=ComponentType.TELEGRAM,
         help_text="Type of the component",
     )
-    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args: list, **kwargs: dict) -> None:
+        """Automatically sets content type"""
+        if self.pk is None:
+            self.component_content_type = ContentType.objects.get(
+                model=self.__class__.__name__.lower(),
+            )
+        super().save(*args, **kwargs)
+
+    component_content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+    component_name = models.CharField(
+        max_length=255,
+        null=True,
+    )  # in order to not interfere with some component 'name' field, I added redundant 'component'
+
+    bot = models.ForeignKey("bot.Bot", on_delete=models.CASCADE)
+
+    previous_component = models.ForeignKey(
+        "Component",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="next_component",
+    )
+
+    position_x = models.FloatField(null=False, blank=False)
+    position_y = models.FloatField(null=False, blank=False)
+
+    def __str__(self) -> str:
+        return self.component_name or "Empty Component"
 
     class Meta:
         pass
+
+    @property
+    def code_function_name(self) -> str:  # -> name of the function in generated code
+        return f"{self.__class__.__name__.lower()}_{self.pk}"
+
+    def generate_code(self) -> str:
+        if self.component_type != Component.ComponentType.TELEGRAM:
+            raise NotImplementedError
+
+        underlying_object = self.component_content_type.model_class().objects.get(
+            pk=self.pk,
+        )
+        class_name = underlying_object.__class__.__name__
+        method = ""
+        for c in class_name:
+            if c.isupper():
+                method += "_"
+            method += c.lower()
+        method = method.lstrip("_")
+
+        code = [f"async def {underlying_object.code_function_name}(input_data: dict):"]
+        if underlying_object.content_type:
+            keyboard = underlying_object.content_type.get_object_for_this_type()
+        else:
+            keyboard = None
+
+        if isinstance(keyboard, InlineKeyboardMarkup):
+            code.extend(["    builder = InlineKeyboardBuilder()"])
+            for k in keyboard.inline_keyboard.all():
+                code.extend(
+                    [
+                        f"    builder.button(text='{k.text}', callback_data='{k.callback_data}')",
+                    ],
+                )
+            code.extend(["    keyboard = builder.as_markup()"])
+        #     for k in keyboard.inline_keyboard.all():
+        #         builder.button(text=k.text, callback_data=k.callback_data)
+        #     keyboard = builder.as_markup()
+        # else:
+        #     print("KEYBOARD")
+
+        component_data = model_to_dict(
+            underlying_object,
+            exclude=[
+                "id",
+                "component_ptr",
+                "component_ptr_id",
+                "timestamp",
+                "object_id",
+                "component_type",
+                "content_type",
+                "component_content_type",
+                "bot",
+                "previous_component",
+                "position_x",
+                "position_y",
+            ],
+        )
+        param_strings = []
+        for k, v in component_data.items():
+            if v is not None:
+                if isinstance(v, str):
+                    param_strings.append(f"{k}='{v}'")
+                else:
+                    param_strings.append(f"{k}={v}")
+
+        if keyboard:
+            param_strings.append(f"reply_markup=keyboard")
+
+        params_str = ", ".join(param_strings)
+        code.extend(
+            [
+                f"    await bot.{method}({params_str})",
+            ],
+        )
+        for next_component in underlying_object.next_component.all():
+            next_component = (
+                next_component.component_content_type.model_class().objects.get(
+                    pk=next_component.pk,
+                )
+            )
+            code.extend(
+                [
+                    f"    await {next_component.code_function_name}(input_data)",
+                ],
+            )
+        return "\n".join(code)
+
+    def get_all_next_components(self) -> List["Component"]:
+        ans = {}
+        stack = [self]
+        while stack:
+            current = stack.pop()
+            if current.id not in ans:
+                ans[current.id] = current
+                for next_component in current.next_component.all():
+                    if next_component.id not in ans:
+                        stack.append(next_component)
+        return list(ans.values())
 
 
 class SendMessage(Component):
@@ -483,6 +619,7 @@ class SendPhoto(Component):
         | Q(model="forcereply"),
         null=True,
         blank=True,
+
         help_text="Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user",
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
@@ -568,6 +705,7 @@ class SendDocument(Component):
         | Q(model="forcereply"),
         null=True,
         blank=True,
+
         help_text="Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user",
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
@@ -681,6 +819,7 @@ class SendVideo(Component):
         | Q(model="forcereply"),
         null=True,
         blank=True,
+
         help_text="Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user",
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
@@ -778,6 +917,7 @@ class SendAnimation(Component):
         | Q(model="forcereply"),
         null=True,
         blank=True,
+
         help_text="Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user",
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
@@ -857,6 +997,7 @@ class SendVoice(Component):
         | Q(model="forcereply"),
         null=True,
         blank=True,
+
         help_text="Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user",
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
@@ -936,6 +1077,7 @@ class SendVideoNote(Component):
         | Q(model="forcereply"),
         null=True,
         blank=True,
+
         help_text="Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user",
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
@@ -1009,6 +1151,7 @@ class SendPaidMedia(Component):
         | Q(model="forcereply"),
         null=True,
         blank=True,
+
         help_text="Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user",
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
@@ -1140,6 +1283,7 @@ class SendLocation(Component):
         | Q(model="forcereply"),
         null=True,
         blank=True,
+
         help_text="Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user",
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
@@ -1229,6 +1373,7 @@ class SendVenue(Component):
         | Q(model="forcereply"),
         null=True,
         blank=True,
+
         help_text="Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user",
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
@@ -1302,6 +1447,7 @@ class SendContact(Component):
         | Q(model="forcereply"),
         null=True,
         blank=True,
+
         help_text="Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user",
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)

@@ -44,11 +44,13 @@ urlpatterns = [
     path("iam/", include(("iam.urls", "iam"), namespace="iam")),
     path("bot/", include(("bot.urls", "bot"), namespace="bot")),
     path("flow/", include(("flow.urls", "flow"), namespace="flow")),
-    path("component/", include(("component.urls", "component"), namespace="component")),
+    path(
+        "component/<int:bot>/",
+        include(("component.urls", "component"), namespace="component"),
+    ),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
