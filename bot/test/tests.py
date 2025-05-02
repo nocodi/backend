@@ -11,7 +11,6 @@ from component.telegram.models import (
     InlineKeyboardMarkup,
     SendMessage,
 )
-from flow.models import ContentType
 from iam.models import IamUser
 from iam.utils import create_token_for_iamuser
 
