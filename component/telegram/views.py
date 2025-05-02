@@ -13,7 +13,7 @@ class ModelViewSetCustom(ModelViewSet):
         return context
 
     def get_queryset(self) -> QuerySet:
-        return self.get_queryset().filter(bot=self.kwargs.get("bot"))
+        return super().get_queryset().filter(bot=self.kwargs.get("bot"))
 
 
 class SendMessageViewSet(ModelViewSetCustom):

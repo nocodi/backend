@@ -5,7 +5,6 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 
-
 class CacheMiddleware:
     def __init__(self, get_response: Callable) -> None:
         self.get_response = get_response
