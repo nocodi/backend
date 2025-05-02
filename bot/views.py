@@ -67,6 +67,7 @@ class MyBots(ListAPIView):
     def get_queryset(self) -> QuerySet:
         return Bot.objects.filter(user=self.request.iam_user)
 
+
 class GenerateCodeView(APIView):
     permission_classes = [IsLoginedPermission, IsBotOwner]
 
