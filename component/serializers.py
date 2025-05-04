@@ -40,6 +40,20 @@ class OnCallbackQuerySerializer(ModelSerializerCustom):
         exclude = ["component_type"]
 
 
+class ComponentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Component
+        fields = [
+            "id",
+            "component_name",
+            "component_type",
+            "component_content_type",
+            "previous_component",
+            "position_y",
+            "position_x",
+        ]
+
+
 class ContentTypeSerializer(serializers.ModelSerializer):
     schema = serializers.SerializerMethodField()
     path = serializers.SerializerMethodField()
