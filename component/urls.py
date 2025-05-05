@@ -9,6 +9,7 @@ from component.views import (
     IfComponentSet,
     OnCallbackQuerySet,
     OnMessageSet,
+    SchemaListView,
     SwitchComponentSet,
 )
 
@@ -22,6 +23,7 @@ router.register(r"code-component", CodeComponentSet, basename="code-component")
 urlpatterns = (
     [
         path("content-type/", ContentTypeListView.as_view(), name="contenttypes"),
+        path("schema/", SchemaListView.as_view(), name="contenttypes"),
     ]
     + telegram_urls
     + router.urls
