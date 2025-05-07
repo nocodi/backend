@@ -90,6 +90,12 @@ class ContentTypeSerializer(serializers.ModelSerializer):
             and field.name != "object_id"
             and field.name != "content_type"
             and field.name != "component_type"
+            and field.name != "bot"
+            and field.name != "component_content_type"
+            and field.name != "previous_component"
+            and field.name != "position_x"
+            and field.name != "position_y"
+            and field.name != "component_name"
         }
         return schema
 
