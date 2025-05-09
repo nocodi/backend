@@ -153,7 +153,7 @@ class Component(models.Model):
 
     previous_component = models.ForeignKey(
         "Component",
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name="next_component",
@@ -619,7 +619,6 @@ class SendPhoto(Component):
         | Q(model="forcereply"),
         null=True,
         blank=True,
-
         help_text="Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user",
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
@@ -705,7 +704,6 @@ class SendDocument(Component):
         | Q(model="forcereply"),
         null=True,
         blank=True,
-
         help_text="Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user",
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
@@ -819,7 +817,6 @@ class SendVideo(Component):
         | Q(model="forcereply"),
         null=True,
         blank=True,
-
         help_text="Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user",
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
@@ -917,7 +914,6 @@ class SendAnimation(Component):
         | Q(model="forcereply"),
         null=True,
         blank=True,
-
         help_text="Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user",
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
@@ -997,7 +993,6 @@ class SendVoice(Component):
         | Q(model="forcereply"),
         null=True,
         blank=True,
-
         help_text="Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user",
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
@@ -1077,7 +1072,6 @@ class SendVideoNote(Component):
         | Q(model="forcereply"),
         null=True,
         blank=True,
-
         help_text="Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user",
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
@@ -1151,7 +1145,6 @@ class SendPaidMedia(Component):
         | Q(model="forcereply"),
         null=True,
         blank=True,
-
         help_text="Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user",
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
@@ -1283,7 +1276,6 @@ class SendLocation(Component):
         | Q(model="forcereply"),
         null=True,
         blank=True,
-
         help_text="Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user",
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
@@ -1373,7 +1365,6 @@ class SendVenue(Component):
         | Q(model="forcereply"),
         null=True,
         blank=True,
-
         help_text="Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user",
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
@@ -1447,7 +1438,6 @@ class SendContact(Component):
         | Q(model="forcereply"),
         null=True,
         blank=True,
-
         help_text="Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user",
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
