@@ -46,7 +46,11 @@ class CodeComponent(Component):
         super().__init__(*args, **kwargs)
         self.type = Component.ComponentType.CODE
 
-    code = models.TextField(help_text="Code to execute", null=False, blank=False)
+    code = models.TextField(help_text="Code to execute", null=True, blank=True)
+
+    @property
+    def required_fields(self) -> list:
+        return ["code"]
 
 
 class OnMessage(Component):
