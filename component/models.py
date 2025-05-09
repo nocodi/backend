@@ -74,8 +74,10 @@ class OnMessage(Component):
 
     def generate_code(self) -> str:
 
-        underlying_object: OnMessage = (
-            self.component_content_type.get_object_for_this_type()
+        underlying_object: (
+            OnMessage
+        ) = self.component_content_type.model_class().objects.get(
+            pk=self.pk,
         )
         if underlying_object.next_component.count() == 0:
             return ""
