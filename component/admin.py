@@ -15,6 +15,7 @@ from component.models import (
     SendPhoto,
     SendVideo,
 )
+from component.telegram.models import AddStickerToSet
 
 app = apps.get_app_config("component")
 
@@ -33,3 +34,4 @@ admin.site.register(InlineKeyboardMarkup)
 admin.site.register(ReplyKeyboardMarkup)
 admin.site.register(ReplyKeyboardRemove)
 admin.site.register(ForceReply)
+admin.site.register(AddStickerToSet)

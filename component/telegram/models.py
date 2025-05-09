@@ -188,7 +188,7 @@ class Component(models.Model):
         method = method.lstrip("_")
 
         code = [f"async def {underlying_object.code_function_name}(input_data: dict):"]
-        if underlying_object.content_type:
+        if hasattr(underlying_object, "content_type"):
             keyboard = underlying_object.content_type.get_object_for_this_type()
         else:
             keyboard = None
@@ -220,6 +220,7 @@ class Component(models.Model):
                 "content_type",
                 "component_content_type",
                 "bot",
+                "component_name",
                 "previous_component",
                 "position_x",
                 "position_y",
