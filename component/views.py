@@ -21,7 +21,7 @@ class SwitchComponentSet(ModelViewSetCustom):
 
 class CodeComponentSet(ModelViewSetCustom):
     permission_classes = [IsLoginedPermission, IsBotOwner]
-    serializer_class = CodeComponent
+    serializer_class = CodeComponentSerializer
     queryset = CodeComponent.objects.all()
 
 
