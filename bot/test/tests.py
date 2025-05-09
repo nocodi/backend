@@ -1,16 +1,15 @@
 import unittest
+from io import BytesIO
 
+from django.core.files.base import ContentFile
 from django.test import TestCase
 from django.urls import reverse
+from PIL import Image
 from rest_framework import status
 
 from bot.models import Bot
 from component.models import Component, OnMessage
-from component.telegram.models import (
-    InlineKeyboardButton,
-    InlineKeyboardMarkup,
-    SendMessage,
-)
+from component.telegram.models import SendMessage, SendPhoto
 from iam.models import IamUser
 from iam.utils import create_token_for_iamuser
 
@@ -34,7 +33,7 @@ class CodeTest(TestCase):
             position_x=1,
             position_y=1,
             component_type=Component.ComponentType.TRIGGER,
-            text="Hello",
+            text="/start",
         )
         send_message_comp = SendMessage.objects.create(
             bot=self.bot,
@@ -48,6 +47,19 @@ class CodeTest(TestCase):
             bot=self.bot,
             chat_id=1239963443,
             text="Bye World",
+            position_x=1,
+            position_y=1,
+            previous_component=on_message_component,
+        )
+
+        image = Image.new("RGB", (100, 100), color="blue")
+        image_io = BytesIO()
+        image.save(image_io, "PNG")
+        image_content = ContentFile(image_io.getvalue(), "test.png")
+        SendPhoto.objects.create(
+            bot=self.bot,
+            chat_id=1239963443,
+            photo=image_content,
             position_x=1,
             position_y=1,
             previous_component=on_message_component,
