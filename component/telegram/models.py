@@ -1,5 +1,6 @@
 from typing import List
 
+from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
@@ -179,6 +180,16 @@ class Component(models.Model):
         underlying_object = self.component_content_type.model_class().objects.get(
             pk=self.pk,
         )
+
+        file_params = ""
+        for field in underlying_object._meta.get_fields():
+            if isinstance(field, models.FileField):
+                file_instance = getattr(underlying_object, field.name)
+                if file_instance and hasattr(file_instance, "url"):
+                    full_url = f"{settings.SITE_URL}{file_instance.url}"
+                    file_params = f"{field.name}=URLInputFile('{full_url}')"
+                    setattr(underlying_object, field.name, None)
+
         class_name = underlying_object.__class__.__name__
         method = ""
         for c in class_name:
@@ -231,7 +242,7 @@ class Component(models.Model):
         )
         param_strings = []
         for k, v in component_data.items():
-            if v is not None:
+            if v:
                 if isinstance(v, str):
                     param_strings.append(f"{k}='{v}'")
                 else:
@@ -239,6 +250,9 @@ class Component(models.Model):
 
         if keyboard:
             param_strings.append(f"reply_markup=keyboard")
+
+        if file_params != "":
+            param_strings.append(file_params)
 
         params_str = ", ".join(param_strings)
         code.extend(
