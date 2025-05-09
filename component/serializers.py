@@ -8,36 +8,31 @@ from component.telegram.serializers import ModelSerializerCustom
 class IfComponentSerializer(ModelSerializerCustom):
     class Meta:
         model = IfComponent
-        depth = 1
-        exclude = ["component_type"]
+        exclude = ["component_type", "bot"]
 
 
 class SwitchComponentSerializer(ModelSerializerCustom):
     class Meta:
         model = SwitchComponent
-        depth = 1
-        exclude = ["component_type"]
+        exclude = ["component_type", "bot"]
 
 
 class CodeComponentSerializer(ModelSerializerCustom):
     class Meta:
         model = CodeComponent
-        depth = 1
-        exclude = ["component_type"]
+        exclude = ["component_type", "bot"]
 
 
 class OnMessageSerializer(ModelSerializerCustom):
     class Meta:
         model = OnMessage
-        depth = 1
-        exclude = ["component_type"]
+        exclude = ["component_type", "bot"]
 
 
 class OnCallbackQuerySerializer(ModelSerializerCustom):
     class Meta:
         model = OnCallbackQuery
-        depth = 1
-        exclude = ["component_type"]
+        exclude = ["component_type", "bot"]
 
 
 class ComponentSerializer(serializers.ModelSerializer):
