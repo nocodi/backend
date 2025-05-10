@@ -22,6 +22,7 @@ services:
       - "8000"
     volumes:
       - static_volume:/src/staticfiles
+      - media_volume:/src/media
 
   nginx:
     image: nginx:1.27
@@ -33,7 +34,9 @@ services:
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
       - static_volume:/staticfiles:ro
+      - media_volume:/media:ro
 
 volumes:
   postgres_data:
   static_volume:
+  media_volume:
