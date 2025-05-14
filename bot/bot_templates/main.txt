@@ -6,7 +6,6 @@ from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.client.telegram import TelegramAPIServer
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from aiogram.types import URLInputFile
 
 logging.basicConfig(
     level=logging.DEBUG,

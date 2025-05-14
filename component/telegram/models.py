@@ -187,7 +187,7 @@ class Component(models.Model):
                 file_instance = getattr(underlying_object, field.name)
                 if file_instance and hasattr(file_instance, "url"):
                     full_url = f"{settings.SITE_URL}{file_instance.url}"
-                    file_params = f"{field.name}=URLInputFile('{full_url}')"
+                    file_params = f"{field.name}='{full_url}'"
                     setattr(underlying_object, field.name, None)
 
         class_name = underlying_object.__class__.__name__
