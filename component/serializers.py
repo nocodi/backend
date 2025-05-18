@@ -8,31 +8,36 @@ from component.telegram.serializers import ModelSerializerCustom
 class IfComponentSerializer(ModelSerializerCustom):
     class Meta:
         model = IfComponent
-        exclude = ["component_type", "bot"]
+        exclude = ["bot"]
+        read_only_fields = ["component_type"]
 
 
 class SwitchComponentSerializer(ModelSerializerCustom):
     class Meta:
         model = SwitchComponent
-        exclude = ["component_type", "bot"]
+        exclude = ["bot"]
+        read_only_fields = ["component_type"]
 
 
 class CodeComponentSerializer(ModelSerializerCustom):
     class Meta:
         model = CodeComponent
-        exclude = ["component_type", "bot"]
+        exclude = ["bot"]
+        read_only_fields = ["component_type"]
 
 
 class OnMessageSerializer(ModelSerializerCustom):
     class Meta:
         model = OnMessage
-        exclude = ["component_type", "bot"]
+        exclude = ["bot"]
+        read_only_fields = ["component_type"]
 
 
 class OnCallbackQuerySerializer(ModelSerializerCustom):
     class Meta:
         model = OnCallbackQuery
-        exclude = ["component_type", "bot"]
+        exclude = ["bot"]
+        read_only_fields = ["component_type"]
 
 
 class ComponentSerializer(serializers.ModelSerializer):
@@ -52,6 +57,7 @@ class ComponentSerializer(serializers.ModelSerializer):
 class ContentTypeSerializer(serializers.ModelSerializer):
     schema = serializers.SerializerMethodField()
     path = serializers.SerializerMethodField()
+    component_type = serializers.SerializerMethodField()
     description = serializers.SerializerMethodField()
 
     def get_schema(self, obj: ContentType) -> dict:
@@ -105,6 +111,12 @@ class ContentTypeSerializer(serializers.ModelSerializer):
     def get_description(self, obj: ContentType) -> str:
         return obj.model_class().__doc__
 
+    def get_component_type(self, obj: ContentType) -> str:
+        model_class = obj.model_class()
+        if model_class is not None and hasattr(model_class, "component_type"):
+            return model_class().component_type
+        return ""
+
     class Meta:
         model = ContentType
-        fields = ["id", "name", "description", "path", "schema"]
+        fields = ["id", "name", "description", "path", "schema", "component_type"]
