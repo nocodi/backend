@@ -23,6 +23,7 @@ services:
     volumes:
       - static_volume:/src/staticfiles
       - media_volume:/src/media
+      - /var/run/docker.sock:/var/run/docker.sock  # 🔥 Mount the host Docker socket here
 
   nginx:
     image: nginx:1.27
