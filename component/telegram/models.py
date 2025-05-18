@@ -198,7 +198,9 @@ class Component(models.Model):
             method += c.lower()
         method = method.lstrip("_")
 
-        code = [f"async def {underlying_object.code_function_name}(input_data: dict):"]
+        code = [
+            f"async def {underlying_object.code_function_name}(input_data: Message):",
+        ]
         if (
             hasattr(underlying_object, "content_type")
             and underlying_object.content_type
@@ -244,7 +246,10 @@ class Component(models.Model):
         for k, v in component_data.items():
             if v:
                 if isinstance(v, str):
-                    param_strings.append(f"{k}='{v}'")
+                    if v.startswith("."):
+                        param_strings.append(f"{k}=input_data{v}")
+                    else:
+                        param_strings.append(f"{k}='{v}'")
                 else:
                     param_strings.append(f"{k}={v}")
 

@@ -24,7 +24,7 @@ class CodeTest(TestCase):
 
         self.bot = Bot.objects.create(
             name="Test Bot",
-            token="641381483:KaRjPo5Th65GOKRJK6HQyWNRGxDXQUdzMaBohCgP",
+            token="1367633212:XWD2XAWxlHKnsiVPwkV43IsmvQDfFpgdCEwKgqm6",
             description="Test bot for testing",
             user=self.user,
         )
@@ -58,7 +58,7 @@ class CodeTest(TestCase):
         image_content = ContentFile(image_io.getvalue(), "test.png")
         SendPhoto.objects.create(
             bot=self.bot,
-            chat_id=1239963443,
+            chat_id=".chat.id",
             photo=image_content,
             position_x=1,
             position_y=1,

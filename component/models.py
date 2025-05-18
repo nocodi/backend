@@ -106,7 +106,7 @@ class OnMessage(Component):
                 )
             )
             code.append(
-                f"    await {next_component.code_function_name}(message.model_dump_json())",
+                f"    await {next_component.code_function_name}(message)",
             )  # in order no next component return "\n".join(code)
         return "\n".join(code)
 
