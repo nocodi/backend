@@ -1,9 +1,9 @@
 import os
 
+import docker
 import requests
 from django.conf import settings
 from django.db.models import QuerySet
-from django.forms.models import model_to_dict
 from django.http import HttpResponse
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
@@ -116,3 +116,76 @@ class GenerateCodeView(APIView):
         response = HttpResponse(code, content_type="text/x-python")
         response["Content-Disposition"] = 'attachment; filename="bot.py"'
         return response
+
+
+class Deploy(APIView):
+    def get(self, request: Request, bot: int) -> HttpResponse:
+        """
+        Build and run a Docker container dynamically based on bot_id.
+        """
+        dockerfile_content = """
+        FROM python:3.13
+        CMD echo "Hello World from bot_id: {bot_id}"
+        """
+
+        # Path to store the Dockerfile temporarily
+        dockerfile_dir = (
+            "./docker_build_context"  # Create a directory to store the Dockerfile
+        )
+        dockerfile_path = os.path.join(dockerfile_dir, "Dockerfile2")
+
+        # Make sure the directory exists
+        os.makedirs(dockerfile_dir, exist_ok=True)
+
+        # Write the Dockerfile
+        with open(dockerfile_path, "w") as f:
+            f.write(dockerfile_content.format(bot_id=1))  # Here, 1 is the bot_id
+
+        try:
+            client = docker.from_env()
+
+            # Build the Docker image dynamically
+            image, logs = client.images.build(
+                path=dockerfile_dir,
+                dockerfile="Dockerfile2",
+                tag=f"bot-{bot}",
+            )
+            # for log in logs:
+            #     print(log.get('stream', '').strip())
+            print("Image built successfully!")
+
+            container_name = f"bot-container-{bot}"
+
+            # Check if the container already exists
+            try:
+                existing_container = client.containers.get(container_name)
+                print("---> LOGS: ", existing_container.logs().decode("utf-8"))
+                print(
+                    f"Container '{container_name}' already exists. Stopping and removing it.",
+                )
+                existing_container.stop()
+                existing_container.remove()
+            except Exception as e:
+                print(
+                    f"Container '{container_name}' does not exist. Proceeding to create a new one.",
+                )
+
+            # want to run
+            client.containers.run(
+                f"bot-{bot}",  # Use the dynamically built image
+                detach=True,  # Run the container in detached mode
+                name=container_name,  # Give a unique name based on bot_id
+                privileged=True,
+                cpu_count=1,
+                cpu_shares=1024,
+                mem_limit="512m",
+            )
+
+        except Exception as e:
+            print(f"Error: {e}")
+            return HttpResponse(f"Error: {e}", status=500)
+
+        return HttpResponse(
+            f"Hello World container for bot_id {bot} started!",
+            status=200,
+        )
