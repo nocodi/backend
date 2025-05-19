@@ -19,6 +19,7 @@ from bot.serializers import (
     CreateBotResponseSerializer,
     MyBotsResponseSerializer,
 )
+from bot.services import generate_code
 from component.models import Component, InlineKeyboardMarkup
 from iam.permissions import IsLoginedPermission
 
@@ -79,40 +80,8 @@ class GenerateCodeView(APIView):
                 "Bot not found or you don't have permission to access it",
             )
 
-        # imports
+        code = generate_code(bot_instance)
 
-        components = Component.objects.filter(
-            bot_id=bot,
-            component_type=Component.ComponentType.TRIGGER,
-        )
-        bot_component_codes = ""
-        for component in components:
-            if component.component_content_type.model != "onmessage":
-                return Response(
-                    {
-                        "error": f"Only OnMessage trigger components are supported. you requested {component.__class__.__name__}",
-                    },
-                    status=status.HTTP_501_NOT_IMPLEMENTED,
-                )
-
-            for next_component in component.get_all_next_components():
-                # if next_component.id == component.id:
-                #     continue
-                object = (
-                    next_component.component_content_type.model_class().objects.get(
-                        pk=next_component.pk,
-                    )
-                )
-                bot_component_codes += object.generate_code()
-                bot_component_codes += "\n" * 2
-
-        with open("bot/bot_templates/main.txt") as f:
-            base = f.read()
-        code = base.format(
-            FUNCTION_CODES=bot_component_codes,
-            TOKEN=bot_instance.token,
-            BASE_URL=settings.BALE_API_URL,
-        )
         response = HttpResponse(code, content_type="text/x-python")
         response["Content-Disposition"] = 'attachment; filename="bot.py"'
         return response
@@ -120,20 +89,36 @@ class GenerateCodeView(APIView):
 
 class Deploy(APIView):
     def get(self, request: Request, bot: int) -> HttpResponse:
+        try:
+            bot_instance = Bot.objects.get(id=bot, user=request.iam_user)
+        except Bot.DoesNotExist:
+            raise ValidationError(
+                "Bot not found or you don't have permission to access it",
+            )
+
+        code = generate_code(bot_instance)
+
         """
         Build and run a Docker container dynamically based on bot_id.
         """
         dockerfile_content = """
-        FROM python:3.13
-        CMD echo "Hello World from bot_id: {bot_id}"
+FROM python:3.13
+
+WORKDIR /app
+
+RUN pip install --upgrade pip setuptools aiogram
+
+COPY main.py .
+
+CMD ["python", "main.py"]
         """
 
         # Path to store the Dockerfile temporarily
         dockerfile_dir = (
-            "./docker_build_context"  # Create a directory to store the Dockerfile
+            f"./factory/{bot}"  # Create a directory to store the Dockerfile
         )
-        dockerfile_path = os.path.join(dockerfile_dir, "Dockerfile2")
-
+        dockerfile_path = os.path.join(dockerfile_dir, "Dockerfile")
+        pythonfile_path = os.path.join(dockerfile_dir, "main.py")
         # Make sure the directory exists
         os.makedirs(dockerfile_dir, exist_ok=True)
 
@@ -141,17 +126,20 @@ class Deploy(APIView):
         with open(dockerfile_path, "w") as f:
             f.write(dockerfile_content.format(bot_id=1))  # Here, 1 is the bot_id
 
+        with open(pythonfile_path, "w") as f:
+            f.write(code)
+
         try:
             client = docker.from_env()
 
             # Build the Docker image dynamically
             image, logs = client.images.build(
                 path=dockerfile_dir,
-                dockerfile="Dockerfile2",
+                dockerfile="Dockerfile",
                 tag=f"bot-{bot}",
             )
-            # for log in logs:
-            #     print(log.get('stream', '').strip())
+            for log in logs:
+                print(log.get("stream", "").strip())
             print("Image built successfully!")
 
             container_name = f"bot-container-{bot}"
@@ -189,3 +177,16 @@ class Deploy(APIView):
             f"Hello World container for bot_id {bot} started!",
             status=200,
         )
+
+    def logs(self, request: Request, bot: int) -> HttpResponse:
+        """
+        Get logs of the running container.
+        """
+        container_name = f"bot-container-{bot}"
+        try:
+            client = docker.from_env()
+            container = client.containers.get(container_name)
+            logs = container.logs().decode("utf-8")
+            return HttpResponse(logs, status=200)
+        except Exception as e:
+            return HttpResponse(f"Error: {e}", status=500)
