@@ -105,43 +105,35 @@ class Deploy(APIView):
         dockerfile_dir = (
             f"./factory/{bot}"  # Create a directory to store the Dockerfile
         )
+        os.makedirs(dockerfile_dir, exist_ok=True)
         dockerfile_path = shutil.copyfile(
             "bot/bot_templates/Dockerfile.txt",
             f"{dockerfile_dir}/Dockerfile",
         )
         pythonfile_path = os.path.join(dockerfile_dir, "main.py")
-        os.makedirs(dockerfile_dir, exist_ok=True)
 
         with open(pythonfile_path, "w") as f:
             f.write(code)
 
         try:
             client = docker.from_env()
+            container_name = f"bot-container-{bot}"
 
             # Build the Docker image dynamically
-            image, logs = client.images.build(
+            client.images.build(
                 path=dockerfile_dir,
                 dockerfile="Dockerfile",
                 tag=f"bot-{bot}",
             )
-            for log in logs:
-                print(log.get("stream", "").strip())
-            print("Image built successfully!")
-
-            container_name = f"bot-container-{bot}"
 
             # Check if the container already exists
             try:
                 existing_container = client.containers.get(container_name)
-                print("---> LOGS: ", existing_container.logs().decode("utf-8"))
-                print(
-                    f"Container '{container_name}' already exists. Stopping and removing it.",
-                )
                 existing_container.stop()
                 existing_container.remove()
             except Exception as e:
-                print(
-                    f"Container '{container_name}' does not exist. Proceeding to create a new one.",
+                logger.error(
+                    f"Container '{container_name}' does not exist. Proceeding to create a new one. error: {e}",
                 )
 
             # want to run
@@ -162,9 +154,6 @@ class Deploy(APIView):
         # Success response
 
         return Response(
-
             {"message": f"Bot {bot} has been successfully deployed."},
-
             status=200,
-
         )
