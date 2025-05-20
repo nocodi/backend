@@ -1,4 +1,6 @@
+import logging
 import os
+import shutil
 
 import docker
 import requests
@@ -22,6 +24,8 @@ from bot.serializers import (
 from bot.services import generate_code
 from component.models import Component, InlineKeyboardMarkup
 from iam.permissions import IsLoginedPermission
+
+logger = logging.getLogger(__name__)
 
 
 class CreateBotView(APIView):
@@ -98,33 +102,15 @@ class Deploy(APIView):
 
         code = generate_code(bot_instance)
 
-        """
-        Build and run a Docker container dynamically based on bot_id.
-        """
-        dockerfile_content = """
-FROM python:3.13
-
-WORKDIR /app
-
-RUN pip install --upgrade pip setuptools aiogram
-
-COPY main.py .
-
-CMD ["python", "main.py"]
-        """
-
-        # Path to store the Dockerfile temporarily
         dockerfile_dir = (
             f"./factory/{bot}"  # Create a directory to store the Dockerfile
         )
-        dockerfile_path = os.path.join(dockerfile_dir, "Dockerfile")
+        dockerfile_path = shutil.copyfile(
+            "bot/bot_templates/Dockerfile.txt",
+            f"{dockerfile_dir}/Dockerfile",
+        )
         pythonfile_path = os.path.join(dockerfile_dir, "main.py")
-        # Make sure the directory exists
         os.makedirs(dockerfile_dir, exist_ok=True)
-
-        # Write the Dockerfile
-        with open(dockerfile_path, "w") as f:
-            f.write(dockerfile_content.format(bot_id=1))  # Here, 1 is the bot_id
 
         with open(pythonfile_path, "w") as f:
             f.write(code)
@@ -165,28 +151,20 @@ CMD ["python", "main.py"]
                 name=container_name,  # Give a unique name based on bot_id
                 privileged=True,
                 cpu_count=1,
-                cpu_shares=1024,
-                mem_limit="512m",
+                cpu_shares=100,
+                mem_limit="100m",
             )
 
         except Exception as e:
-            print(f"Error: {e}")
-            return HttpResponse(f"Error: {e}", status=500)
+            logger.error(f"Unexpected error: {e}")
+            return Response({"error": "Unexpected error occurred."}, status=500)
 
-        return HttpResponse(
-            f"Hello World container for bot_id {bot} started!",
+        # Success response
+
+        return Response(
+
+            {"message": f"Bot {bot} has been successfully deployed."},
+
             status=200,
-        )
 
-    def logs(self, request: Request, bot: int) -> HttpResponse:
-        """
-        Get logs of the running container.
-        """
-        container_name = f"bot-container-{bot}"
-        try:
-            client = docker.from_env()
-            container = client.containers.get(container_name)
-            logs = container.logs().decode("utf-8")
-            return HttpResponse(logs, status=200)
-        except Exception as e:
-            return HttpResponse(f"Error: {e}", status=500)
+        )
