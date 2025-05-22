@@ -9,7 +9,12 @@ from django.db.models import QuerySet
 from django.http import HttpResponse
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import (
+    DestroyAPIView,
+    ListAPIView,
+    RetrieveDestroyAPIView,
+    UpdateAPIView,
+)
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -68,6 +73,13 @@ class CreateBotView(APIView):
 class MyBots(ListAPIView):
     permission_classes = [IsLoginedPermission]
     serializer_class = MyBotsResponseSerializer
+
+    def get_queryset(self) -> QuerySet:
+        return Bot.objects.filter(user=self.request.iam_user)
+
+
+class DeleteUpdateBot(DestroyAPIView, UpdateAPIView):
+    permission_classes = [IsLoginedPermission]
 
     def get_queryset(self) -> QuerySet:
         return Bot.objects.filter(user=self.request.iam_user)
