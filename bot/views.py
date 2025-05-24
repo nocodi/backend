@@ -80,6 +80,7 @@ class MyBots(ListAPIView):
 
 class DeleteUpdateBot(DestroyAPIView, UpdateAPIView):
     permission_classes = [IsLoginedPermission]
+    serializer_class = CreateBotRequestSerializer
 
     def get_queryset(self) -> QuerySet:
         return Bot.objects.filter(user=self.request.iam_user)
