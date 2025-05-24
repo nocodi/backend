@@ -173,14 +173,8 @@ class Component(models.Model):
     def code_function_name(self) -> str:  # -> name of the function in generated code
         return f"{self.__class__.__name__.lower()}_{self.pk}"
 
-    def generate_code(self) -> str:
-        if self.component_type != Component.ComponentType.TELEGRAM:
-            raise NotImplementedError
-
-        underlying_object = self.component_content_type.model_class().objects.get(
-            pk=self.pk,
-        )
-
+    def _get_file_params(self, underlying_object) -> str:
+        """Extract file parameters from the underlying object."""
         file_params = ""
         for field in underlying_object._meta.get_fields():
             if isinstance(field, models.FileField):
@@ -189,113 +183,133 @@ class Component(models.Model):
                     full_url = f"{settings.SITE_URL}{file_instance.url}"
                     file_params = f"{field.name}='{full_url}'"
                     setattr(underlying_object, field.name, None)
+        return file_params
 
-        class_name = underlying_object.__class__.__name__
+    def _get_method_name(self, class_name: str) -> str:
+        """Convert class name to method name format."""
         method = ""
         for c in class_name:
             if c.isupper():
                 method += "_"
             method += c.lower()
-        method = method.lstrip("_")
+        return method.lstrip("_")
+
+    def _generate_keyboard_code(self, keyboard) -> list[str]:
+        """Generate code for keyboard markup."""
+        if not isinstance(keyboard, InlineKeyboardMarkup):
+            return []
+
+        code = ["    builder = InlineKeyboardBuilder()"]
+        for k in keyboard.inline_keyboard.all():
+            code.append(
+                f"    builder.button(text='{k.text}', callback_data='{k.callback_data}')",
+            )
+        code.append("    keyboard = builder.as_markup()")
+        return code
+
+    def _format_code_component(self, underlying_object) -> list[str]:
+        """Format code component using black formatter."""
+        try:
+            import black
+
+            formatted_code = black.format_str(underlying_object.code, mode=black.Mode())
+            return [f"    {formatted_code}"]
+        except Exception as e:
+            return [
+                f"    # Original code failed black formatting: {str(e)}",
+                f"    # {underlying_object.code}",
+                "    pass",
+            ]
+
+    def _get_component_params(
+        self,
+        underlying_object,
+        keyboard,
+        file_params: str,
+    ) -> str:
+        """Generate parameter string for the component."""
+        excluded_fields = {
+            "id",
+            "component_ptr",
+            "component_ptr_id",
+            "timestamp",
+            "object_id",
+            "component_type",
+            "content_type",
+            "component_content_type",
+            "bot",
+            "component_name",
+            "previous_component",
+            "position_x",
+            "position_y",
+        }
+
+        component_data = model_to_dict(underlying_object, exclude=excluded_fields)
+        param_strings = []
+
+        for k, v in component_data.items():
+            if v:
+                if isinstance(v, str):
+                    param_strings.append(
+                        f"{k}=input_data{v}" if v.startswith(".") else f"{k}='{v}'",
+                    )
+                else:
+                    param_strings.append(f"{k}={v}")
+
+        if keyboard:
+            param_strings.append("reply_markup=keyboard")
+        if file_params:
+            param_strings.append(file_params)
+
+        return ", ".join(param_strings)
+
+    def generate_code(self) -> str:
+        """Generate code for the telegram component."""
+        if self.component_type != Component.ComponentType.TELEGRAM:
+            raise NotImplementedError
+
+        underlying_object = self.component_content_type.model_class().objects.get(
+            pk=self.pk,
+        )
+        file_params = self._get_file_params(underlying_object)
+        method = self._get_method_name(underlying_object.__class__.__name__)
 
         code = [
             f"async def {underlying_object.code_function_name}(input_data: Message):",
         ]
+
+        # Handle keyboard
+        keyboard = None
         if (
             hasattr(underlying_object, "content_type")
             and underlying_object.content_type
         ):
             keyboard = underlying_object.content_type.get_object_for_this_type()
-        else:
-            keyboard = None
 
-        if isinstance(keyboard, InlineKeyboardMarkup):
-            code.extend(["    builder = InlineKeyboardBuilder()"])
-            for k in keyboard.inline_keyboard.all():
-                code.extend(
-                    [
-                        f"    builder.button(text='{k.text}', callback_data='{k.callback_data}')",
-                    ],
-                )
-            code.extend(["    keyboard = builder.as_markup()"])
-        #     for k in keyboard.inline_keyboard.all():
-        #         builder.button(text=k.text, callback_data=k.callback_data)
-        #     keyboard = builder.as_markup()
-        # else:
-        #     print("KEYBOARD")
+        code.extend(self._generate_keyboard_code(keyboard))
 
+        # Handle code component
         if underlying_object.__class__.__name__ == "CodeComponent":
-            try:
-                import black
-
-                formatted_code = black.format_str(
-                    underlying_object.code,
-                    mode=black.Mode(),
-                )
-                code.extend([f"    {formatted_code}"])
-            except Exception as e:
-                # If black formatting fails, comment out the code and add pass
-                code.extend(
-                    [
-                        f"    # Original code failed black formatting: {str(e)}",
-                        f"    # {underlying_object.code}",
-                        "    pass",
-                    ],
-                )
+            code.extend(self._format_code_component(underlying_object))
             return "\n".join(code)
 
-        component_data = model_to_dict(
+        # Generate parameters and method call
+        params_str = self._get_component_params(
             underlying_object,
-            exclude=[
-                "id",
-                "component_ptr",
-                "component_ptr_id",
-                "timestamp",
-                "object_id",
-                "component_type",
-                "content_type",
-                "component_content_type",
-                "bot",
-                "component_name",
-                "previous_component",
-                "position_x",
-                "position_y",
-            ],
+            keyboard,
+            file_params,
         )
-        param_strings = []
-        for k, v in component_data.items():
-            if v:
-                if isinstance(v, str):
-                    if v.startswith("."):
-                        param_strings.append(f"{k}=input_data{v}")
-                    else:
-                        param_strings.append(f"{k}='{v}'")
-                else:
-                    param_strings.append(f"{k}={v}")
+        code.append(f"    await bot.{method}({params_str})")
 
-        if keyboard:
-            param_strings.append(f"reply_markup=keyboard")
-
-        if file_params != "":
-            param_strings.append(file_params)
-
-        params_str = ", ".join(param_strings)
-        code.extend(
-            [
-                f"    await bot.{method}({params_str})",
-            ],
-        )
+        # Handle next components
         for next_component in underlying_object.next_component.all():
             next_component = (
                 next_component.component_content_type.model_class().objects.get(
                     pk=next_component.pk,
                 )
             )
-            code.extend(
-                [
-                    f"    await {next_component.code_function_name}(input_data)",
-                ],
-            )
+            code.append(f"    await {next_component.code_function_name}(input_data)")
+
         return "\n".join(code)
 
     def get_all_next_components(self) -> List["Component"]:
