@@ -187,3 +187,16 @@ STATIC_CACHE_PATHS = env("STATIC_CACHE_PATHS", default="/api-doc/schema/").split
 # Bale API Settings
 BALE_API_URL = env("BALE_API_URL", default="https://tapi.bale.ai")
 SITE_URL = env("SITE_URL", default="http://localhost:8000")
+
+# Celery Configuration
+CELERY_BROKER_URL = f'redis://{env("REDIS_HOST", default="redis")}:{env("REDIS_PORT", default="6379")}/0'
+CELERY_RESULT_BACKEND = f'redis://{env("REDIS_HOST", default="redis")}:{env("REDIS_PORT", default="6379")}/0'
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = TIME_ZONE
+
+# Import Celery app
+from .celery import app as celery_app
+
+__all__ = ("celery_app",)
