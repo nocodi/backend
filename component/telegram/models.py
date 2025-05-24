@@ -224,6 +224,26 @@ class Component(models.Model):
         # else:
         #     print("KEYBOARD")
 
+        if underlying_object.__class__.__name__ == "CodeComponent":
+            try:
+                import black
+
+                formatted_code = black.format_str(
+                    underlying_object.code,
+                    mode=black.Mode(),
+                )
+                code.extend([f"    {formatted_code}"])
+            except Exception as e:
+                # If black formatting fails, comment out the code and add pass
+                code.extend(
+                    [
+                        f"    # Original code failed black formatting: {str(e)}",
+                        f"    # {underlying_object.code}",
+                        "    pass",
+                    ],
+                )
+            return "\n".join(code)
+
         component_data = model_to_dict(
             underlying_object,
             exclude=[
