@@ -2,6 +2,7 @@ from django.apps import apps
 from django.contrib import admin
 
 from component.models import (
+    CodeComponent,
     ForceReply,
     InlineKeyboardButton,
     InlineKeyboardMarkup,
@@ -35,3 +36,4 @@ admin.site.register(ReplyKeyboardMarkup)
 admin.site.register(ReplyKeyboardRemove)
 admin.site.register(ForceReply)
 admin.site.register(AddStickerToSet)
+admin.site.register(CodeComponent)

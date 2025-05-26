@@ -1,3 +1,4 @@
+import black
 from django.conf import settings
 from rest_framework.exceptions import ValidationError
 
@@ -34,4 +35,4 @@ def generate_code(bot: Bot) -> str:
         BASE_URL=settings.BALE_API_URL,
     )
 
-    return code
+    return black.format_str(code, mode=black.Mode())
