@@ -2,17 +2,28 @@ services:
   redis:
     image: redis:7
     command: ["redis-server"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - nocodi_network
+
   db:
     image: postgres:16
     env_file: /etc/nocodi/backend/.env
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - nocodi_network
 
   migration:
     build: .
     container_name: django_migration
     env_file: /etc/nocodi/backend/.env
     command: python manage.py migrate
+    networks:
+      - nocodi_network
 
   backend:
     build: .
@@ -23,7 +34,25 @@ services:
     volumes:
       - static_volume:/src/staticfiles
       - media_volume:/src/media
-      - /var/run/docker.sock:/var/run/docker.sock  # 🔥 Mount the host Docker socket here
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - redis
+      - db
+    networks:
+      - nocodi_network
+
+  celery_worker:
+    build: .
+    container_name: celery_worker
+    env_file: /etc/nocodi/backend/.env
+    command: celery -A nocodi worker -l info
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - redis
+      - backend
+    networks:
+      - nocodi_network
 
   nginx:
     image: nginx:1.27
@@ -36,8 +65,15 @@ services:
       - ./nginx/conf.d:/etc/nginx/conf.d
       - static_volume:/staticfiles:ro
       - media_volume:/media:ro
+    networks:
+      - nocodi_network
 
 volumes:
   postgres_data:
   static_volume:
   media_volume:
+  redis_data:
+
+networks:
+  nocodi_network:
+    driver: bridge

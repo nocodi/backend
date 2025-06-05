@@ -27,6 +27,7 @@ from bot.serializers import (
     MyBotsResponseSerializer,
 )
 from bot.services import generate_code
+from bot.tasks import deploy_bot
 from component.models import Component, InlineKeyboardMarkup
 from iam.permissions import IsLoginedPermission
 
@@ -105,7 +106,7 @@ class GenerateCodeView(APIView):
 
 
 class Deploy(APIView):
-    def get(self, request: Request, bot: int) -> HttpResponse:
+    def get(self, request: Request, bot: int) -> Response:
         try:
             bot_instance = Bot.objects.get(id=bot, user=request.iam_user)
         except Bot.DoesNotExist:
@@ -113,60 +114,13 @@ class Deploy(APIView):
                 "Bot not found or you don't have permission to access it",
             )
 
-        code = generate_code(bot_instance)
-
-        dockerfile_dir = (
-            f"./factory/{bot}"  # Create a directory to store the Dockerfile
-        )
-        os.makedirs(dockerfile_dir, exist_ok=True)
-        dockerfile_path = shutil.copyfile(
-            "bot/bot_templates/Dockerfile.txt",
-            f"{dockerfile_dir}/Dockerfile",
-        )
-        pythonfile_path = os.path.join(dockerfile_dir, "main.py")
-
-        with open(pythonfile_path, "w") as f:
-            f.write(code)
-
-        try:
-            client = docker.from_env()
-            container_name = f"bot-container-{bot}"
-
-            # Build the Docker image dynamically
-            client.images.build(
-                path=dockerfile_dir,
-                dockerfile="Dockerfile",
-                tag=f"bot-{bot}",
-            )
-
-            # Check if the container already exists
-            try:
-                existing_container = client.containers.get(container_name)
-                existing_container.stop()
-                existing_container.remove()
-            except Exception as e:
-                logger.error(
-                    f"Container '{container_name}' does not exist. Proceeding to create a new one. error: {e}",
-                )
-
-            # want to run
-            client.containers.run(
-                f"bot-{bot}",  # Use the dynamically built image
-                detach=True,  # Run the container in detached mode
-                name=container_name,  # Give a unique name based on bot_id
-                privileged=True,
-                cpu_count=1,
-                cpu_shares=100,
-                mem_limit="100m",
-            )
-
-        except Exception as e:
-            logger.error(f"Unexpected error: {e}")
-            return Response({"error": "Unexpected error occurred."}, status=500)
-
-        # Success response
+        # Launch the deployment task asynchronously
+        task = deploy_bot.delay(bot)
 
         return Response(
-            {"message": f"Bot {bot} has been successfully deployed."},
-            status=200,
+            {
+                "message": f"Bot {bot} deployment has been initiated.",
+                "task_id": task.id,
+            },
+            status=status.HTTP_202_ACCEPTED,
         )
