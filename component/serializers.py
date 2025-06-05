@@ -41,6 +41,8 @@ class OnCallbackQuerySerializer(ModelSerializerCustom):
 
 
 class ComponentSerializer(serializers.ModelSerializer):
+    hover_text = serializers.SerializerMethodField()
+
     class Meta:
         model = Component
         fields = [
@@ -51,7 +53,19 @@ class ComponentSerializer(serializers.ModelSerializer):
             "previous_component",
             "position_y",
             "position_x",
+            "hover_text",
         ]
+
+    def get_hover_text(self, obj: Component) -> str:
+        underlying_object = obj.component_content_type.model_class().objects.get(
+            pk=obj.pk,
+        )
+        for field in underlying_object._meta.get_fields():
+            if field.name == "text":
+                return underlying_object.text
+            elif field.name == "caption":
+                return underlying_object.caption
+        return ""
 
 
 class ContentTypeSerializer(serializers.ModelSerializer):
