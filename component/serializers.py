@@ -139,5 +139,5 @@ class ContentTypeSerializer(serializers.ModelSerializer):
 class MarkupSerializer(ModelSerializerCustom):
     class Meta:
         model = Markup
-        exclude = ["bot"]
+        fields = "__all__"
         read_only_fields = ["component_type"]
