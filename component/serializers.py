@@ -134,3 +134,10 @@ class ContentTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContentType
         fields = ["id", "name", "description", "path", "schema", "component_type"]
+
+
+class MarkupSerializer(ModelSerializerCustom):
+    class Meta:
+        model = Markup
+        exclude = ["bot"]
+        read_only_fields = ["component_type"]

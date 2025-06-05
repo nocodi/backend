@@ -51,3 +51,9 @@ class SchemaListView(ListAPIView):
 
     def get_queryset(self) -> QuerySet:
         return super().get_queryset().filter(bot=self.kwargs.get("bot"))
+
+
+class MarkupSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
+    serializer_class = MarkupSerializer
+    queryset = Markup.objects.all()
