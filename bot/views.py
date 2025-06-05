@@ -124,3 +124,23 @@ class Deploy(APIView):
             },
             status=status.HTTP_202_ACCEPTED,
         )
+
+
+class Log(APIView):
+    def get(self, request: Request, bot: int) -> Response:
+        try:
+            bot_instance = Bot.objects.get(id=bot, user=request.iam_user)
+        except Bot.DoesNotExist:
+            raise ValidationError(
+                "Bot not found or you don't have permission to access it",
+            )
+
+        client = docker.from_env()
+        container_name = f"bot-container-{bot}"
+        container = client.containers.get(container_name)
+        logs = container.logs().decode("utf-8")
+
+        return Response(
+            {"logs": logs},
+            status=status.HTTP_200_OK,
+        )
