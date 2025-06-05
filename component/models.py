@@ -132,3 +132,50 @@ class OnCallbackQuery(Component):
         default=False,
         help_text="Whether the data matching should be case sensitive",
     )
+
+
+class Markup(models.Model):
+    parent_component = models.ForeignKey(
+        "component.Component",
+        on_delete=models.CASCADE,
+        related_name="markup",
+    )
+
+    class MarkupType(models.TextChoices):
+        InlineKeyboard = "InlineKeyboard"
+        ReplyKeyboard = "ReplyKeyboard"
+
+    markup_type = models.CharField(
+        max_length=20,
+        choices=MarkupType.choices,
+        help_text="Markup type",
+    )
+    buttons = models.JSONField(help_text="Buttons to use")
+
+    def __validate_reply_keyboard(self, buttons: list[list[str]]) -> None:
+        assert isinstance(buttons, list)
+        for row in buttons:
+            assert isinstance(row, list)
+            for button in row:
+                assert isinstance(button, str)
+
+    def __validate_inline_keyboard(self, buttons: list[list[str]]) -> None:
+        assert isinstance(buttons, list)
+        for row in buttons:
+            assert isinstance(row, list)
+            for button in row:
+                assert isinstance(button, dict)
+                assert "text" in button
+                assert "callback_data" in button
+
+    def __validate_buttons(self, buttons: list[list[str]]) -> None:
+        if self.markup_type == self.MarkupType.ReplyKeyboard:
+            self.__validate_reply_keyboard(buttons)
+        elif self.markup_type == self.MarkupType.InlineKeyboard:
+            self.__validate_inline_keyboard(buttons)
+        else:
+            raise ValueError(f"Invalid markup type: {self.markup_type}")
+
+    def save(self, *args: Any, **kwargs: Any) -> None:
+        self.__validate_buttons(self.buttons)
+        super().save(*args, **kwargs)
