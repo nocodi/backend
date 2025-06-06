@@ -26,6 +26,13 @@ class CodeComponentSerializer(ModelSerializerCustom):
         read_only_fields = ["component_type"]
 
 
+class SetStateSerializer(ModelSerializerCustom):
+    class Meta:
+        model = SetState
+        exclude = ["bot"]
+        read_only_fields = ["component_type"]
+
+
 class OnMessageSerializer(ModelSerializerCustom):
     class Meta:
         model = OnMessage

@@ -16,7 +16,8 @@ class IfComponent(Component):
         Greater = "Greater"
         GreaterEqual = "GreaterEqual"
 
-    expression = models.CharField(max_length=1024, help_text="Expression to evaluate")
+    expression = models.CharField(
+        max_length=1024, help_text="Expression to evaluate")
     condition = models.CharField(
         max_length=40,
         choices=Condition.choices,
@@ -32,7 +33,8 @@ class SwitchComponent(Component):
         super().__init__(*args, **kwargs)
         self.type = Component.ComponentType.CONDITIONAL
 
-    expression = models.CharField(max_length=1024, help_text="Expression to evaluate")
+    expression = models.CharField(
+        max_length=1024, help_text="Expression to evaluate")
     values = ArrayField(
         models.CharField(max_length=1024),
         help_text="Values to evaluate",
@@ -51,6 +53,53 @@ class CodeComponent(Component):
     @property
     def required_fields(self) -> list:
         return ["code"]
+
+
+class SetState(Component):
+    """Use this method to set a state. Returns True on success."""
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self.type = Component.ComponentType.CODE
+        self.component_type = Component.ComponentType.CODE
+
+    state = models.CharField(
+        null=True,
+        blank=True,
+        max_length=4096,
+        help_text="Name of state. Should not contain comma",
+    )
+
+    @property
+    def required_fields(self) -> list:
+        return ["state"]
+
+    def generate_code(self) -> str:
+
+        underlying_object: (
+            SetState
+        ) = self.component_content_type.model_class().objects.get(
+            pk=self.pk,
+        )
+
+        code = [
+            f"async def {self.code_function_name}(message: Message, **kwargs):",
+            f"    await kwargs['state'].set_state('{underlying_object.state}')",
+        ]
+
+        for next_component in underlying_object.next_component.all():
+            next_component = (
+                next_component.component_content_type.model_class().objects.get(
+                    pk=next_component.pk,
+                )
+            )
+            code.append(
+                f"    await {next_component.code_function_name}(message, **kwargs)",
+            )
+
+
+        return "\n".join(code)
+
 
 
 class OnMessage(Component):
@@ -75,6 +124,12 @@ class OnMessage(Component):
         default=False,
         help_text="Whether the text matching should be case sensitive",
     )
+    state = models.CharField(
+        null=True,
+        blank=True,
+        max_length=4096,
+        help_text="Optional comma separated list of states to match. If not specified, matches any state.",
+    )
 
     def generate_code(self) -> str:
 
@@ -86,18 +141,20 @@ class OnMessage(Component):
         if underlying_object.next_component.count() == 0:
             return ""
 
-        append_to_text = ""
-        if underlying_object.case_sensitive:
-            append_to_text = ".lower()"
-
+        filters = []
         if underlying_object.text:
-            code = [
-                f"@dp.message(F.text{append_to_text} == '{underlying_object.text}')",
-            ]
-        else:
-            code = [f"@dp.message()"]
+            filters.append(
+                f"F.text{'.lower()' if underlying_object.case_sensitive else ''} == '{underlying_object.text}'")
+        if underlying_object.state:
+            state_list = [
+                f"'{s.strip()}'" for s in underlying_object.state.split(',')]
+            filters.append(
+                f"lambda _, raw_state: raw_state in [{','.join(state_list)}]")
 
-        code += [f"async def {self.code_function_name}(message: Message):"]
+        code = [
+            f"@dp.message({','.join(filters)})",
+            f"async def {self.code_function_name}(message: Message, **kwargs):"
+        ]
 
         for next_component in underlying_object.next_component.all():
             next_component = (
@@ -106,8 +163,8 @@ class OnMessage(Component):
                 )
             )
             code.append(
-                f"    await {next_component.code_function_name}(message)",
-            )  # in order no next component return "\n".join(code)
+                f"    await {next_component.code_function_name}(message, **kwargs)",
+            )
         return "\n".join(code)
 
 
