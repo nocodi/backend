@@ -275,7 +275,7 @@ class Component(models.Model):
         method = self._get_method_name(underlying_object.__class__.__name__)
 
         code = [
-            f"async def {underlying_object.code_function_name}(input_data: Message):",
+            f"async def {underlying_object.code_function_name}(input_data: Message, **kwargs):",
         ]
 
         # Handle code component
@@ -328,7 +328,7 @@ class Component(models.Model):
                     pk=next_component.pk,
                 )
             )
-            code.append(f"    await {next_component.code_function_name}(input_data)")
+            code.append(f"    await {next_component.code_function_name}(input_data, **kwargs)")
 
         return "\n".join(code)
 
