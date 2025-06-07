@@ -49,3 +49,4 @@ class LoginOTPVerifyResponseSerializer(serializers.Serializer):
 
 class LoginResponseSerializer(serializers.Serializer):
     access_token = serializers.CharField()
+    is_first_login = serializers.BooleanField()
