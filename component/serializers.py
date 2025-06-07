@@ -56,6 +56,8 @@ class ComponentSerializer(serializers.ModelSerializer):
             "hover_text",
         ]
 
+    reply_markup = serializers.SerializerMethodField(required=False)
+
     def get_hover_text(self, obj: Component) -> str:
         underlying_object = obj.component_content_type.model_class().objects.get(
             pk=obj.pk,
@@ -66,6 +68,14 @@ class ComponentSerializer(serializers.ModelSerializer):
             elif field.name == "caption":
                 return underlying_object.caption
         return ""
+
+    def get_reply_markup(self, obj: Component):
+        if obj.markup.exists():
+            markup: Markup = obj.markup.get()
+            return {
+                "buttons": markup.buttons,
+                "type": markup.markup_type,
+            }
 
 
 class ContentTypeSerializer(serializers.ModelSerializer):

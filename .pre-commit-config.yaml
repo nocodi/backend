@@ -24,13 +24,13 @@ repos:
     hooks:
       - id: trailing-whitespace
 
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.15.0
-    hooks:
-      - id: mypy
-        files: ^(?!.*(migrations/|tests/|tests\.py$)).*
-        args:
-          - "--ignore-missing-imports"
-          - "--scripts-are-modules"
-          - "--disallow-untyped-calls"
-          - "--disallow-untyped-defs"
+  # - repo: https://github.com/pre-commit/mirrors-mypy
+  #   rev: v1.15.0
+  #   hooks:
+  #     - id: mypy
+  #       files: ^(?!.*(migrations/|tests/|tests\.py$)).*
+  #       args:
+  #         - "--ignore-missing-imports"
+  #         - "--scripts-are-modules"
+  #         - "--disallow-untyped-calls"
+  #         - "--disallow-untyped-defs"

@@ -278,20 +278,40 @@ class Component(models.Model):
             f"async def {underlying_object.code_function_name}(input_data: Message):",
         ]
 
-        # Handle keyboard
-        keyboard = None
-        if (
-            hasattr(underlying_object, "content_type")
-            and underlying_object.content_type
-        ):
-            keyboard = underlying_object.content_type.get_object_for_this_type()
-
-        code.extend(self._generate_keyboard_code(keyboard))
-
         # Handle code component
         if underlying_object.__class__.__name__ == "CodeComponent":
             code.extend(self._format_code_component(underlying_object))
             return "\n".join(code)
+
+        keyboard = None
+        if underlying_object.markup.exists():
+            markup = underlying_object.markup
+            match markup.markup_type:
+                case markup.MarkupType.ReplyKeyboard:
+                    keyword_class = "ReplyKeyboardMarkup"
+                    button_class = "KeyboardButton"
+                case markup.MarkupType.InlineKeyboard:
+                    keyword_class = "InlineKeyboardMarkup"
+                    button_class = "InlineKeyboardButton"
+                case _:
+                    raise NotImplementedError(f"Unknown markup {markup.markup_type}")
+            keyboard_buttons = "["
+            for row in markup.buttons:
+                keyboard_buttons += "[\n"
+
+                for cell in row:
+                    args = {"text": cell}
+                    if markup.markup_type == Markup.MarkupType.InlineKeyboard:
+                        args["callback_data"] = markup.get_callback_data(cell)
+
+                    keyboard_buttons += f"{button_class}(\n"
+                    for k, v in args.items():
+                        keyboard_buttons += f"{k} = {v}\n"
+                    keyboard_buttons += f")"
+
+                keyboard_buttons += "]"
+            keyboard_buttons += "]"
+            keybord = f"{keyword_class}(resize_keyboard=True, one_time_keyboard=False, keyboard = {keyboard_buttons})"
 
         # Generate parameters and method call
         params_str = self._get_component_params(
