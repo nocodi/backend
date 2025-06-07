@@ -45,7 +45,7 @@ class ContentTypeListView(ListAPIView):
 
 
 class SchemaListView(ListAPIView):
-    # permission_classes = [IsLoginedPermission, IsBotOwner]
+    permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = ComponentSerializer
     queryset = Component.objects.all()
 

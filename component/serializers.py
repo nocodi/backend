@@ -54,6 +54,7 @@ class ComponentSerializer(serializers.ModelSerializer):
             "position_y",
             "position_x",
             "hover_text",
+            "reply_markup",
         ]
 
     reply_markup = serializers.SerializerMethodField(required=False)
