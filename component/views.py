@@ -25,6 +25,12 @@ class CodeComponentSet(ModelViewSetCustom):
     queryset = CodeComponent.objects.all()
 
 
+class SetStateSet(ModelViewSetCustom):
+    permission_classes = [IsLoginedPermission, IsBotOwner]
+    serializer_class = SetStateSerializer
+    queryset = SetState.objects.all()
+
+
 class OnMessageSet(ModelViewSetCustom):
     permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = OnMessageSerializer
