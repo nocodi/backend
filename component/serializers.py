@@ -71,12 +71,14 @@ class ComponentSerializer(serializers.ModelSerializer):
         return ""
 
     def get_reply_markup(self, obj: Component):
-        if obj.markup.exists():
+        try:
             markup: Markup = obj.markup.get()
-            return {
-                "buttons": markup.buttons,
-                "type": markup.markup_type,
-            }
+        except:
+            return
+        return {
+            "buttons": markup.buttons,
+            "type": markup.markup_type,
+        }
 
 
 class ContentTypeSerializer(serializers.ModelSerializer):

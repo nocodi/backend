@@ -8,6 +8,7 @@ from component.models import (
     InlineKeyboardMarkup,
     Keyboard,
     KeyboardButton,
+    Markup,
     OnMessage,
     ReplyKeyboardMarkup,
     ReplyKeyboardRemove,
@@ -37,3 +38,4 @@ admin.site.register(ReplyKeyboardRemove)
 admin.site.register(ForceReply)
 admin.site.register(AddStickerToSet)
 admin.site.register(CodeComponent)
+admin.site.register(Markup)
