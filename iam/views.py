@@ -3,6 +3,7 @@ import logging
 import uuid
 from typing import Dict
 
+from django.utils import timezone
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.generics import CreateAPIView, RetrieveAPIView, UpdateAPIView
@@ -40,7 +41,10 @@ class Login(APIView):
 
         try:
             user = IamUser.objects.get(email=data["email"])
+            is_first_login = user.last_login_at is None
             if user.password == data["password"]:
+                user.last_login_at = timezone.now()
+                user.save(update_fields=["last_login_at"])
                 return Response(
                     status=status.HTTP_200_OK,
                     data=LoginResponseSerializer(
@@ -48,6 +52,7 @@ class Login(APIView):
                             "access_token": create_token_for_iamuser(
                                 user_id=user.id,
                             ),
+                            "is_first_login": is_first_login,
                         },
                     ).data,
                 )
@@ -169,12 +174,16 @@ class OTPLoginVerify(APIView):
             redis_data = json.loads(redis_data)
             if data["otp"] == redis_data["otp"]:
                 user = IamUser.objects.get(email=redis_data["email"])
+                is_first_login = user.last_login_at is None
+                user.last_login_at = timezone.now()
+                user.save(update_fields=["last_login_at"])
                 return Response(
                     status=status.HTTP_200_OK,
                     data={
                         "access_token": create_token_for_iamuser(
                             user_id=user.id,
                         ),
+                        "is_first_login": is_first_login,
                     },
                 )
         return Response(status=status.HTTP_401_UNAUTHORIZED)
