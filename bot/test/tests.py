@@ -8,7 +8,7 @@ from PIL import Image
 from rest_framework import status
 
 from bot.models import Bot
-from component.models import Component, OnMessage
+from component.models import Component, OnMessage, SetState
 from component.telegram.models import SendMessage, SendPhoto
 from iam.models import IamUser
 from iam.utils import create_token_for_iamuser
@@ -24,7 +24,7 @@ class CodeTest(TestCase):
 
         self.bot = Bot.objects.create(
             name="Test Bot",
-            token="1367633212:XWD2XAWxlHKnsiVPwkV43IsmvQDfFpgdCEwKgqm6",
+            token="1367633212:iEF26FkkrLfyWsjhwlxlslyM4bUxviGmDKWvqV2d",
             description="Test bot for testing",
             user=self.user,
         )
@@ -37,7 +37,7 @@ class CodeTest(TestCase):
         )
         send_message_comp = SendMessage.objects.create(
             bot=self.bot,
-            chat_id=1239963443,
+            chat_id=693259126,
             text="Hello, World!",
             position_x=1,
             position_y=1,
@@ -45,7 +45,7 @@ class CodeTest(TestCase):
         )
         SendMessage.objects.create(
             bot=self.bot,
-            chat_id=1239963443,
+            chat_id=693259126,
             text="Bye World",
             position_x=1,
             position_y=1,
@@ -63,6 +63,30 @@ class CodeTest(TestCase):
             position_x=1,
             position_y=1,
             previous_component=on_message_component,
+        )
+
+        SetState.objects.create(
+            bot=self.bot,
+            state="state",
+            position_x=1,
+            position_y=1,
+            previous_component=on_message_component,
+        )
+
+        on_state_component = OnMessage.objects.create(
+            bot=self.bot,
+            state="state",
+            position_x=1,
+            position_y=1,
+        )
+
+        SendMessage.objects.create(
+            bot=self.bot,
+            chat_id=693259126,
+            text="State set",
+            position_x=1,
+            position_y=1,
+            previous_component=on_state_component,
         )
 
     def test_create_bot(self):
