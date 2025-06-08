@@ -5,13 +5,6 @@ from component.models import *
 from component.telegram.serializers import ModelSerializerCustom
 
 
-class IfComponentSerializer(ModelSerializerCustom):
-    class Meta:
-        model = IfComponent
-        exclude = ["bot"]
-        read_only_fields = ["component_type"]
-
-
 class SwitchComponentSerializer(ModelSerializerCustom):
     class Meta:
         model = SwitchComponent

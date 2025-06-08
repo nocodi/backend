@@ -3,28 +3,6 @@ from typing import Any
 from component.telegram.models import *
 
 
-class IfComponent(Component):
-    """Use this method to create a conditional component. Returns True on success."""
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-        self.type = Component.ComponentType.CONDITIONAL
-
-    class Condition(models.TextChoices):
-        Equal = "Equal"
-        Contains = "Contains"
-        Greater = "Greater"
-        GreaterEqual = "GreaterEqual"
-
-    expression = models.CharField(max_length=1024, help_text="Expression to evaluate")
-    condition = models.CharField(
-        max_length=40,
-        choices=Condition.choices,
-        help_text="Condition to evaluate",
-    )
-    is_reverse = models.BooleanField(default=False, help_text="Is reverse?")
-
-
 class SwitchComponent(Component):
     """Use this method to create a switch component. Returns True on success."""
 
@@ -37,6 +15,34 @@ class SwitchComponent(Component):
         models.CharField(max_length=1024),
         help_text="Values to evaluate",
     )
+    next_components = ArrayField(models.IntegerField())
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(
+                    models.functions.Length("next_components")
+                    == models.functions.Length("values"),
+                ),
+                name="check_next_components_length",
+            ),
+        ]
+
+    def generate_code(self) -> str:
+        dict_key = ""
+        code = [
+            f"async def {self.code_function_name}(message: Message, **kwargs):",
+            f"    value = message{expression}",
+            f"    match value:",
+        ]
+        for i in range(len(self.values)):
+            value = self.values[i]
+            next_component = self.next_components[i]
+            code += [
+                f"        case {value}:",
+                f"            await {next_component.code_function_name}(message, **kwargs)",
+            ]
+        return code
 
 
 class CodeComponent(Component):

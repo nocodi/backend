@@ -7,12 +7,6 @@ from component.telegram.views import ModelViewSetCustom
 from iam.permissions import IsLoginedPermission
 
 
-class IfComponentSet(ModelViewSetCustom):
-    permission_classes = [IsLoginedPermission, IsBotOwner]
-    serializer_class = IfComponentSerializer
-    queryset = IfComponent.objects.all()
-
-
 class SwitchComponentSet(ModelViewSetCustom):
     permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = SwitchComponentSerializer
