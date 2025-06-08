@@ -17,16 +17,16 @@ class SwitchComponent(Component):
     )
     next_components = ArrayField(models.IntegerField())
 
-    class Meta:
-        constraints = [
-            models.CheckConstraint(
-                condition=models.Q(
-                    models.functions.Length("next_components")
-                    == models.functions.Length("values"),
-                ),
-                name="check_next_components_length",
-            ),
-        ]
+    # class Meta:
+    #     constraints = [
+    #         models.CheckConstraint(
+    #             condition=models.Q(
+    #                 models.functions.Length("next_components")
+    #                 == models.functions.Length("values"),
+    #             ),
+    #             name="check_next_components_length",
+    #         ),
+    #     ]
 
     def generate_code(self) -> str:
         dict_key = ""

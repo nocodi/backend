@@ -7814,14 +7814,14 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={
-                "constraints": [
-                    models.CheckConstraint(
-                        condition=models.Q(False),
-                        name="check_next_components_length",
-                    ),
-                ],
-            },
+            # options={
+            #     "constraints": [
+            #         models.CheckConstraint(
+            #             condition=models.Q(False),
+            #             name="check_next_components_length",
+            #         ),
+            #     ],
+            # },
             bases=("component.component",),
         ),
         migrations.CreateModel(
