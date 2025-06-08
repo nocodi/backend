@@ -1,4 +1,5 @@
 from django.db.models import QuerySet
+from drf_spectacular.utils import OpenApiExample, extend_schema
 from rest_framework.generics import ListAPIView
 
 from bot.permissions import IsBotOwner
@@ -48,6 +49,26 @@ class SchemaListView(ListAPIView):
         return super().get_queryset().filter(bot=self.kwargs.get("bot"))
 
 
+@extend_schema(
+    examples=[
+        OpenApiExample(
+            "Example",
+            value={
+                "buttons": [
+                    [
+                        {"text": "Button 1", "next_component_id": 1},
+                        {"text": "Button 2", "next_component_id": 2},
+                    ],
+                    [
+                        {"text": "Button 3", "next_component_id": 3},
+                        {"text": "Button 4", "next_component_id": 4},
+                    ],
+                ],
+                "type": "ReplyKeyboard",
+            },
+        ),
+    ],
+)
 class MarkupSet(ModelViewSetCustom):
     permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = MarkupSerializer

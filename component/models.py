@@ -20,7 +20,7 @@ class SwitchComponent(Component):
     class Meta:
         constraints = [
             models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     models.functions.Length("next_components")
                     == models.functions.Length("values"),
                 ),
