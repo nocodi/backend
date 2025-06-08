@@ -138,9 +138,12 @@ class OnMessage(Component):
 
         filters = []
         if underlying_object.text:
-            filters.append(
-                f"F.text{'.lower()' if underlying_object.case_sensitive else ''} == '{underlying_object.text}'",
-            )
+            if underlying_object.regex:
+                filters.append(f"regexp=re.compile(r'{underlying_object.text})'")
+            else:
+                filters.append(
+                    f"F.text{'.lower()' if underlying_object.case_sensitive else ''} == '{underlying_object.text}'",
+                )
         if underlying_object.state:
             state_list = [f"'{s.strip()}'" for s in underlying_object.state.split(",")]
             filters.append(
