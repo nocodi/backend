@@ -31,11 +31,6 @@ class OnMessageSet(ModelViewSetCustom):
     queryset = OnMessage.objects.all()
 
 
-class OnCallbackQuerySet(ModelViewSetCustom):
-    serializer_class = OnCallbackQuerySerializer
-    queryset = OnCallbackQuery.objects.all()
-
-
 class ContentTypeListView(ListAPIView):
     permission_classes = [IsLoginedPermission, IsBotOwner]
     queryset = ContentType.objects.filter(

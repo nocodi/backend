@@ -33,13 +33,6 @@ class OnMessageSerializer(ModelSerializerCustom):
         read_only_fields = ["component_type"]
 
 
-class OnCallbackQuerySerializer(ModelSerializerCustom):
-    class Meta:
-        model = OnCallbackQuery
-        exclude = ["bot"]
-        read_only_fields = ["component_type"]
-
-
 class ComponentSerializer(serializers.ModelSerializer):
     hover_text = serializers.SerializerMethodField()
 

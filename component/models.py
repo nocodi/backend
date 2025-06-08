@@ -32,7 +32,7 @@ class SwitchComponent(Component):
         dict_key = ""
         code = [
             f"async def {self.code_function_name}(message: Message, **kwargs):",
-            f"    value = message{expression}",
+            f"    value = message{self.expression}",
             f"    match value:",
         ]
         for i in range(len(self.values)):
@@ -171,29 +171,6 @@ class OnMessage(Component):
                 f"    await {next_component.code_function_name}(message, **kwargs)",
             )
         return "\n".join(code)
-
-
-class OnCallbackQuery(Component):
-    """Trigger component that executes when a callback query is received."""
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-        self.type = Component.ComponentType.TRIGGER
-
-    data = models.CharField(
-        null=True,
-        blank=True,
-        max_length=64,
-        help_text="Optional callback data pattern to match against incoming callback queries. If not specified, matches any callback query.",
-    )
-    regex = models.BooleanField(
-        default=False,
-        help_text="Whether to treat the data pattern as a regular expression",
-    )
-    case_sensitive = models.BooleanField(
-        default=False,
-        help_text="Whether the data matching should be case sensitive",
-    )
 
 
 class Markup(models.Model):

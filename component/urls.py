@@ -7,7 +7,6 @@ from component.views import (
     CodeComponentSet,
     ContentTypeListView,
     MarkupSet,
-    OnCallbackQuerySet,
     OnMessageSet,
     SchemaListView,
     SetStateSet,
@@ -17,7 +16,6 @@ from component.views import (
 router = DefaultRouter()
 router.register(r"on-message", OnMessageSet, basename="on-message")
 router.register(r"set-state", SetStateSet, basename="set-state")
-router.register(r"on-callback-query", OnCallbackQuerySet, basename="on-callback-query")
 router.register(r"switch-component", SwitchComponentSet, basename="switch-component")
 router.register(r"code-component", CodeComponentSet, basename="code-component")
 router.register(r"markup", MarkupSet, basename="markup")
