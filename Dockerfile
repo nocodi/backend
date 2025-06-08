@@ -47,4 +47,4 @@ RUN python manage.py collectstatic --noinput
 EXPOSE 8000
 
 # 🚀 Run Gunicorn using Python from venv
-CMD ["gunicorn", "--timeout", "30", "--chdir", "/src", "--bind", "0.0.0.0:8000", "nocodi.wsgi:application"]
+CMD ["gunicorn", "--workers", "1", "--timeout", "30", "--chdir", "/src", "--bind", "0.0.0.0:8000", "nocodi.wsgi:application"]
