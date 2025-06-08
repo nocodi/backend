@@ -29,6 +29,11 @@ services:
     build: .
     container_name: django_backend
     env_file: /etc/nocodi/backend/.env
+    command:
+      - python
+      - manage.py
+      - runserver
+      - :8000
     expose:
       - "8000"
     volumes:
