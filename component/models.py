@@ -16,8 +16,7 @@ class IfComponent(Component):
         Greater = "Greater"
         GreaterEqual = "GreaterEqual"
 
-    expression = models.CharField(
-        max_length=1024, help_text="Expression to evaluate")
+    expression = models.CharField(max_length=1024, help_text="Expression to evaluate")
     condition = models.CharField(
         max_length=40,
         choices=Condition.choices,
@@ -33,8 +32,7 @@ class SwitchComponent(Component):
         super().__init__(*args, **kwargs)
         self.type = Component.ComponentType.CONDITIONAL
 
-    expression = models.CharField(
-        max_length=1024, help_text="Expression to evaluate")
+    expression = models.CharField(max_length=1024, help_text="Expression to evaluate")
     values = ArrayField(
         models.CharField(max_length=1024),
         help_text="Values to evaluate",
@@ -60,8 +58,7 @@ class SetState(Component):
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
-        self.type = Component.ComponentType.CODE
-        self.component_type = Component.ComponentType.CODE
+        self.type = Component.ComponentType.STATE
 
     state = models.CharField(
         null=True,
@@ -97,9 +94,7 @@ class SetState(Component):
                 f"    await {next_component.code_function_name}(message, **kwargs)",
             )
 
-
         return "\n".join(code)
-
 
 
 class OnMessage(Component):
@@ -144,16 +139,17 @@ class OnMessage(Component):
         filters = []
         if underlying_object.text:
             filters.append(
-                f"F.text{'.lower()' if underlying_object.case_sensitive else ''} == '{underlying_object.text}'")
+                f"F.text{'.lower()' if underlying_object.case_sensitive else ''} == '{underlying_object.text}'",
+            )
         if underlying_object.state:
-            state_list = [
-                f"'{s.strip()}'" for s in underlying_object.state.split(',')]
+            state_list = [f"'{s.strip()}'" for s in underlying_object.state.split(",")]
             filters.append(
-                f"lambda _, raw_state: raw_state in [{','.join(state_list)}]")
+                f"lambda _, raw_state: raw_state in [{','.join(state_list)}]",
+            )
 
         code = [
             f"@dp.message({','.join(filters)})",
-            f"async def {self.code_function_name}(message: Message, **kwargs):"
+            f"async def {self.code_function_name}(message: Message, **kwargs):",
         ]
 
         for next_component in underlying_object.next_component.all():

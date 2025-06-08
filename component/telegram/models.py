@@ -123,6 +123,7 @@ class Component(models.Model):
         TRIGGER = "TRIGGER", "Trigger Component"
         CONDITIONAL = "CONDITIONAL", "Conditional Component"
         CODE = "CODE", "Code Component"
+        STATE = "STATE", "State Component"
 
     component_type = models.CharField(
         max_length=20,
@@ -328,7 +329,9 @@ class Component(models.Model):
                     pk=next_component.pk,
                 )
             )
-            code.append(f"    await {next_component.code_function_name}(input_data, **kwargs)")
+            code.append(
+                f"    await {next_component.code_function_name}(input_data, **kwargs)",
+            )
 
         return "\n".join(code)
 
