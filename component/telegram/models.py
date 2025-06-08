@@ -285,7 +285,8 @@ class Component(models.Model):
             return "\n".join(code)
 
         keyboard = None
-        if underlying_object.markup.exists():
+        # Check if markup exists before accessing it
+        if hasattr(underlying_object, "markup") and underlying_object.markup:
             markup = underlying_object.markup
             match markup.markup_type:
                 case markup.MarkupType.ReplyKeyboard:
@@ -302,17 +303,17 @@ class Component(models.Model):
 
                 for cell in row:
                     args = {"text": cell}
-                    if markup.markup_type == Markup.MarkupType.InlineKeyboard:
+                    if markup.markup_type == markup.MarkupType.InlineKeyboard:
                         args["callback_data"] = markup.get_callback_data(cell)
 
                     keyboard_buttons += f"{button_class}(\n"
                     for k, v in args.items():
-                        keyboard_buttons += f"{k} = {v}\n"
+                        keyboard_buttons += f'{k} = "{v}"\n'
                     keyboard_buttons += f")"
 
                 keyboard_buttons += "]"
             keyboard_buttons += "]"
-            keybord = f"{keyword_class}(resize_keyboard=True, one_time_keyboard=False, keyboard = {keyboard_buttons})"
+            keyboard = f"{keyword_class}(resize_keyboard=True, one_time_keyboard=False, keyboard = {keyboard_buttons})"
 
         # Generate parameters and method call
         params_str = self._get_component_params(

@@ -8,7 +8,7 @@ from PIL import Image
 from rest_framework import status
 
 from bot.models import Bot
-from component.models import Component, OnMessage, SetState
+from component.models import Component, Markup, OnMessage, SetState
 from component.telegram.models import SendMessage, SendPhoto
 from iam.models import IamUser
 from iam.utils import create_token_for_iamuser
@@ -56,13 +56,19 @@ class CodeTest(TestCase):
         image_io = BytesIO()
         image.save(image_io, "PNG")
         image_content = ContentFile(image_io.getvalue(), "test.png")
-        SendPhoto.objects.create(
+        photo_component = SendPhoto.objects.create(
             bot=self.bot,
             chat_id=".chat.id",
             photo=image_content,
             position_x=1,
             position_y=1,
             previous_component=on_message_component,
+        )
+
+        Markup.objects.create(
+            parent_component=photo_component,
+            markup_type=Markup.MarkupType.ReplyKeyboard,
+            buttons=[["Button 1", "Button 2"], ["Button 3", "Button 4"]],
         )
 
         SetState.objects.create(
@@ -100,3 +106,5 @@ class CodeTest(TestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
         # print(response.content.decode())
+        with open("code.py", "w") as f:
+            f.write(response.content.decode())
