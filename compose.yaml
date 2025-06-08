@@ -33,7 +33,7 @@ services:
       - python
       - manage.py
       - runserver
-      - :8000
+      - 0.0.0.0:8000
     expose:
       - "8000"
     volumes:
