@@ -1,5 +1,6 @@
 from django.utils.text import slugify
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from component.models import *
 from component.telegram.serializers import ModelSerializerCustom
@@ -79,6 +80,7 @@ class ContentTypeSerializer(serializers.ModelSerializer):
     path = serializers.SerializerMethodField()
     component_type = serializers.SerializerMethodField()
     description = serializers.SerializerMethodField()
+    reply_markup_supported = serializers.SerializerMethodField()
 
     def get_schema(self, obj: ContentType) -> dict:
         model_class = obj.model_class()
@@ -120,6 +122,12 @@ class ContentTypeSerializer(serializers.ModelSerializer):
         }
         return schema
 
+    def get_reply_markup_supported(self, obj: ContentType) -> bool:
+        model_class = obj.model_class()
+        if hasattr(model_class, "reply_markup_supported"):
+            return model_class().reply_markup_supported
+        return False
+
     def get_path(self, obj: ContentType) -> str:
         request = self.context.get("request")  # Get the request from context
         base_url = request.build_absolute_uri("/")[:-1] if request else ""  # Get host
@@ -139,7 +147,15 @@ class ContentTypeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ContentType
-        fields = ["id", "name", "description", "path", "schema", "component_type"]
+        fields = [
+            "id",
+            "name",
+            "description",
+            "path",
+            "schema",
+            "component_type",
+            "reply_markup_supported",
+        ]
 
 
 class MarkupSerializer(ModelSerializerCustom):
@@ -147,3 +163,35 @@ class MarkupSerializer(ModelSerializerCustom):
         model = Markup
         fields = "__all__"
         read_only_fields = ["component_type"]
+
+    def validate_buttons(self, value):
+        """Validate that buttons follow the correct structure"""
+        if not isinstance(value, list):
+            raise ValidationError("Buttons must be a list")
+
+        for row_index, row in enumerate(value):
+            if not isinstance(row, list):
+                raise ValidationError(f"Row {row_index} must be a list")
+
+            for button_index, button in enumerate(row):
+                if not isinstance(button, dict):
+                    raise ValidationError(
+                        f"Button at row {row_index}, column {button_index} must be a dictionary",
+                    )
+
+                if "value" not in button:
+                    raise ValidationError(
+                        f"Button at row {row_index}, column {button_index} must have a 'value' field",
+                    )
+
+                if not isinstance(button["value"], str):
+                    raise ValidationError(
+                        f"Button 'value' at row {row_index}, column {button_index} must be a string",
+                    )
+
+                if not isinstance(button["next_component"], int):
+                    raise ValidationError(
+                        f"Button 'next_component' at row {row_index}, column {button_index} must be an integer",
+                    )
+
+        return value

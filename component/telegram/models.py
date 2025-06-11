@@ -9,114 +9,6 @@ from django.db.models import Q
 from django.forms.models import model_to_dict
 
 
-class Keyboard(models.Model):
-    timestamp = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        pass
-
-
-class InlineKeyboardButton(models.Model):
-    text = models.CharField(max_length=255, help_text="Text of the button")
-    url = models.URLField(
-        null=True,
-        blank=True,
-        help_text="Optional. HTTP or tg:// URL to be opened when the button is pressed. Links tg://user?id=<user_id> can be used to mention a user by their ID without using a username, if this is allowed by their privacy settings.",
-    )
-    callback_data = models.CharField(
-        max_length=255,
-        null=True,
-        blank=True,
-        help_text="Optional. Data to be sent in a callback query to the bot when the button is pressed, 1-64 bytes",
-    )
-
-
-class InlineKeyboardMarkup(Keyboard):
-    inline_keyboard = models.ManyToManyField(
-        InlineKeyboardButton,
-        related_name="inline_keyboards",
-        help_text="Array of button rows, each represented by an Array of InlineKeyboardButton objects",
-    )
-
-    def __str__(self) -> str:
-        return f"InlineKeyboardMarkup ({self.inline_keyboard.count()} rows)"
-
-
-class KeyboardButton(models.Model):
-    text = models.CharField(max_length=255, help_text="Text of the button")
-    request_contact = models.BooleanField(
-        default=False,
-        help_text="Optional. If True, the user's phone number will be sent as a contact when the button is pressed. Available in private chats only.",
-    )
-    request_location = models.BooleanField(
-        default=False,
-        help_text="Optional. If True, the user's current location will be sent when the button is pressed. Available in private chats only.",
-    )
-
-
-class ReplyKeyboardMarkup(Keyboard):
-    keyboard = models.ManyToManyField(
-        KeyboardButton,
-        related_name="reply_keyboards",
-        help_text="Array of button rows, each represented by an Array of KeyboardButton objects",
-    )
-    is_persistent = models.BooleanField(
-        default=False,
-        help_text="Optional. Requests clients to always show the keyboard when the user opens the chat. Defaults to false, in which case the custom keyboard disappears after one use",
-    )
-    resize_keyboard = models.BooleanField(
-        default=False,
-        help_text="Requests clients to resize the keyboard vertically for optimal fit",
-    )
-    one_time_keyboard = models.BooleanField(
-        default=False,
-        help_text="Requests clients to hide the keyboard as soon as it's been used",
-    )
-    input_field_placeholder = models.CharField(
-        max_length=255,
-        help_text="Optional. The placeholder to be shown in the input field when the keyboard is active; 1-64 characters, 0-words",
-    )
-    selective = models.BooleanField(
-        default=False,
-        help_text="Optional. Use this parameter if you want to show the keyboard to specific users only. Targets: 1) users that are @mentioned in the text of the Message object; 2) if the bot's message is a reply to a message in the same chat and forum topic, sender of the original message.",
-    )
-
-    def __str__(self) -> str:
-        return f"ReplyKeyboardMarkup ({self.keyboard.count()} rows)"
-
-
-class ReplyKeyboardRemove(Keyboard):
-    remove_keyboard = models.BooleanField(
-        default=True,
-        help_text="Requests clients to remove the custom keyboard (user will not be able to summon this keyboard; if you want to hide the keyboard from sight but keep it accessible, use one_time_keyboard in ReplyKeyboardMarkup)",
-    )
-    selective = models.BooleanField(
-        default=False,
-        help_text="Use this parameter if you want to remove the keyboard for specific users only",
-    )
-
-    def __str__(self) -> str:
-        return "ReplyKeyboardRemove"
-
-
-class ForceReply(Keyboard):
-    force_reply = models.BooleanField(
-        default=True,
-        help_text="Shows reply interface to the user, as if they manually selected the bot's message and tapped 'Reply'",
-    )
-    input_field_placeholder = models.CharField(
-        max_length=64,
-        help_text="Optional. The placeholder to be shown in the input field when the reply is active; 1-64 characters",
-    )
-    selective = models.BooleanField(
-        default=False,
-        help_text="Use this parameter if you want to force reply from specific users only",
-    )
-
-    def __str__(self) -> str:
-        return "ForceReply"
-
-
 class Component(models.Model):
     class ComponentType(models.TextChoices):
         TELEGRAM = "TELEGRAM", "Telegram API Component"
@@ -133,7 +25,6 @@ class Component(models.Model):
     )
 
     def save(self, *args: list, **kwargs: dict) -> None:
-        """Automatically sets content type"""
         if self.pk is None:
             self.component_content_type = ContentType.objects.get(
                 model=self.__class__.__name__.lower(),
@@ -175,7 +66,6 @@ class Component(models.Model):
         return f"{self.__class__.__name__.lower()}_{self.pk}"
 
     def _get_file_params(self, underlying_object) -> str:
-        """Extract file parameters from the underlying object."""
         file_params = ""
         for field in underlying_object._meta.get_fields():
             if isinstance(field, models.FileField):
@@ -187,7 +77,6 @@ class Component(models.Model):
         return file_params
 
     def _get_method_name(self, class_name: str) -> str:
-        """Convert class name to method name format."""
         method = ""
         for c in class_name:
             if c.isupper():
@@ -196,7 +85,6 @@ class Component(models.Model):
         return method.lstrip("_")
 
     def _generate_keyboard_code(self, keyboard) -> list[str]:
-        """Generate code for keyboard markup."""
         if not isinstance(keyboard, InlineKeyboardMarkup):
             return []
 
@@ -209,7 +97,6 @@ class Component(models.Model):
         return code
 
     def _format_code_component(self, underlying_object) -> list[str]:
-        """Format code component using black formatter."""
         try:
             import black
 
@@ -228,7 +115,6 @@ class Component(models.Model):
         keyboard,
         file_params: str,
     ) -> str:
-        """Generate parameter string for the component."""
         excluded_fields = {
             "id",
             "component_ptr",
@@ -265,7 +151,6 @@ class Component(models.Model):
         return ", ".join(param_strings)
 
     def generate_code(self) -> str:
-        """Generate code for the telegram component."""
         if self.component_type != Component.ComponentType.TELEGRAM:
             raise NotImplementedError
 
@@ -398,23 +283,14 @@ class SendMessage(Component):
         blank=True,
         help_text="Unique identifier of the message effect to be added to the message; for private chats only",
     )
-    content_type = models.ForeignKey(
-        ContentType,
-        on_delete=models.CASCADE,
-        limit_choices_to=Q(model="inlinekeyboardmarkup")
-        | Q(model="replykeyboardmarkup")
-        | Q(model="replykeyboardremove")
-        | Q(model="forcereply"),
-        null=True,
-        blank=True,
-        help_text="Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user",
-    )
-    object_id = models.PositiveIntegerField(null=True, blank=True)
-    related_to_main = GenericForeignKey("content_type", "object_id")
 
     @property
     def required_fields(self) -> list:
         return ["chat_id", "text"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return True
 
 
 class ForwardMessage(Component):
@@ -460,6 +336,10 @@ class ForwardMessage(Component):
     def required_fields(self) -> list:
         return ["chat_id", "from_chat_id", "message_id"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class ForwardMessages(Component):
     """Use this method to forward multiple messages of any kind. If some of the specified messages can't be found or forwarded, they are skipped. Service messages and messages with protected content can't be forwarded. Album grouping is kept for forwarded messages. On success, an array of MessageId of the sent messages is returned."""
@@ -500,6 +380,10 @@ class ForwardMessages(Component):
     @property
     def required_fields(self) -> list:
         return ["chat_id", "from_chat_id", "message_ids"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class CopyMessage(Component):
@@ -561,23 +445,14 @@ class CopyMessage(Component):
         blank=True,
         help_text="Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance",
     )
-    content_type = models.ForeignKey(
-        ContentType,
-        on_delete=models.CASCADE,
-        limit_choices_to=Q(model="inlinekeyboardmarkup")
-        | Q(model="replykeyboardmarkup")
-        | Q(model="replykeyboardremove")
-        | Q(model="forcereply"),
-        null=True,
-        blank=True,
-        help_text="Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user",
-    )
-    object_id = models.PositiveIntegerField(null=True, blank=True)
-    related_to_main = GenericForeignKey("content_type", "object_id")
 
     @property
     def required_fields(self) -> list:
         return ["chat_id", "from_chat_id", "message_id"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return True
 
 
 class CopyMessages(Component):
@@ -624,6 +499,10 @@ class CopyMessages(Component):
     @property
     def required_fields(self) -> list:
         return ["chat_id", "from_chat_id", "message_ids"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class SendPhoto(Component):
@@ -691,23 +570,14 @@ class SendPhoto(Component):
         blank=True,
         help_text="Unique identifier of the message effect to be added to the message; for private chats only",
     )
-    content_type = models.ForeignKey(
-        ContentType,
-        on_delete=models.CASCADE,
-        limit_choices_to=Q(model="inlinekeyboardmarkup")
-        | Q(model="replykeyboardmarkup")
-        | Q(model="replykeyboardremove")
-        | Q(model="forcereply"),
-        null=True,
-        blank=True,
-        help_text="Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user",
-    )
-    object_id = models.PositiveIntegerField(null=True, blank=True)
-    related_to_main = GenericForeignKey("content_type", "object_id")
 
     @property
     def required_fields(self) -> list:
         return ["chat_id", "photo"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return True
 
 
 class SendDocument(Component):
@@ -776,23 +646,14 @@ class SendDocument(Component):
         blank=True,
         help_text="Unique identifier of the message effect to be added to the message; for private chats only",
     )
-    content_type = models.ForeignKey(
-        ContentType,
-        on_delete=models.CASCADE,
-        limit_choices_to=Q(model="inlinekeyboardmarkup")
-        | Q(model="replykeyboardmarkup")
-        | Q(model="replykeyboardremove")
-        | Q(model="forcereply"),
-        null=True,
-        blank=True,
-        help_text="Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user",
-    )
-    object_id = models.PositiveIntegerField(null=True, blank=True)
-    related_to_main = GenericForeignKey("content_type", "object_id")
 
     @property
     def required_fields(self) -> list:
         return ["chat_id", "document"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return True
 
 
 class SendVideo(Component):
@@ -889,23 +750,14 @@ class SendVideo(Component):
         blank=True,
         help_text="Unique identifier of the message effect to be added to the message; for private chats only",
     )
-    content_type = models.ForeignKey(
-        ContentType,
-        on_delete=models.CASCADE,
-        limit_choices_to=Q(model="inlinekeyboardmarkup")
-        | Q(model="replykeyboardmarkup")
-        | Q(model="replykeyboardremove")
-        | Q(model="forcereply"),
-        null=True,
-        blank=True,
-        help_text="Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user",
-    )
-    object_id = models.PositiveIntegerField(null=True, blank=True)
-    related_to_main = GenericForeignKey("content_type", "object_id")
 
     @property
     def required_fields(self) -> list:
         return ["chat_id", "video"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return True
 
 
 class SendAnimation(Component):
@@ -986,23 +838,14 @@ class SendAnimation(Component):
         blank=True,
         help_text="Unique identifier of the message effect to be added to the message; for private chats only",
     )
-    content_type = models.ForeignKey(
-        ContentType,
-        on_delete=models.CASCADE,
-        limit_choices_to=Q(model="inlinekeyboardmarkup")
-        | Q(model="replykeyboardmarkup")
-        | Q(model="replykeyboardremove")
-        | Q(model="forcereply"),
-        null=True,
-        blank=True,
-        help_text="Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user",
-    )
-    object_id = models.PositiveIntegerField(null=True, blank=True)
-    related_to_main = GenericForeignKey("content_type", "object_id")
 
     @property
     def required_fields(self) -> list:
         return ["chat_id", "animation"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return True
 
 
 class SendVoice(Component):
@@ -1065,23 +908,14 @@ class SendVoice(Component):
         blank=True,
         help_text="Unique identifier of the message effect to be added to the message; for private chats only",
     )
-    content_type = models.ForeignKey(
-        ContentType,
-        on_delete=models.CASCADE,
-        limit_choices_to=Q(model="inlinekeyboardmarkup")
-        | Q(model="replykeyboardmarkup")
-        | Q(model="replykeyboardremove")
-        | Q(model="forcereply"),
-        null=True,
-        blank=True,
-        help_text="Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user",
-    )
-    object_id = models.PositiveIntegerField(null=True, blank=True)
-    related_to_main = GenericForeignKey("content_type", "object_id")
 
     @property
     def required_fields(self) -> list:
         return ["chat_id", "voice"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return True
 
 
 class SendVideoNote(Component):
@@ -1144,23 +978,14 @@ class SendVideoNote(Component):
         blank=True,
         help_text="Unique identifier of the message effect to be added to the message; for private chats only",
     )
-    content_type = models.ForeignKey(
-        ContentType,
-        on_delete=models.CASCADE,
-        limit_choices_to=Q(model="inlinekeyboardmarkup")
-        | Q(model="replykeyboardmarkup")
-        | Q(model="replykeyboardremove")
-        | Q(model="forcereply"),
-        null=True,
-        blank=True,
-        help_text="Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user",
-    )
-    object_id = models.PositiveIntegerField(null=True, blank=True)
-    related_to_main = GenericForeignKey("content_type", "object_id")
 
     @property
     def required_fields(self) -> list:
         return ["chat_id", "video_note"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return True
 
 
 class SendPaidMedia(Component):
@@ -1217,23 +1042,14 @@ class SendPaidMedia(Component):
         blank=True,
         help_text="Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance",
     )
-    content_type = models.ForeignKey(
-        ContentType,
-        on_delete=models.CASCADE,
-        limit_choices_to=Q(model="inlinekeyboardmarkup")
-        | Q(model="replykeyboardmarkup")
-        | Q(model="replykeyboardremove")
-        | Q(model="forcereply"),
-        null=True,
-        blank=True,
-        help_text="Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user",
-    )
-    object_id = models.PositiveIntegerField(null=True, blank=True)
-    related_to_main = GenericForeignKey("content_type", "object_id")
 
     @property
     def required_fields(self) -> list:
         return ["chat_id", "star_count", "media"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return True
 
 
 class SendMediaGroup(Component):
@@ -1278,6 +1094,10 @@ class SendMediaGroup(Component):
     @property
     def required_fields(self) -> list:
         return ["chat_id", "media"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class SendLocation(Component):
@@ -1348,23 +1168,14 @@ class SendLocation(Component):
         blank=True,
         help_text="Unique identifier of the message effect to be added to the message; for private chats only",
     )
-    content_type = models.ForeignKey(
-        ContentType,
-        on_delete=models.CASCADE,
-        limit_choices_to=Q(model="inlinekeyboardmarkup")
-        | Q(model="replykeyboardmarkup")
-        | Q(model="replykeyboardremove")
-        | Q(model="forcereply"),
-        null=True,
-        blank=True,
-        help_text="Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user",
-    )
-    object_id = models.PositiveIntegerField(null=True, blank=True)
-    related_to_main = GenericForeignKey("content_type", "object_id")
 
     @property
     def required_fields(self) -> list:
         return ["chat_id", "latitude", "longitude"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return True
 
 
 class SendVenue(Component):
@@ -1437,23 +1248,14 @@ class SendVenue(Component):
         blank=True,
         help_text="Unique identifier of the message effect to be added to the message; for private chats only",
     )
-    content_type = models.ForeignKey(
-        ContentType,
-        on_delete=models.CASCADE,
-        limit_choices_to=Q(model="inlinekeyboardmarkup")
-        | Q(model="replykeyboardmarkup")
-        | Q(model="replykeyboardremove")
-        | Q(model="forcereply"),
-        null=True,
-        blank=True,
-        help_text="Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user",
-    )
-    object_id = models.PositiveIntegerField(null=True, blank=True)
-    related_to_main = GenericForeignKey("content_type", "object_id")
 
     @property
     def required_fields(self) -> list:
         return ["chat_id", "latitude", "longitude", "title", "address"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return True
 
 
 class SendContact(Component):
@@ -1510,23 +1312,14 @@ class SendContact(Component):
         blank=True,
         help_text="Unique identifier of the message effect to be added to the message; for private chats only",
     )
-    content_type = models.ForeignKey(
-        ContentType,
-        on_delete=models.CASCADE,
-        limit_choices_to=Q(model="inlinekeyboardmarkup")
-        | Q(model="replykeyboardmarkup")
-        | Q(model="replykeyboardremove")
-        | Q(model="forcereply"),
-        null=True,
-        blank=True,
-        help_text="Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user",
-    )
-    object_id = models.PositiveIntegerField(null=True, blank=True)
-    related_to_main = GenericForeignKey("content_type", "object_id")
 
     @property
     def required_fields(self) -> list:
         return ["chat_id", "phone_number", "first_name"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return True
 
 
 class SendPoll(Component):
@@ -1624,23 +1417,14 @@ class SendPoll(Component):
         blank=True,
         help_text="Unique identifier of the message effect to be added to the message; for private chats only",
     )
-    content_type = models.ForeignKey(
-        ContentType,
-        on_delete=models.CASCADE,
-        limit_choices_to=Q(model="inlinekeyboardmarkup")
-        | Q(model="replykeyboardmarkup")
-        | Q(model="replykeyboardremove")
-        | Q(model="forcereply"),
-        null=True,
-        blank=True,
-        help_text="Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user",
-    )
-    object_id = models.PositiveIntegerField(null=True, blank=True)
-    related_to_main = GenericForeignKey("content_type", "object_id")
 
     @property
     def required_fields(self) -> list:
         return ["chat_id", "question", "options"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return True
 
 
 class SendDice(Component):
@@ -1686,23 +1470,14 @@ class SendDice(Component):
         blank=True,
         help_text="Unique identifier of the message effect to be added to the message; for private chats only",
     )
-    content_type = models.ForeignKey(
-        ContentType,
-        on_delete=models.CASCADE,
-        limit_choices_to=Q(model="inlinekeyboardmarkup")
-        | Q(model="replykeyboardmarkup")
-        | Q(model="replykeyboardremove")
-        | Q(model="forcereply"),
-        null=True,
-        blank=True,
-        help_text="Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user",
-    )
-    object_id = models.PositiveIntegerField(null=True, blank=True)
-    related_to_main = GenericForeignKey("content_type", "object_id")
 
     @property
     def required_fields(self) -> list:
         return ["chat_id"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return True
 
 
 class SetMessageReaction(Component):
@@ -1728,6 +1503,10 @@ class SetMessageReaction(Component):
     def required_fields(self) -> list:
         return ["chat_id", "message_id"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class GetUserProfilePhotos(Component):
     """Use this method to get a list of profile pictures for a user. Returns a UserProfilePhotos object."""
@@ -1751,6 +1530,10 @@ class GetUserProfilePhotos(Component):
     @property
     def required_fields(self) -> list:
         return ["user_id"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class SetUserEmojiStatus(Component):
@@ -1776,6 +1559,10 @@ class SetUserEmojiStatus(Component):
     def required_fields(self) -> list:
         return ["user_id"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class GetFile(Component):
     """Use this method to get basic information about a file and prepare it for downloading. For the moment, bots can download files of up to 20MB in size. On success, a File object is returned. The file can then be downloaded via the link https://api.telegram.org/file/bot<token>/<file_path>, where <file_path> is taken from the response. It is guaranteed that the link will be valid for at least 1 hour. When the link expires, a new one can be requested by calling getFile again."""
@@ -1789,6 +1576,10 @@ class GetFile(Component):
     @property
     def required_fields(self) -> list:
         return ["file_id"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class BanChatMember(Component):
@@ -1819,6 +1610,10 @@ class BanChatMember(Component):
     def required_fields(self) -> list:
         return ["chat_id", "user_id"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class UnbanChatMember(Component):
     """Use this method to unban a previously banned user in a supergroup or channel. The user will not return to the group or channel automatically, but will be able to join via link, etc. The bot must be an administrator for this to work. By default, this method guarantees that after the call the user is not a member of the chat, but will be able to join it. So if the user is a member of the chat they will also be removed from the chat. If you don't want this, use the parameter only_if_banned. Returns True on success."""
@@ -1842,6 +1637,10 @@ class UnbanChatMember(Component):
     @property
     def required_fields(self) -> list:
         return ["chat_id", "user_id"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class RestrictChatMember(Component):
@@ -1871,6 +1670,10 @@ class RestrictChatMember(Component):
     @property
     def required_fields(self) -> list:
         return ["chat_id", "user_id", "permissions"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class PromoteChatMember(Component):
@@ -1966,6 +1769,10 @@ class PromoteChatMember(Component):
     def required_fields(self) -> list:
         return ["chat_id", "user_id"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class SetChatAdministratorCustomTitle(Component):
     """Use this method to set a custom title for an administrator in a supergroup promoted by the bot. Returns True on success."""
@@ -1991,6 +1798,10 @@ class SetChatAdministratorCustomTitle(Component):
     def required_fields(self) -> list:
         return ["chat_id", "user_id", "custom_title"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class BanChatSenderChat(Component):
     """Use this method to ban a channel chat in a supergroup or a channel. Until the chat is unbanned, the owner of the banned chat won't be able to send messages on behalf of any of their channels. The bot must be an administrator in the supergroup or channel for this to work and must have the appropriate administrator rights. Returns True on success."""
@@ -2009,6 +1820,10 @@ class BanChatSenderChat(Component):
     @property
     def required_fields(self) -> list:
         return ["chat_id", "sender_chat_id"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class UnbanChatSenderChat(Component):
@@ -2029,6 +1844,10 @@ class UnbanChatSenderChat(Component):
     def required_fields(self) -> list:
         return ["chat_id", "sender_chat_id"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class SetChatPermissions(Component):
     """Use this method to set default chat permissions for all members. The bot must be an administrator in the group or a supergroup for this to work and must have the can_restrict_members administrator rights. Returns True on success."""
@@ -2048,6 +1867,10 @@ class SetChatPermissions(Component):
     def required_fields(self) -> list:
         return ["chat_id", "permissions"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class ExportChatInviteLink(Component):
     """Use this method to generate a new primary invite link for a chat; any previously generated primary link is revoked. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the new invite link as String on success."""
@@ -2061,6 +1884,10 @@ class ExportChatInviteLink(Component):
     @property
     def required_fields(self) -> list:
         return ["chat_id"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class CreateChatInviteLink(Component):
@@ -2096,6 +1923,10 @@ class CreateChatInviteLink(Component):
     @property
     def required_fields(self) -> list:
         return ["chat_id"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class EditChatInviteLink(Component):
@@ -2137,6 +1968,10 @@ class EditChatInviteLink(Component):
     def required_fields(self) -> list:
         return ["chat_id", "invite_link"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class CreateChatSubscriptionInviteLink(Component):
     """Use this method to create a subscription invite link for a channel chat. The bot must have the can_invite_users administrator rights. The link can be edited using the method editChatSubscriptionInviteLink or revoked using the method revokeChatInviteLink. Returns the new invite link as a ChatInviteLink object."""
@@ -2167,6 +2002,10 @@ class CreateChatSubscriptionInviteLink(Component):
     def required_fields(self) -> list:
         return ["chat_id", "subscription_period", "subscription_price"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class EditChatSubscriptionInviteLink(Component):
     """Use this method to edit a subscription invite link created by the bot. The bot must have the can_invite_users administrator rights. Returns the edited invite link as a ChatInviteLink object."""
@@ -2192,6 +2031,10 @@ class EditChatSubscriptionInviteLink(Component):
     def required_fields(self) -> list:
         return ["chat_id", "invite_link"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class RevokeChatInviteLink(Component):
     """Use this method to revoke an invite link created by the bot. If the primary link is revoked, a new link is automatically generated. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the revoked invite link as ChatInviteLink object."""
@@ -2210,6 +2053,10 @@ class RevokeChatInviteLink(Component):
     @property
     def required_fields(self) -> list:
         return ["chat_id", "invite_link"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class ApproveChatJoinRequest(Component):
@@ -2230,6 +2077,10 @@ class ApproveChatJoinRequest(Component):
     def required_fields(self) -> list:
         return ["chat_id", "user_id"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class DeclineChatJoinRequest(Component):
     """Use this method to decline a chat join request. The bot must be an administrator in the chat for this to work and must have the can_invite_users administrator right. Returns True on success."""
@@ -2249,6 +2100,10 @@ class DeclineChatJoinRequest(Component):
     def required_fields(self) -> list:
         return ["chat_id", "user_id"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class SetChatPhoto(Component):
     """Use this method to set a new profile photo for the chat. Photos can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns True on success."""
@@ -2263,6 +2118,10 @@ class SetChatPhoto(Component):
     def required_fields(self) -> list:
         return ["chat_id", "photo"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class DeleteChatPhoto(Component):
     """Use this method to delete a chat photo. Photos can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns True on success."""
@@ -2276,6 +2135,10 @@ class DeleteChatPhoto(Component):
     @property
     def required_fields(self) -> list:
         return ["chat_id"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class SetChatTitle(Component):
@@ -2297,6 +2160,10 @@ class SetChatTitle(Component):
     def required_fields(self) -> list:
         return ["chat_id", "title"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class SetChatDescription(Component):
     """Use this method to change the description of a group, a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns True on success."""
@@ -2316,6 +2183,10 @@ class SetChatDescription(Component):
     @property
     def required_fields(self) -> list:
         return ["chat_id"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class PinChatMessage(Component):
@@ -2346,6 +2217,10 @@ class PinChatMessage(Component):
     def required_fields(self) -> list:
         return ["chat_id", "message_id"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class UnpinChatMessage(Component):
     """Use this method to remove a message from the list of pinned messages in a chat. If the chat is not a private chat, the bot must be an administrator in the chat for this to work and must have the 'can_pin_messages' administrator right in a supergroup or 'can_edit_messages' administrator right in a channel. Returns True on success."""
@@ -2370,6 +2245,10 @@ class UnpinChatMessage(Component):
     def required_fields(self) -> list:
         return ["chat_id"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class UnpinAllChatMessages(Component):
     """Use this method to clear the list of pinned messages in a chat. If the chat is not a private chat, the bot must be an administrator in the chat for this to work and must have the 'can_pin_messages' administrator right in a supergroup or 'can_edit_messages' administrator right in a channel. Returns True on success."""
@@ -2383,6 +2262,10 @@ class UnpinAllChatMessages(Component):
     @property
     def required_fields(self) -> list:
         return ["chat_id"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class LeaveChat(Component):
@@ -2398,6 +2281,10 @@ class LeaveChat(Component):
     def required_fields(self) -> list:
         return ["chat_id"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class GetChat(Component):
     """Use this method to get up-to-date information about the chat. Returns a ChatFullInfo object on success."""
@@ -2411,6 +2298,10 @@ class GetChat(Component):
     @property
     def required_fields(self) -> list:
         return ["chat_id"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class GetChatAdministrators(Component):
@@ -2426,6 +2317,10 @@ class GetChatAdministrators(Component):
     def required_fields(self) -> list:
         return ["chat_id"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class GetChatMemberCount(Component):
     """Use this method to get the number of members in a chat. Returns Int on success."""
@@ -2439,6 +2334,10 @@ class GetChatMemberCount(Component):
     @property
     def required_fields(self) -> list:
         return ["chat_id"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class GetChatMember(Component):
@@ -2459,6 +2358,10 @@ class GetChatMember(Component):
     def required_fields(self) -> list:
         return ["chat_id", "user_id"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class SetChatStickerSet(Component):
     """Use this method to set a new group sticker set for a supergroup. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Use the field can_set_sticker_set optionally returned in getChat requests to check if the bot can use this method. Returns True on success."""
@@ -2478,6 +2381,10 @@ class SetChatStickerSet(Component):
     def required_fields(self) -> list:
         return ["chat_id", "sticker_set_name"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class DeleteChatStickerSet(Component):
     """Use this method to delete a group sticker set from a supergroup. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Use the field can_set_sticker_set optionally returned in getChat requests to check if the bot can use this method. Returns True on success."""
@@ -2491,6 +2398,10 @@ class DeleteChatStickerSet(Component):
     @property
     def required_fields(self) -> list:
         return ["chat_id"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class CreateForumTopic(Component):
@@ -2522,6 +2433,10 @@ class CreateForumTopic(Component):
     def required_fields(self) -> list:
         return ["chat_id", "name"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class EditForumTopic(Component):
     """Use this method to edit name and icon of a topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights, unless it is the creator of the topic. Returns True on success."""
@@ -2552,6 +2467,10 @@ class EditForumTopic(Component):
     def required_fields(self) -> list:
         return ["chat_id", "message_thread_id"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class CloseForumTopic(Component):
     """Use this method to close an open topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights, unless it is the creator of the topic. Returns True on success."""
@@ -2570,6 +2489,10 @@ class CloseForumTopic(Component):
     @property
     def required_fields(self) -> list:
         return ["chat_id", "message_thread_id"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class ReopenForumTopic(Component):
@@ -2590,6 +2513,10 @@ class ReopenForumTopic(Component):
     def required_fields(self) -> list:
         return ["chat_id", "message_thread_id"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class DeleteForumTopic(Component):
     """Use this method to delete a forum topic along with all its messages in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_delete_messages administrator rights. Returns True on success."""
@@ -2609,6 +2536,10 @@ class DeleteForumTopic(Component):
     def required_fields(self) -> list:
         return ["chat_id", "message_thread_id"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class UnpinAllForumTopicMessages(Component):
     """Use this method to clear the list of pinned messages in a forum topic. The bot must be an administrator in the chat for this to work and must have the can_pin_messages administrator right in the supergroup. Returns True on success."""
@@ -2627,6 +2558,10 @@ class UnpinAllForumTopicMessages(Component):
     @property
     def required_fields(self) -> list:
         return ["chat_id", "message_thread_id"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class EditGeneralForumTopic(Component):
@@ -2648,6 +2583,10 @@ class EditGeneralForumTopic(Component):
     def required_fields(self) -> list:
         return ["chat_id", "name"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class CloseGeneralForumTopic(Component):
     """Use this method to close an open 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights. Returns True on success."""
@@ -2661,6 +2600,10 @@ class CloseGeneralForumTopic(Component):
     @property
     def required_fields(self) -> list:
         return ["chat_id"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class ReopenGeneralForumTopic(Component):
@@ -2676,6 +2619,10 @@ class ReopenGeneralForumTopic(Component):
     def required_fields(self) -> list:
         return ["chat_id"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class HideGeneralForumTopic(Component):
     """Use this method to hide the 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights. The topic will be automatically closed if it was open. Returns True on success."""
@@ -2689,6 +2636,10 @@ class HideGeneralForumTopic(Component):
     @property
     def required_fields(self) -> list:
         return ["chat_id"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class UnhideGeneralForumTopic(Component):
@@ -2704,6 +2655,10 @@ class UnhideGeneralForumTopic(Component):
     def required_fields(self) -> list:
         return ["chat_id"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class UnpinAllGeneralForumTopicMessages(Component):
     """Use this method to clear the list of pinned messages in a General forum topic. The bot must be an administrator in the chat for this to work and must have the can_pin_messages administrator right in the supergroup. Returns True on success."""
@@ -2717,6 +2672,10 @@ class UnpinAllGeneralForumTopicMessages(Component):
     @property
     def required_fields(self) -> list:
         return ["chat_id"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class GetUserChatBoosts(Component):
@@ -2737,6 +2696,10 @@ class GetUserChatBoosts(Component):
     def required_fields(self) -> list:
         return ["chat_id", "user_id"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class GetBusinessConnection(Component):
     """Use this method to get information about the connection of the bot with a business account. Returns a BusinessConnection object on success."""
@@ -2750,6 +2713,10 @@ class GetBusinessConnection(Component):
     @property
     def required_fields(self) -> list:
         return ["business_connection_id"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class SetMyCommands(Component):
@@ -2765,6 +2732,10 @@ class SetMyCommands(Component):
     def required_fields(self) -> list:
         return ["commands"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class DeleteMyCommands(Component):
     """Use this method to delete the list of the bot's commands for the given scope and user language. After deletion, higher level commands will be shown to affected users. Returns True on success."""
@@ -2779,6 +2750,10 @@ class DeleteMyCommands(Component):
     def required_fields(self) -> list:
         return []
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class GetMyCommands(Component):
     """Use this method to get the current list of the bot's commands for the given scope and user language. Returns an Array of BotCommand objects. If commands aren't set, an empty list is returned."""
@@ -2792,6 +2767,10 @@ class GetMyCommands(Component):
     @property
     def required_fields(self) -> list:
         return []
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class SetMyName(Component):
@@ -2813,6 +2792,10 @@ class SetMyName(Component):
     def required_fields(self) -> list:
         return []
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class GetMyName(Component):
     """Use this method to get the current bot name for the given user language. Returns BotName on success."""
@@ -2826,6 +2809,10 @@ class GetMyName(Component):
     @property
     def required_fields(self) -> list:
         return []
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class SetMyDescription(Component):
@@ -2847,6 +2834,10 @@ class SetMyDescription(Component):
     def required_fields(self) -> list:
         return []
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class GetMyDescription(Component):
     """Use this method to get the current bot description for the given user language. Returns BotDescription on success."""
@@ -2860,6 +2851,10 @@ class GetMyDescription(Component):
     @property
     def required_fields(self) -> list:
         return []
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class SetMyShortDescription(Component):
@@ -2881,6 +2876,10 @@ class SetMyShortDescription(Component):
     def required_fields(self) -> list:
         return []
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class GetMyShortDescription(Component):
     """Use this method to get the current bot short description for the given user language. Returns BotShortDescription on success."""
@@ -2894,6 +2893,10 @@ class GetMyShortDescription(Component):
     @property
     def required_fields(self) -> list:
         return []
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class SetChatMenuButton(Component):
@@ -2909,6 +2912,10 @@ class SetChatMenuButton(Component):
     def required_fields(self) -> list:
         return []
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class GetChatMenuButton(Component):
     """Use this method to get the current value of the bot's menu button in a private chat, or the default menu button. Returns MenuButton on success."""
@@ -2922,6 +2929,10 @@ class GetChatMenuButton(Component):
     @property
     def required_fields(self) -> list:
         return []
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class SetMyDefaultAdministratorRights(Component):
@@ -2937,6 +2948,10 @@ class SetMyDefaultAdministratorRights(Component):
     def required_fields(self) -> list:
         return []
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class GetMyDefaultAdministratorRights(Component):
     """Use this method to get the current default administrator rights of the bot. Returns ChatAdministratorRights on success."""
@@ -2950,6 +2965,10 @@ class GetMyDefaultAdministratorRights(Component):
     @property
     def required_fields(self) -> list:
         return []
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class EditMessageText(Component):
@@ -2986,20 +3005,14 @@ class EditMessageText(Component):
         blank=True,
         help_text="Mode for parsing entities in the message text. See formatting options for more details.",
     )
-    content_type = models.ForeignKey(
-        ContentType,
-        on_delete=models.CASCADE,
-        limit_choices_to=Q(model="inlinekeyboardmarkup"),
-        null=True,
-        blank=True,
-        help_text="A JSON-serialized object for an inline keyboard.",
-    )
-    object_id = models.PositiveIntegerField(null=True, blank=True)
-    related_to_main = GenericForeignKey("content_type", "object_id")
 
     @property
     def required_fields(self) -> list:
         return ["text"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return True
 
 
 class EditMessageCaption(Component):
@@ -3041,20 +3054,14 @@ class EditMessageCaption(Component):
         blank=True,
         help_text="Pass True, if the caption must be shown above the message media. Supported only for animation, photo and video messages.",
     )
-    content_type = models.ForeignKey(
-        ContentType,
-        on_delete=models.CASCADE,
-        limit_choices_to=Q(model="inlinekeyboardmarkup"),
-        null=True,
-        blank=True,
-        help_text="A JSON-serialized object for an inline keyboard.",
-    )
-    object_id = models.PositiveIntegerField(null=True, blank=True)
-    related_to_main = GenericForeignKey("content_type", "object_id")
 
     @property
     def required_fields(self) -> list:
         return []
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return True
 
 
 class EditMessageMedia(Component):
@@ -3080,20 +3087,14 @@ class EditMessageMedia(Component):
         blank=True,
         help_text="Required if chat_id and message_id are not specified. Identifier of the inline message",
     )
-    content_type = models.ForeignKey(
-        ContentType,
-        on_delete=models.CASCADE,
-        limit_choices_to=Q(model="inlinekeyboardmarkup"),
-        null=True,
-        blank=True,
-        help_text="A JSON-serialized object for a new inline keyboard.",
-    )
-    object_id = models.PositiveIntegerField(null=True, blank=True)
-    related_to_main = GenericForeignKey("content_type", "object_id")
 
     @property
     def required_fields(self) -> list:
         return ["media"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return True
 
 
 class EditMessageLiveLocation(Component):
@@ -3149,20 +3150,14 @@ class EditMessageLiveLocation(Component):
         blank=True,
         help_text="The maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified.",
     )
-    content_type = models.ForeignKey(
-        ContentType,
-        on_delete=models.CASCADE,
-        limit_choices_to=Q(model="inlinekeyboardmarkup"),
-        null=True,
-        blank=True,
-        help_text="A JSON-serialized object for a new inline keyboard.",
-    )
-    object_id = models.PositiveIntegerField(null=True, blank=True)
-    related_to_main = GenericForeignKey("content_type", "object_id")
 
     @property
     def required_fields(self) -> list:
         return ["latitude", "longitude"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return True
 
 
 class StopMessageLiveLocation(Component):
@@ -3188,20 +3183,14 @@ class StopMessageLiveLocation(Component):
         blank=True,
         help_text="Required if chat_id and message_id are not specified. Identifier of the inline message",
     )
-    content_type = models.ForeignKey(
-        ContentType,
-        on_delete=models.CASCADE,
-        limit_choices_to=Q(model="inlinekeyboardmarkup"),
-        null=True,
-        blank=True,
-        help_text="A JSON-serialized object for a new inline keyboard.",
-    )
-    object_id = models.PositiveIntegerField(null=True, blank=True)
-    related_to_main = GenericForeignKey("content_type", "object_id")
 
     @property
     def required_fields(self) -> list:
         return []
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return True
 
 
 class EditMessageReplyMarkup(Component):
@@ -3227,20 +3216,14 @@ class EditMessageReplyMarkup(Component):
         blank=True,
         help_text="Required if chat_id and message_id are not specified. Identifier of the inline message",
     )
-    content_type = models.ForeignKey(
-        ContentType,
-        on_delete=models.CASCADE,
-        limit_choices_to=Q(model="inlinekeyboardmarkup"),
-        null=True,
-        blank=True,
-        help_text="A JSON-serialized object for an inline keyboard.",
-    )
-    object_id = models.PositiveIntegerField(null=True, blank=True)
-    related_to_main = GenericForeignKey("content_type", "object_id")
 
     @property
     def required_fields(self) -> list:
         return []
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return True
 
 
 class StopPoll(Component):
@@ -3261,20 +3244,14 @@ class StopPoll(Component):
         blank=True,
         help_text="Identifier of the original message with the poll",
     )
-    content_type = models.ForeignKey(
-        ContentType,
-        on_delete=models.CASCADE,
-        limit_choices_to=Q(model="inlinekeyboardmarkup"),
-        null=True,
-        blank=True,
-        help_text="A JSON-serialized object for a new message inline keyboard.",
-    )
-    object_id = models.PositiveIntegerField(null=True, blank=True)
-    related_to_main = GenericForeignKey("content_type", "object_id")
 
     @property
     def required_fields(self) -> list:
         return ["chat_id", "message_id"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return True
 
 
 class DeleteMessage(Component):
@@ -3294,6 +3271,10 @@ class DeleteMessage(Component):
     @property
     def required_fields(self) -> list:
         return ["chat_id", "message_id"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class DeleteMessages(Component):
@@ -3315,6 +3296,10 @@ class DeleteMessages(Component):
     @property
     def required_fields(self) -> list:
         return ["chat_id", "message_ids"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class SendGift(Component):
@@ -3356,6 +3341,10 @@ class SendGift(Component):
     def required_fields(self) -> list:
         return ["gift_id"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class GiftPremiumSubscription(Component):
     """Gifts a Telegram Premium subscription to the given user. Returns True on success."""
@@ -3391,6 +3380,10 @@ class GiftPremiumSubscription(Component):
     def required_fields(self) -> list:
         return ["user_id", "month_count", "star_count"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class VerifyUser(Component):
     """Verifies a user on behalf of the organization which is represented by the bot. Returns True on success."""
@@ -3410,6 +3403,10 @@ class VerifyUser(Component):
     @property
     def required_fields(self) -> list:
         return ["user_id"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class VerifyChat(Component):
@@ -3431,6 +3428,10 @@ class VerifyChat(Component):
     def required_fields(self) -> list:
         return ["chat_id"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class RemoveUserVerification(Component):
     """Removes verification from a user who is currently verified on behalf of the organization represented by the bot. Returns True on success."""
@@ -3445,6 +3446,10 @@ class RemoveUserVerification(Component):
     def required_fields(self) -> list:
         return ["user_id"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class RemoveChatVerification(Component):
     """Removes verification from a chat that is currently verified on behalf of the organization represented by the bot. Returns True on success."""
@@ -3458,6 +3463,10 @@ class RemoveChatVerification(Component):
     @property
     def required_fields(self) -> list:
         return ["chat_id"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class ReadBusinessMessage(Component):
@@ -3483,6 +3492,10 @@ class ReadBusinessMessage(Component):
     def required_fields(self) -> list:
         return ["business_connection_id", "chat_id", "message_id"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class DeleteBusinessMessages(Component):
     """Delete messages on behalf of a business account. Requires the can_delete_sent_messages business bot right to delete messages sent by the bot itself, or the can_delete_all_messages business bot right to delete any message. Returns True on success."""
@@ -3503,6 +3516,10 @@ class DeleteBusinessMessages(Component):
     @property
     def required_fields(self) -> list:
         return ["business_connection_id", "message_ids"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class SetBusinessAccountName(Component):
@@ -3530,6 +3547,10 @@ class SetBusinessAccountName(Component):
     def required_fields(self) -> list:
         return ["business_connection_id", "first_name"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class SetBusinessAccountUsername(Component):
     """Changes the username of a managed business account. Requires the can_change_username business bot right. Returns True on success."""
@@ -3549,6 +3570,10 @@ class SetBusinessAccountUsername(Component):
     @property
     def required_fields(self) -> list:
         return ["business_connection_id"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class SetBusinessAccountBio(Component):
@@ -3570,6 +3595,10 @@ class SetBusinessAccountBio(Component):
     def required_fields(self) -> list:
         return ["business_connection_id"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class SetBusinessAccountProfilePhoto(Component):
     """Changes the profile photo of a managed business account. Requires the can_edit_profile_photo business bot right. Returns True on success."""
@@ -3588,6 +3617,10 @@ class SetBusinessAccountProfilePhoto(Component):
     @property
     def required_fields(self) -> list:
         return ["business_connection_id", "photo"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class RemoveBusinessAccountProfilePhoto(Component):
@@ -3608,6 +3641,10 @@ class RemoveBusinessAccountProfilePhoto(Component):
     def required_fields(self) -> list:
         return ["business_connection_id"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class SetBusinessAccountGiftSettings(Component):
     """Changes the privacy settings pertaining to incoming gifts in a managed business account. Requires the can_change_gift_settings business bot right. Returns True on success."""
@@ -3627,6 +3664,10 @@ class SetBusinessAccountGiftSettings(Component):
     def required_fields(self) -> list:
         return ["business_connection_id", "show_gift_button", "accepted_gift_types"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class GetBusinessAccountStarBalance(Component):
     """Returns the amount of Telegram Stars owned by a managed business account. Requires the can_view_gifts_and_stars business bot right. Returns StarAmount on success."""
@@ -3640,6 +3681,10 @@ class GetBusinessAccountStarBalance(Component):
     @property
     def required_fields(self) -> list:
         return ["business_connection_id"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class TransferBusinessAccountStars(Component):
@@ -3659,6 +3704,10 @@ class TransferBusinessAccountStars(Component):
     @property
     def required_fields(self) -> list:
         return ["business_connection_id", "star_count"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class GetBusinessAccountGifts(Component):
@@ -3714,6 +3763,10 @@ class GetBusinessAccountGifts(Component):
     def required_fields(self) -> list:
         return ["business_connection_id"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class ConvertGiftToStars(Component):
     """Converts a given regular gift to Telegram Stars. Requires the can_convert_gifts_to_stars business bot right. Returns True on success."""
@@ -3732,6 +3785,10 @@ class ConvertGiftToStars(Component):
     @property
     def required_fields(self) -> list:
         return ["business_connection_id", "owned_gift_id"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class UpgradeGift(Component):
@@ -3762,6 +3819,10 @@ class UpgradeGift(Component):
     def required_fields(self) -> list:
         return ["business_connection_id", "owned_gift_id"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class TransferGift(Component):
     """Transfers an owned unique gift to another user. Requires the can_transfer_and_upgrade_gifts business bot right. Requires can_transfer_stars business bot right if the transfer is paid. Returns True on success."""
@@ -3790,6 +3851,10 @@ class TransferGift(Component):
     @property
     def required_fields(self) -> list:
         return ["business_connection_id", "owned_gift_id", "new_owner_chat_id"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class PostStory(Component):
@@ -3831,6 +3896,10 @@ class PostStory(Component):
     def required_fields(self) -> list:
         return ["business_connection_id", "content", "active_period"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class EditStory(Component):
     """Edits a story previously posted by the bot on behalf of a managed business account. Requires the can_manage_stories business bot right. Returns Story on success."""
@@ -3861,6 +3930,10 @@ class EditStory(Component):
     def required_fields(self) -> list:
         return ["business_connection_id", "story_id", "content"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class DeleteStory(Component):
     """Deletes a story previously posted by the bot on behalf of a managed business account. Requires the can_manage_stories business bot right. Returns True on success."""
@@ -3879,6 +3952,10 @@ class DeleteStory(Component):
     @property
     def required_fields(self) -> list:
         return ["business_connection_id", "story_id"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class SendSticker(Component):
@@ -3930,23 +4007,14 @@ class SendSticker(Component):
         blank=True,
         help_text="Unique identifier of the message effect to be added to the message; for private chats only",
     )
-    content_type = models.ForeignKey(
-        ContentType,
-        on_delete=models.CASCADE,
-        limit_choices_to=Q(model="inlinekeyboardmarkup")
-        | Q(model="replykeyboardmarkup")
-        | Q(model="replykeyboardremove")
-        | Q(model="forcereply"),
-        null=True,
-        blank=True,
-        help_text="Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user",
-    )
-    object_id = models.PositiveIntegerField(null=True, blank=True)
-    related_to_main = GenericForeignKey("content_type", "object_id")
 
     @property
     def required_fields(self) -> list:
         return ["chat_id", "sticker"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return True
 
 
 class GetStickerSet(Component):
@@ -3957,6 +4025,10 @@ class GetStickerSet(Component):
     @property
     def required_fields(self) -> list:
         return ["name"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class GetCustomEmojiStickers(Component):
@@ -3973,6 +4045,10 @@ class GetCustomEmojiStickers(Component):
     @property
     def required_fields(self) -> list:
         return ["custom_emoji_ids"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class UploadStickerFile(Component):
@@ -3992,6 +4068,10 @@ class UploadStickerFile(Component):
     @property
     def required_fields(self) -> list:
         return ["user_id", "sticker", "sticker_format"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class CreateNewStickerSet(Component):
@@ -4029,6 +4109,10 @@ class CreateNewStickerSet(Component):
     def required_fields(self) -> list:
         return ["user_id", "name", "title", "stickers"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class AddStickerToSet(Component):
     """Use this method to add a new sticker to a set created by the bot. Emoji sticker sets can have up to 200 stickers. Other sticker sets can have up to 120 stickers. Returns True on success."""
@@ -4043,6 +4127,10 @@ class AddStickerToSet(Component):
     @property
     def required_fields(self) -> list:
         return ["user_id", "name", "sticker"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class SetStickerPositionInSet(Component):
@@ -4063,6 +4151,10 @@ class SetStickerPositionInSet(Component):
     def required_fields(self) -> list:
         return ["sticker", "position"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class DeleteStickerFromSet(Component):
     """Use this method to delete a sticker from a set created by the bot. Returns True on success."""
@@ -4076,6 +4168,10 @@ class DeleteStickerFromSet(Component):
     @property
     def required_fields(self) -> list:
         return ["sticker"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class ReplaceStickerInSet(Component):
@@ -4096,6 +4192,10 @@ class ReplaceStickerInSet(Component):
     @property
     def required_fields(self) -> list:
         return ["user_id", "name", "old_sticker", "sticker"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class SetStickerEmojiList(Component):
@@ -4118,6 +4218,10 @@ class SetStickerEmojiList(Component):
     def required_fields(self) -> list:
         return ["sticker", "emoji_list"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class SetStickerKeywords(Component):
     """Use this method to change search keywords assigned to a regular or custom emoji sticker. The sticker must belong to a sticker set created by the bot. Returns True on success."""
@@ -4139,6 +4243,10 @@ class SetStickerKeywords(Component):
     def required_fields(self) -> list:
         return ["sticker"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class SetStickerMaskPosition(Component):
     """Use this method to change the mask position of a mask sticker. The sticker must belong to a sticker set that was created by the bot. Returns True on success."""
@@ -4152,6 +4260,10 @@ class SetStickerMaskPosition(Component):
     @property
     def required_fields(self) -> list:
         return ["sticker"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class SetStickerSetTitle(Component):
@@ -4168,6 +4280,10 @@ class SetStickerSetTitle(Component):
     @property
     def required_fields(self) -> list:
         return ["name", "title"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class SetStickerSetThumbnail(Component):
@@ -4195,6 +4311,10 @@ class SetStickerSetThumbnail(Component):
     def required_fields(self) -> list:
         return ["name", "user_id", "format"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class SetCustomEmojiStickerSetThumbnail(Component):
     """Use this method to set the thumbnail of a custom emoji sticker set. Returns True on success."""
@@ -4210,6 +4330,10 @@ class SetCustomEmojiStickerSetThumbnail(Component):
     def required_fields(self) -> list:
         return ["name"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class DeleteStickerSet(Component):
     """Use this method to delete a sticker set that was created by the bot. Returns True on success."""
@@ -4219,6 +4343,10 @@ class DeleteStickerSet(Component):
     @property
     def required_fields(self) -> list:
         return ["name"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class AnswerInlineQuery(Component):
@@ -4249,6 +4377,10 @@ class AnswerInlineQuery(Component):
     def required_fields(self) -> list:
         return ["inline_query_id", "results"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class AnswerWebAppQuery(Component):
     """Use this method to set the result of an interaction with a Web App and send a corresponding message on behalf of the user to the chat from which the query originated. On success, a SentWebAppMessage object is returned."""
@@ -4262,6 +4394,10 @@ class AnswerWebAppQuery(Component):
     @property
     def required_fields(self) -> list:
         return ["web_app_query_id", "result"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class SavePreparedInlineMessage(Component):
@@ -4296,6 +4432,10 @@ class SavePreparedInlineMessage(Component):
     @property
     def required_fields(self) -> list:
         return ["user_id", "result"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class SendInvoice(Component):
@@ -4427,20 +4567,14 @@ class SendInvoice(Component):
         blank=True,
         help_text="Unique identifier of the message effect to be added to the message; for private chats only",
     )
-    content_type = models.ForeignKey(
-        ContentType,
-        on_delete=models.CASCADE,
-        limit_choices_to=Q(model="inlinekeyboardmarkup"),
-        null=True,
-        blank=True,
-        help_text="A JSON-serialized object for an inline keyboard. If empty, one 'Pay total price' button will be shown. If not empty, the first button must be a Pay button.",
-    )
-    object_id = models.PositiveIntegerField(null=True, blank=True)
-    related_to_main = GenericForeignKey("content_type", "object_id")
 
     @property
     def required_fields(self) -> list:
         return ["chat_id", "title", "description", "payload", "currency", "prices"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return True
 
 
 class CreateInvoiceLink(Component):
@@ -4552,6 +4686,10 @@ class CreateInvoiceLink(Component):
     def required_fields(self) -> list:
         return ["title", "description", "payload", "currency", "prices"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class AnswerShippingQuery(Component):
     """If you sent an invoice requesting a shipping address and the parameter is_flexible was specified, the Bot API will send an Update with a shipping_query field to the bot. Use this method to reply to shipping queries. On success, True is returned."""
@@ -4575,6 +4713,10 @@ class AnswerShippingQuery(Component):
     @property
     def required_fields(self) -> list:
         return ["shipping_query_id", "ok"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class AnswerPreCheckoutQuery(Component):
@@ -4600,6 +4742,10 @@ class AnswerPreCheckoutQuery(Component):
     def required_fields(self) -> list:
         return ["pre_checkout_query_id", "ok"]
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class GetStarTransactions(Component):
     """Returns the bot's Telegram Star transactions in chronological order. On success, returns a StarTransactions object."""
@@ -4619,6 +4765,10 @@ class GetStarTransactions(Component):
     def required_fields(self) -> list:
         return []
 
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
+
 
 class RefundStarPayment(Component):
     """Refunds a successful payment in Telegram Stars. Returns True on success."""
@@ -4637,6 +4787,10 @@ class RefundStarPayment(Component):
     @property
     def required_fields(self) -> list:
         return ["user_id", "telegram_payment_charge_id"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class EditUserStarSubscription(Component):
@@ -4661,6 +4815,10 @@ class EditUserStarSubscription(Component):
     @property
     def required_fields(self) -> list:
         return ["user_id", "telegram_payment_charge_id", "is_canceled"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False
 
 
 class SendGame(Component):
@@ -4706,20 +4864,14 @@ class SendGame(Component):
         blank=True,
         help_text="Unique identifier of the message effect to be added to the message; for private chats only",
     )
-    content_type = models.ForeignKey(
-        ContentType,
-        on_delete=models.CASCADE,
-        limit_choices_to=Q(model="inlinekeyboardmarkup"),
-        null=True,
-        blank=True,
-        help_text="A JSON-serialized object for an inline keyboard. If empty, one 'Play game_title' button will be shown. If not empty, the first button must launch the game.",
-    )
-    object_id = models.PositiveIntegerField(null=True, blank=True)
-    related_to_main = GenericForeignKey("content_type", "object_id")
 
     @property
     def required_fields(self) -> list:
         return ["chat_id", "game_short_name"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return True
 
 
 class SetGameScore(Component):
@@ -4760,3 +4912,7 @@ class SetGameScore(Component):
     @property
     def required_fields(self) -> list:
         return ["user_id", "score"]
+
+    @property
+    def reply_markup_supported(self) -> bool:
+        return False

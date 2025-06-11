@@ -3,15 +3,8 @@ from django.contrib import admin
 
 from component.models import (
     CodeComponent,
-    ForceReply,
-    InlineKeyboardButton,
-    InlineKeyboardMarkup,
-    Keyboard,
-    KeyboardButton,
     Markup,
     OnMessage,
-    ReplyKeyboardMarkup,
-    ReplyKeyboardRemove,
     SendDocument,
     SendMessage,
     SendPhoto,
@@ -29,13 +22,6 @@ admin.site.register(SendMessage)
 admin.site.register(SendPhoto)
 admin.site.register(SendVideo)
 admin.site.register(SendDocument)
-admin.site.register(Keyboard)
-admin.site.register(KeyboardButton)
-admin.site.register(InlineKeyboardButton)
-admin.site.register(InlineKeyboardMarkup)
-admin.site.register(ReplyKeyboardMarkup)
-admin.site.register(ReplyKeyboardRemove)
-admin.site.register(ForceReply)
 admin.site.register(AddStickerToSet)
 admin.site.register(CodeComponent)
 admin.site.register(Markup)

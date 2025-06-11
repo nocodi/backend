@@ -197,7 +197,11 @@ class Markup(models.Model):
         for row in buttons:
             assert isinstance(row, list)
             for button in row:
-                assert isinstance(button, str)
+                assert isinstance(button, dict)
+                assert "value" in button
+                assert "next_component" in button
+                assert isinstance(button["value"], str)
+                assert isinstance(button["next_component"], int)
 
     def get_callback_data(self, cell: str) -> str:
         return f"{self.prent_component.id}-{cell}"
