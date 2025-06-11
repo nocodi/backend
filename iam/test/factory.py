@@ -1,6 +1,6 @@
-import factory
 from faker import Faker
 
+import factory
 from iam.models import IamUser
 
 fake = Faker()

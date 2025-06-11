@@ -28,7 +28,6 @@ from bot.serializers import (
 )
 from bot.services import generate_code
 from bot.tasks import deploy_bot
-from component.models import Component, InlineKeyboardMarkup
 from iam.permissions import IsLoginedPermission
 
 logger = logging.getLogger(__name__)
