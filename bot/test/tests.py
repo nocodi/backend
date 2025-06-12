@@ -91,20 +91,36 @@ class CodeTest(TestCase):
         #     previous_component=on_message_component,
         # )
 
-        # SetState.objects.create(
-        #     bot=self.bot,
-        #     state="state",
-        #     position_x=1,
-        #     position_y=1,
-        #     previous_component=on_message_component,
-        # )
+        SetState.objects.create(
+            bot=self.bot,
+            state="state",
+            position_x=1,
+            position_y=1,
+            previous_component=on_message_component,
+        )
+
+        on_state_component = OnMessage.objects.create(
+            bot=self.bot,
+            state="state",
+            position_x=1,
+            position_y=1,
+        )
+
+        send2 = SendMessage.objects.create(
+            bot=self.bot,
+            chat_id=".from_user.id",
+            text="State set",
+            position_x=1,
+            position_y=1,
+            previous_component=on_state_component,
+        )
 
         CodeComponent.objects.create(
             bot=self.bot,
             code="print('Hello, World!')",
             position_x=1,
             position_y=1,
-            previous_component=send_4,
+            previous_component=send2,
         )
 
         send_5 = SendMessage.objects.create(
@@ -116,11 +132,11 @@ class CodeTest(TestCase):
         )
 
         Markup.objects.create(
-            parent_component=send_4,
+            parent_component=send_5,
             markup_type=Markup.MarkupType.ReplyKeyboard,
             buttons=[
                 [{"value": "Button 1"}, {"value": "Button 2"}],
-                [{"value": "Button new", "next_component": send_5.id}],
+                [{"value": "Button 3", "next_component": send_5.id}],
             ],
         )
 
