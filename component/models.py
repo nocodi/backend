@@ -9,6 +9,7 @@ class SwitchComponent(Component):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.type = Component.ComponentType.CONDITIONAL
+        self.component_type = Component.ComponentType.CONDITIONAL
 
     expression = models.CharField(max_length=1024, help_text="Expression to evaluate")
     values = ArrayField(
@@ -44,6 +45,10 @@ class SwitchComponent(Component):
             ]
         return code
 
+    @property
+    def required_fields(self) -> list:
+        return ["expression", "values"]
+
 
 class CodeComponent(Component):
     """Use this method to create a code component. Returns True on success."""
@@ -51,6 +56,7 @@ class CodeComponent(Component):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.type = Component.ComponentType.CODE
+        self.component_type = Component.ComponentType.CODE
 
     code = models.TextField(help_text="Code to execute", null=True, blank=True)
 
@@ -65,6 +71,7 @@ class SetState(Component):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.type = Component.ComponentType.STATE
+        self.component_type = Component.ComponentType.STATE
 
     state = models.CharField(
         null=True,
