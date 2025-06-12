@@ -67,14 +67,13 @@ class ComponentSerializer(serializers.ModelSerializer):
         return ""
 
     def get_reply_markup(self, obj: Component):
-        try:
-            markup: Markup = obj.markup.get()
-        except:
-            return
-        return {
-            "buttons": markup.buttons,
-            "type": markup.markup_type,
-        }
+        if hasattr(obj, "markup") and obj.markup is not None:
+            markup: Markup = obj.markup
+            return {
+                "buttons": markup.buttons,
+                "type": markup.markup_type,
+            }
+        return None
 
     def get_reply_markup_supported(self, obj: Component) -> bool:
         model_class = obj.component_content_type.model_class()
