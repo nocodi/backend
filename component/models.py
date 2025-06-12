@@ -64,6 +64,26 @@ class CodeComponent(Component):
     def required_fields(self) -> list:
         return ["code"]
 
+    def _format_code_component(self, underlying_object) -> list[str]:
+        try:
+            import black
+
+            formatted_code = black.format_str(underlying_object.code, mode=black.Mode())
+            return [f"    {formatted_code}"]
+        except Exception as e:
+            return [
+                f"    # Original code failed black formatting: {str(e)}",
+                f"    # {underlying_object.code}",
+                "    pass",
+            ]
+
+    def generate_code(self) -> str:
+        code = [
+            f"async def {self.code_function_name}(message: Message, **kwargs):",
+            *self._format_code_component(self),
+        ]
+        return "\n".join(code)
+
 
 class SetState(Component):
     """Use this method to set a state. Returns True on success."""
@@ -206,9 +226,7 @@ class Markup(models.Model):
             for button in row:
                 assert isinstance(button, dict)
                 assert "value" in button
-                assert "next_component" in button
                 assert isinstance(button["value"], str)
-                assert isinstance(button["next_component"], int)
 
     def get_callback_data(self, cell: str) -> str:
         return f"{self.prent_component.id}-{cell}"

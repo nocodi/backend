@@ -34,6 +34,4 @@ def generate_code(bot: Bot) -> str:
         TOKEN=bot.token,
         BASE_URL=settings.BALE_API_URL,
     )
-    print("FOOOOO", code)
-
     return black.format_str(code, mode=black.Mode())

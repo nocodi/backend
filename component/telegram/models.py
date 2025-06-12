@@ -84,31 +84,6 @@ class Component(models.Model):
             method += c.lower()
         return method.lstrip("_")
 
-    def _generate_keyboard_code(self, keyboard) -> list[str]:
-        if not isinstance(keyboard, InlineKeyboardMarkup):
-            return []
-
-        code = ["    builder = InlineKeyboardBuilder()"]
-        for k in keyboard.inline_keyboard.all():
-            code.append(
-                f"    builder.button(text='{k.text}', callback_data='{k.callback_data}')",
-            )
-        code.append("    keyboard = builder.as_markup()")
-        return code
-
-    def _format_code_component(self, underlying_object) -> list[str]:
-        try:
-            import black
-
-            formatted_code = black.format_str(underlying_object.code, mode=black.Mode())
-            return [f"    {formatted_code}"]
-        except Exception as e:
-            return [
-                f"    # Original code failed black formatting: {str(e)}",
-                f"    # {underlying_object.code}",
-                "    pass",
-            ]
-
     def _get_component_params(
         self,
         underlying_object,
@@ -164,11 +139,6 @@ class Component(models.Model):
             f"async def {underlying_object.code_function_name}(input_data: Message, **kwargs):",
         ]
 
-        # Handle code component
-        if underlying_object.__class__.__name__ == "CodeComponent":
-            code.extend(self._format_code_component(underlying_object))
-            return "\n".join(code)
-
         keyboard = None
         # Check if markup exists before accessing it
         if hasattr(underlying_object, "markup") and underlying_object.markup:
@@ -187,16 +157,16 @@ class Component(models.Model):
                 keyboard_buttons += "[\n"
 
                 for cell in row:
-                    args = {"text": cell}
+                    args = {"text": cell["value"]}
                     if markup.markup_type == markup.MarkupType.InlineKeyboard:
                         args["callback_data"] = markup.get_callback_data(cell)
 
                     keyboard_buttons += f"{button_class}(\n"
                     for k, v in args.items():
                         keyboard_buttons += f'{k} = "{v}"\n'
-                    keyboard_buttons += f")"
+                    keyboard_buttons += f"),"
 
-                keyboard_buttons += "]"
+                keyboard_buttons += "],\n"
             keyboard_buttons += "]"
             keyboard = f"{keyword_class}(resize_keyboard=True, one_time_keyboard=False, keyboard = {keyboard_buttons})"
 
@@ -206,6 +176,8 @@ class Component(models.Model):
             keyboard,
             file_params,
         )
+        if keyboard:
+            code.append(f"    keyboard = {keyboard}")
         code.append(f"    await bot.{method}({params_str})")
 
         # Handle next components
