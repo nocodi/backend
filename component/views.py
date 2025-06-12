@@ -35,7 +35,7 @@ class OnMessageSet(ModelViewSetCustom):
 class ContentTypeListView(ListAPIView):
     # permission_classes = [IsLoginedPermission, IsBotOwner]
     queryset = ContentType.objects.filter(
-        Q(app_label="component") & ~Q(model="component") & ~Q(model="keyboard"),
+        Q(app_label="component") & ~Q(model="component") & ~Q(model="markup"),
     )
     serializer_class = ContentTypeSerializer
 

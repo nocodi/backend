@@ -36,6 +36,7 @@ class OnMessageSerializer(ModelSerializerCustom):
 
 class ComponentSerializer(serializers.ModelSerializer):
     hover_text = serializers.SerializerMethodField()
+    reply_markup_supported = serializers.SerializerMethodField()
 
     class Meta:
         model = Component
@@ -49,6 +50,7 @@ class ComponentSerializer(serializers.ModelSerializer):
             "position_x",
             "hover_text",
             "reply_markup",
+            "reply_markup_supported",
         ]
 
     reply_markup = serializers.SerializerMethodField(required=False)
@@ -73,6 +75,12 @@ class ComponentSerializer(serializers.ModelSerializer):
             "buttons": markup.buttons,
             "type": markup.markup_type,
         }
+
+    def get_reply_markup_supported(self, obj: Component) -> bool:
+        model_class = obj.component_content_type.model_class()
+        if hasattr(model_class, "reply_markup_supported"):
+            return model_class().reply_markup_supported
+        return False
 
 
 class ContentTypeSerializer(serializers.ModelSerializer):
