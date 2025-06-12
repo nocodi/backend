@@ -37,72 +37,90 @@ class CodeTest(TestCase):
         )
         send_message_comp = SendMessage.objects.create(
             bot=self.bot,
-            chat_id=693259126,
+            chat_id=".from_user.id",
             text="Hello, World!",
             position_x=1,
             position_y=1,
             previous_component=on_message_component,
         )
-        SendMessage.objects.create(
+        send1 = SendMessage.objects.create(
             bot=self.bot,
-            chat_id=693259126,
+            chat_id=".from_user.id",
             text="Bye World",
             position_x=1,
             position_y=1,
             previous_component=on_message_component,
         )
 
+        send_3 = SendMessage.objects.create(
+            bot=self.bot,
+            chat_id=".from_user.id",
+            text="Button clicked!",
+            position_x=1,
+            position_y=1,
+        )
+        send_4 = SendMessage.objects.create(
+            bot=self.bot,
+            chat_id=".from_user.id",
+            text="Button clicked 2",
+            position_x=1,
+            position_y=1,
+            previous_component=send_3,
+        )
+
+        Markup.objects.create(
+            parent_component=send1,
+            markup_type=Markup.MarkupType.InlineKeyboard,
+            buttons=[
+                [{"value": "Button 1"}, {"value": "Button 2"}],
+                [{"value": "Button 3"}, {"value": "Button 4"}],
+                [{"value": "Button 5", "next_component": send_3.id}],
+            ],
+        )
+
         image = Image.new("RGB", (100, 100), color="blue")
         image_io = BytesIO()
         image.save(image_io, "PNG")
         image_content = ContentFile(image_io.getvalue(), "test.png")
-        photo_component = SendPhoto.objects.create(
-            bot=self.bot,
-            chat_id=".chat.id",
-            photo=image_content,
-            position_x=1,
-            position_y=1,
-            previous_component=on_message_component,
-        )
+        # photo_component = SendPhoto.objects.create(
+        #     bot=self.bot,
+        #     chat_id=".from_user.id",
+        #     photo=image_content,
+        #     position_x=1,
+        #     position_y=1,
+        #     previous_component=on_message_component,
+        # )
 
-        SetState.objects.create(
-            bot=self.bot,
-            state="state",
-            position_x=1,
-            position_y=1,
-            previous_component=on_message_component,
-        )
-
-        on_state_component = OnMessage.objects.create(
-            bot=self.bot,
-            state="state",
-            position_x=1,
-            position_y=1,
-        )
-
-        send1 = SendMessage.objects.create(
-            bot=self.bot,
-            chat_id=693259126,
-            text="State set",
-            position_x=1,
-            position_y=1,
-            previous_component=on_state_component,
-        )
+        # SetState.objects.create(
+        #     bot=self.bot,
+        #     state="state",
+        #     position_x=1,
+        #     position_y=1,
+        #     previous_component=on_message_component,
+        # )
 
         CodeComponent.objects.create(
             bot=self.bot,
             code="print('Hello, World!')",
             position_x=1,
             position_y=1,
-            previous_component=send1,
+            previous_component=send_4,
+        )
+
+        send_5 = SendMessage.objects.create(
+            bot=self.bot,
+            chat_id=".from_user.id",
+            text="Button 3 clicked from text button",
+            position_x=1,
+            position_y=1,
         )
 
         Markup.objects.create(
-            parent_component=send1,
+            parent_component=send_4,
             markup_type=Markup.MarkupType.ReplyKeyboard,
             buttons=[
                 [{"value": "Button 1"}, {"value": "Button 2"}],
-                [{"value": "Button 3"}, {"value": "Button 4"}],
+                [{"value": "Button new", "next_component": send_5.id}],
             ],
         )
 

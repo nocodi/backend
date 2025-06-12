@@ -140,44 +140,19 @@ class Component(models.Model):
         ]
 
         keyboard = None
+        callback_code = ""
         # Check if markup exists before accessing it
         if hasattr(underlying_object, "markup") and underlying_object.markup:
             markup = underlying_object.markup
-            match markup.markup_type:
-                case markup.MarkupType.ReplyKeyboard:
-                    keyword_class = "ReplyKeyboardMarkup"
-                    button_class = "KeyboardButton"
-                case markup.MarkupType.InlineKeyboard:
-                    keyword_class = "InlineKeyboardMarkup"
-                    button_class = "InlineKeyboardButton"
-                case _:
-                    raise NotImplementedError(f"Unknown markup {markup.markup_type}")
-            keyboard_buttons = "["
-            for row in markup.buttons:
-                keyboard_buttons += "[\n"
-
-                for cell in row:
-                    args = {"text": cell["value"]}
-                    if markup.markup_type == markup.MarkupType.InlineKeyboard:
-                        args["callback_data"] = markup.get_callback_data(cell)
-
-                    keyboard_buttons += f"{button_class}(\n"
-                    for k, v in args.items():
-                        keyboard_buttons += f'{k} = "{v}"\n'
-                    keyboard_buttons += f"),"
-
-                keyboard_buttons += "],\n"
-            keyboard_buttons += "]"
-            keyboard = f"{keyword_class}(resize_keyboard=True, one_time_keyboard=False, keyboard = {keyboard_buttons})"
-
+            keyboard, callback_code = markup.generate_code()
+            code.append(f"    keyboard = {keyboard}")
         # Generate parameters and method call
         params_str = self._get_component_params(
             underlying_object,
             keyboard,
             file_params,
         )
-        if keyboard:
-            code.append(f"    keyboard = {keyboard}")
+
         code.append(f"    await bot.{method}({params_str})")
 
         # Handle next components
@@ -191,7 +166,10 @@ class Component(models.Model):
                 f"    await {next_component.code_function_name}(input_data, **kwargs)",
             )
 
-        return "\n".join(code)
+        new_code = "\n".join(code)
+        new_code += "\n\n" + callback_code
+
+        return new_code
 
     def get_all_next_components(self) -> List["Component"]:
         ans = {}

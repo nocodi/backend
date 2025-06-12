@@ -229,8 +229,110 @@ class Markup(models.Model):
                 assert isinstance(button["value"], str)
 
     def get_callback_data(self, cell: str) -> str:
-        return f"{self.prent_component.id}-{cell}"
+        value = cell.get("value").replace(" ", "_")
+        return f"{self.parent_component.id}-{value}"
 
     def save(self, *args: Any, **kwargs: Any) -> None:
         self.validate()
         super().save(*args, **kwargs)
+
+    def _get_markup_config(self) -> tuple[str, str, str]:
+        """Returns the configuration for the markup type."""
+        match self.markup_type:
+            case self.MarkupType.ReplyKeyboard:
+                return (
+                    "ReplyKeyboardMarkup",
+                    "KeyboardButton",
+                    "resize_keyboard=True, one_time_keyboard=False, keyboard",
+                )
+            case self.MarkupType.InlineKeyboard:
+                return "InlineKeyboardMarkup", "InlineKeyboardButton", "inline_keyboard"
+            case _:
+                raise NotImplementedError(f"Unknown markup {self.markup_type}")
+
+    def _generate_button_args(self, cell: dict) -> dict:
+        """Generates the arguments for a button."""
+        args = {"text": cell["value"]}
+        if self.markup_type == self.MarkupType.InlineKeyboard:
+            args["callback_data"] = self.get_callback_data(cell)
+        return args
+
+    def _generate_button_code(self, button_class: str, args: dict) -> str:
+        """Generates the code for a single button."""
+        button_lines = [f"{button_class}("]
+        for k, v in args.items():
+            button_lines.append(f'    {k} = "{v}",')
+        button_lines.append("),")
+        return "\n".join(button_lines)
+
+    def _generate_callback_handlers(self, cell: dict) -> tuple[list[str], list[str]]:
+        """Generates callback handlers for a cell if needed."""
+        base_code = []
+        callback_code = []
+
+        first_next_component = cell.get("next_component")
+        if not first_next_component:
+            return base_code, callback_code
+
+        object = (
+            Component.objects.get(id=first_next_component)
+            .component_content_type.model_class()
+            .objects.get(pk=first_next_component)
+        )
+
+        if self.markup_type == self.MarkupType.InlineKeyboard:
+            callback_code.extend(
+                [
+                    f"@dp.callback_query(lambda callback_query: callback_query.data == '{self.get_callback_data(cell)}')",
+                    f"async def test(callback_query: CallbackQuery, **kwargs):"
+                    f"    await {object.code_function_name}(callback_query, **kwargs)",
+                ],
+            )
+        else:
+            callback_code.extend(
+                [
+                    f"@dp.message(F.text == '{cell['value']}')",
+                    f"async def test(message: Message, **kwargs):"
+                    f"    await {object.code_function_name}(message, **kwargs)",
+                ],
+            )
+        for next_component in Component.objects.get(
+            id=first_next_component,
+        ).get_all_next_components():
+            object = next_component.component_content_type.model_class().objects.get(
+                pk=next_component.pk,
+            )
+            base_code.append(object.generate_code())
+
+        return base_code, callback_code
+
+    def generate_code(self) -> tuple[str, list[str]]:
+        """Generates the keyboard markup code and callback handlers."""
+        base_code = []
+        callback_code = []
+
+        keyword_class, button_class, variable_name = self._get_markup_config()
+
+        keyboard_rows = []
+        for row in self.buttons:
+            row_buttons = []
+            for cell in row:
+                cell_base_code, cell_callback_code = self._generate_callback_handlers(
+                    cell,
+                )
+                base_code.extend(cell_base_code)
+                callback_code.extend(cell_callback_code)
+
+                button_args = self._generate_button_args(cell)
+                row_buttons.append(
+                    self._generate_button_code(button_class, button_args),
+                )
+
+            keyboard_rows.append("[\n" + "".join(row_buttons) + "\n]")
+
+        keyboard_buttons = "[\n" + ",\n".join(keyboard_rows) + "\n]"
+        keyboard = f"{keyword_class}({variable_name} = {keyboard_buttons})"
+
+        callback_code.append("\n\n")
+        base_code.extend(callback_code)
+        return keyboard, "\n".join(base_code)
