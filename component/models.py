@@ -188,6 +188,9 @@ class OnMessage(Component):
             f"async def {self.code_function_name}(message: Message, **kwargs):",
         ]
 
+        if underlying_object.state:
+            code.append(f"    await kwargs['state'].clear()")
+
         for next_component in underlying_object.next_component.all():
             next_component = (
                 next_component.component_content_type.model_class().objects.get(
