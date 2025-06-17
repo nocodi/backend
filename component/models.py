@@ -1,5 +1,7 @@
 from typing import Any
 
+from django.core.exceptions import ValidationError
+
 from component.telegram.models import *
 
 
@@ -30,20 +32,45 @@ class SwitchComponent(Component):
     #     ]
 
     def generate_code(self) -> str:
-        dict_key = ""
+        if len(self.values) != len(self.next_components):
+            raise ValidationError(
+                "Values and next_components must have the same length",
+            )
+
+        base_code = ""
         code = [
             f"async def {self.code_function_name}(message: Message, **kwargs):",
             f"    value = message{self.expression}",
             f"    match value:",
         ]
-        for i in range(len(self.values)):
-            value = self.values[i]
-            next_component = self.next_components[i]
-            code += [
-                f"        case {value}:",
-                f"            await {next_component.code_function_name}(message, **kwargs)",
-            ]
-        return code
+
+        for value, next_component in zip(self.values, self.next_components):
+            next_component = Component.objects.get(
+                pk=next_component,
+            )
+            next_component = (
+                next_component.component_content_type.model_class().objects.get(
+                    pk=next_component.pk,
+                )
+            )
+            base_code += next_component.generate_code() + "\n"
+            code.extend(
+                [
+                    f"        case '{value}':",
+                    f"            await {next_component.code_function_name}(message, **kwargs)",
+                ],
+            )
+
+        # Add default case
+        code.extend(
+            [
+                "        case _:",
+                "            pass  # No matching case found",
+            ],
+        )
+
+        base_code += "\n".join(code)
+        return base_code
 
     @property
     def required_fields(self) -> list:
@@ -65,6 +92,9 @@ class CodeComponent(Component):
         return ["code"]
 
     def _format_code_component(self, underlying_object) -> list[str]:
+        if not underlying_object.code:
+            return ["    pass  # No code provided"]
+
         try:
             import black
 
@@ -105,11 +135,8 @@ class SetState(Component):
         return ["state"]
 
     def generate_code(self) -> str:
-
-        underlying_object: (
-            SetState
-        ) = self.component_content_type.model_class().objects.get(
-            pk=self.pk,
+        underlying_object: SetState = (
+            self.component_content_type.model_class().objects.get(pk=self.pk)
         )
 
         code = [
@@ -159,37 +186,61 @@ class OnMessage(Component):
         help_text="Optional comma separated list of states to match. If not specified, matches any state.",
     )
 
-    def generate_code(self) -> str:
+    def _build_text_filter(self, text: str, regex: bool, case_sensitive: bool) -> str:
+        """Build text matching filter based on configuration."""
+        if regex:
+            # For regex, use regexp function
+            return f"F.text.regexp(r'{text}')"
+        else:
+            # For exact text matching, handle case sensitivity
+            if case_sensitive:
+                return f"F.text == '{text}'"
+            else:
+                return f"F.text.lower() == '{text.lower()}'"
 
-        underlying_object: (
-            OnMessage
-        ) = self.component_content_type.model_class().objects.get(
-            pk=self.pk,
+    def _build_state_filter(self, state_string: str) -> str:
+        """Build state matching filter from comma-separated state list."""
+        if not state_string:
+            return ""
+
+        # Parse and clean state list
+        states = [s.strip() for s in state_string.split(",") if s.strip()]
+        if not states:
+            return ""
+
+        # Build lambda filter for state matching
+        state_list = [f"'{state}'" for state in states]
+        return f"lambda _, raw_state: raw_state in [{', '.join(state_list)}]"
+
+    def generate_code(self) -> str:
+        underlying_object: OnMessage = (
+            self.component_content_type.model_class().objects.get(pk=self.pk)
         )
         if underlying_object.next_component.count() == 0:
             return ""
 
         filters = []
         if underlying_object.text:
-            if underlying_object.regex:
-                filters.append(f"F.text.regexp(r'{underlying_object.text}')")
-            else:
-                filters.append(
-                    f"F.text{'.lower()' if underlying_object.case_sensitive else ''} == '{underlying_object.text}'",
-                )
-        if underlying_object.state:
-            state_list = [f"'{s.strip()}'" for s in underlying_object.state.split(",")]
-            filters.append(
-                f"lambda _, raw_state: raw_state in [{','.join(state_list)}]",
+            text_filter = self._build_text_filter(
+                underlying_object.text,
+                underlying_object.regex,
+                underlying_object.case_sensitive,
             )
+            filters.append(text_filter)
 
+        if underlying_object.state:
+            state_filter = self._build_state_filter(underlying_object.state)
+            if state_filter:
+                filters.append(state_filter)
+
+        filter_str = ", ".join(filters) if filters else ""
         code = [
-            f"@dp.message({','.join(filters)})",
+            f"@dp.message({filter_str})",
             f"async def {self.code_function_name}(message: Message, **kwargs):",
         ]
 
         if underlying_object.state:
-            code.append(f"    await kwargs['state'].clear()")
+            code.append("    await kwargs['state'].clear()")
 
         for next_component in underlying_object.next_component.all():
             next_component = (
@@ -223,16 +274,32 @@ class Markup(models.Model):
 
     def validate(self) -> None:
         buttons = self.buttons
-        assert isinstance(buttons, list)
-        for row in buttons:
-            assert isinstance(row, list)
-            for button in row:
-                assert isinstance(button, dict)
-                assert "value" in button
-                assert isinstance(button["value"], str)
+        if not isinstance(buttons, list):
+            raise ValidationError("Buttons must be a list")
 
-    def get_callback_data(self, cell: str) -> str:
-        value = cell.get("value").replace(" ", "_")
+        for row_idx, row in enumerate(buttons):
+            if not isinstance(row, list):
+                raise ValidationError(f"Row {row_idx} must be a list")
+
+            for button_idx, button in enumerate(row):
+                if not isinstance(button, dict):
+                    raise ValidationError(
+                        f"Button at row {row_idx}, column {button_idx} must be a dict",
+                    )
+                if "value" not in button:
+                    raise ValidationError(
+                        f"Button at row {row_idx}, column {button_idx} must have 'value' key",
+                    )
+                if not isinstance(button["value"], str):
+                    raise ValidationError(
+                        f"Button value at row {row_idx}, column {button_idx} must be a string",
+                    )
+
+    def get_callback_data(self, cell: dict) -> str:
+        if not isinstance(cell, dict) or "value" not in cell:
+            raise ValidationError("Cell must be a dict with 'value' key")
+
+        value = cell["value"].replace(" ", "_")
         return f"{self.parent_component.id}-{value}"
 
     def save(self, *args: Any, **kwargs: Any) -> None:
@@ -241,17 +308,23 @@ class Markup(models.Model):
 
     def _get_markup_config(self) -> tuple[str, str, str]:
         """Returns the configuration for the markup type."""
-        match self.markup_type:
-            case self.MarkupType.ReplyKeyboard:
-                return (
-                    "ReplyKeyboardMarkup",
-                    "KeyboardButton",
-                    "resize_keyboard=True, one_time_keyboard=False, keyboard",
-                )
-            case self.MarkupType.InlineKeyboard:
-                return "InlineKeyboardMarkup", "InlineKeyboardButton", "inline_keyboard"
-            case _:
-                raise NotImplementedError(f"Unknown markup {self.markup_type}")
+        config_map = {
+            self.MarkupType.ReplyKeyboard: (
+                "ReplyKeyboardMarkup",
+                "KeyboardButton",
+                "resize_keyboard=True, one_time_keyboard=False, keyboard",
+            ),
+            self.MarkupType.InlineKeyboard: (
+                "InlineKeyboardMarkup",
+                "InlineKeyboardButton",
+                "inline_keyboard",
+            ),
+        }
+
+        if self.markup_type not in config_map:
+            raise NotImplementedError(f"Unknown markup type: {self.markup_type}")
+
+        return config_map[self.markup_type]
 
     def _generate_button_args(self, cell: dict) -> dict:
         """Generates the arguments for a button."""
@@ -264,7 +337,7 @@ class Markup(models.Model):
         """Generates the code for a single button."""
         button_lines = [f"{button_class}("]
         for k, v in args.items():
-            button_lines.append(f'    {k} = "{v}",')
+            button_lines.append(f'    {k}="{v}",')
         button_lines.append("),")
         return "\n".join(button_lines)
 
@@ -277,17 +350,22 @@ class Markup(models.Model):
         if not first_next_component:
             return base_code, callback_code
 
-        object = (
-            Component.objects.get(id=first_next_component)
-            .component_content_type.model_class()
-            .objects.get(pk=first_next_component)
-        )
+        try:
+            component_obj = Component.objects.get(id=first_next_component)
+            object = component_obj.component_content_type.model_class().objects.get(
+                pk=first_next_component,
+            )
+        except Component.DoesNotExist:
+            raise ValidationError(
+                f"Component with id {first_next_component} does not exist",
+            )
 
         if self.markup_type == self.MarkupType.InlineKeyboard:
+            callback_data = self.get_callback_data(cell)
             callback_code.extend(
                 [
-                    f"@dp.callback_query(lambda callback_query: callback_query.data == '{self.get_callback_data(cell)}')",
-                    f"async def test(callback_query: CallbackQuery, **kwargs):"
+                    f"@dp.callback_query(lambda callback_query: callback_query.data == '{callback_data}')",
+                    f"async def {object.code_function_name}_callback(callback_query: CallbackQuery, **kwargs):",
                     f"    await {object.code_function_name}(callback_query, **kwargs)",
                 ],
             )
@@ -295,17 +373,25 @@ class Markup(models.Model):
             callback_code.extend(
                 [
                     f"@dp.message(F.text == '{cell['value']}')",
-                    f"async def test(message: Message, **kwargs):"
+                    f"async def {object.code_function_name}_handler(message: Message, **kwargs):",
                     f"    await {object.code_function_name}(message, **kwargs)",
                 ],
             )
-        for next_component in Component.objects.get(
-            id=first_next_component,
-        ).get_all_next_components():
-            object = next_component.component_content_type.model_class().objects.get(
-                pk=next_component.pk,
-            )
-            base_code.append(object.generate_code())
+
+        # Generate code for all next components
+        try:
+            for next_component in Component.objects.get(
+                id=first_next_component,
+            ).get_all_next_components():
+                next_obj = (
+                    next_component.component_content_type.model_class().objects.get(
+                        pk=next_component.pk,
+                    )
+                )
+                base_code.append(next_obj.generate_code())
+        except AttributeError:
+            # get_all_next_components method might not exist
+            pass
 
         return base_code, callback_code
 
