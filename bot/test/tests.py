@@ -140,6 +140,23 @@ class CodeTest(TestCase):
             ],
         )
 
+        on_message_regex = OnMessage.objects.create(
+            bot=self.bot,
+            text="Hello, .+",
+            position_x=1,
+            position_y=1,
+            regex=True,
+        )
+
+        send_6 = SendMessage.objects.create(
+            bot=self.bot,
+            chat_id=".from_user.id",
+            text="Hello, World! from regex",
+            position_x=1,
+            position_y=1,
+            previous_component=on_message_regex,
+        )
+
     def test_create_bot(self):
         token = create_token_for_iamuser(self.user.id)
         url = reverse("bot:generate-code", args=[self.bot.id])
