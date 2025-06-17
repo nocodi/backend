@@ -12,7 +12,7 @@ def generate_code(bot: Bot) -> str:
         component_type=Component.ComponentType.TRIGGER,
     )
     bot_component_codes = []
-    raw_state_check = None
+    raw_state_check = ""
     for component in components:
         if component.component_content_type.model != "onmessage":
             raise ValidationError(
@@ -32,7 +32,7 @@ def generate_code(bot: Bot) -> str:
                     bot_component_codes.append(callback_code)
             else:
                 if "raw_state" in code_result:
-                    raw_state_check = code_result
+                    raw_state_check += code_result + "\n"
                 else:
                     bot_component_codes.append(code_result)
 
