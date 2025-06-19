@@ -11,7 +11,8 @@ def generate_code(bot: Bot) -> str:
         bot_id=bot.id,
         component_type=Component.ComponentType.TRIGGER,
     )
-    bot_component_codes = ""
+    bot_component_codes = []
+    raw_state_check = ""
     for component in components:
         if component.component_content_type.model != "onmessage":
             raise ValidationError(
@@ -19,21 +20,31 @@ def generate_code(bot: Bot) -> str:
             )
 
         for next_component in component.get_all_next_components():
-            # if next_component.id == component.id:
-            #     continue
             object = next_component.component_content_type.model_class().objects.get(
                 pk=next_component.pk,
             )
-            bot_component_codes += object.generate_code()
-            bot_component_codes += "\n" * 2
+            code_result = object.generate_code()
+            if isinstance(code_result, tuple):
+                keyboard, callback_code = code_result
+                if keyboard:
+                    bot_component_codes.append(keyboard)
+                if callback_code:
+                    bot_component_codes.append(callback_code)
+            else:
+                if "raw_state" in code_result:
+                    raw_state_check += code_result + "\n"
+                else:
+                    bot_component_codes.append(code_result)
+
+    if raw_state_check:
+        bot_component_codes.append(raw_state_check)
 
     with open("bot/bot_templates/main.txt") as f:
         base = f.read()
+
     code = base.format(
-        FUNCTION_CODES=bot_component_codes,
+        FUNCTION_CODES="\n\n".join(bot_component_codes),
         TOKEN=bot.token,
         BASE_URL=settings.BALE_API_URL,
     )
-    print("FOOOOO", code)
-
     return black.format_str(code, mode=black.Mode())
