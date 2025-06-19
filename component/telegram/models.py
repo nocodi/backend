@@ -1,3 +1,4 @@
+import re
 from typing import List
 
 from django.conf import settings
@@ -16,6 +17,7 @@ class Component(models.Model):
         CONDITIONAL = "CONDITIONAL", "Conditional Component"
         CODE = "CODE", "Code Component"
         STATE = "STATE", "State Component"
+        DATA = "DATA", "Data Component"
 
     component_type = models.CharField(
         max_length=20,
@@ -112,8 +114,9 @@ class Component(models.Model):
         for k, v in component_data.items():
             if v:
                 if isinstance(v, str):
+                    v = self.replace_placeholders(v)
                     param_strings.append(
-                        f"{k}=input_data{v}" if v.startswith(".") else f"{k}='{v}'",
+                        f"{k}=input_data{v}" if v.startswith(".") else f"{k}=f'{v}'",
                     )
                 else:
                     param_strings.append(f"{k}={v}")
@@ -182,6 +185,16 @@ class Component(models.Model):
                     if next_component.id not in ans:
                         stack.append(next_component)
         return list(ans.values())
+
+    def replace_placeholders(self, text):
+        pattern = r"\$\[([a-zA-Z0-9_]+)\]"
+        return re.sub(
+            pattern,
+            lambda match: '{data_dict.get(input_data.from_user.id, dict()).get("'
+            + match.group(1)
+            + '")}',
+            text,
+        )
 
 
 class SendMessage(Component):
