@@ -10,35 +10,35 @@ class SwitchComponentSerializer(ModelSerializerCustom):
     class Meta:
         model = SwitchComponent
         exclude = ["bot"]
-        read_only_fields = ["component_type"]
+        read_only_fields = ["component_type", "reply_markup_supported"]
 
 
 class CodeComponentSerializer(ModelSerializerCustom):
     class Meta:
         model = CodeComponent
         exclude = ["bot"]
-        read_only_fields = ["component_type"]
+        read_only_fields = ["component_type", "reply_markup_supported"]
 
 
 class SetStateSerializer(ModelSerializerCustom):
     class Meta:
         model = SetState
         exclude = ["bot"]
-        read_only_fields = ["component_type"]
+        read_only_fields = ["component_type", "reply_markup_supported"]
 
 
 class SetDataSerializer(ModelSerializerCustom):
     class Meta:
         model = SetData
         exclude = ["bot"]
-        read_only_fields = ["component_type"]
+        read_only_fields = ["component_type", "reply_markup_supported"]
 
 
 class OnMessageSerializer(ModelSerializerCustom):
     class Meta:
         model = OnMessage
         exclude = ["bot"]
-        read_only_fields = ["component_type"]
+        read_only_fields = ["component_type", "reply_markup_supported"]
 
 
 class ComponentSerializer(serializers.ModelSerializer):
@@ -176,7 +176,7 @@ class MarkupSerializer(ModelSerializerCustom):
     class Meta:
         model = Markup
         fields = "__all__"
-        read_only_fields = ["component_type"]
+        read_only_fields = ["component_type", "reply_markup_supported"]
 
     def validate_buttons(self, value):
         """Validate that buttons follow the correct structure"""
