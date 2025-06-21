@@ -9,6 +9,7 @@ from component.views import (
     MarkupSet,
     OnMessageSet,
     SchemaListView,
+    SetDataSet,
     SetStateSet,
     SwitchComponentSet,
 )
@@ -16,6 +17,7 @@ from component.views import (
 router = DefaultRouter()
 router.register(r"on-message", OnMessageSet, basename="on-message")
 router.register(r"set-state", SetStateSet, basename="set-state")
+router.register(r"set-data", SetDataSet, basename="set-data")
 router.register(r"switch-component", SwitchComponentSet, basename="switch-component")
 router.register(r"code-component", CodeComponentSet, basename="code-component")
 router.register(r"markup", MarkupSet, basename="markup")
