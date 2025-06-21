@@ -435,12 +435,17 @@ class SetData(Component):
         self.type = Component.ComponentType.STATE
         self.component_type = Component.ComponentType.STATE
 
-    data = models.JSONField(help_text="Data to set")
-    key = models.CharField(max_length=255, help_text="Key to set data")
+    key = models.CharField(
+        max_length=255,
+        help_text="Key to set data",
+        blank=True,
+        null=True,
+    )
+    data = models.CharField(help_text="Data to set", blank=True, null=True)
 
     @property
     def required_fields(self) -> list:
-        return ["data", "key"]
+        return ["key", "data"]
 
     def generate_code(self) -> str:
         underlying_object: SetData = (
