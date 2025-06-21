@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 memory = MemoryStorage()
 dp = Dispatcher(storage=memory)
+data_dict = dict()
 
 session = AiohttpSession(api=TelegramAPIServer.from_base('{BASE_URL}'))
 bot = Bot(token='{TOKEN}', session=session)

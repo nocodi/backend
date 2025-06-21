@@ -9,10 +9,11 @@ from component.models import (
     Component,
     Markup,
     OnMessage,
+    SetData,
     SetState,
     SwitchComponent,
 )
-from component.telegram.models import SendMessage, SendPhoto
+from component.telegram.models import SendMessage
 from iam.models import IamUser
 from iam.utils import create_token_for_iamuser
 
@@ -172,18 +173,19 @@ class CodeTest(TestCase):
             position_x=1,
             position_y=1,
         )
-        send_message_phone_number = SendMessage.objects.create(
+        SetData.objects.create(
             bot=self.bot,
-            chat_id=".from_user.id",
-            text="Is your phone number correct?",
+            key="phone_number",
+            data=".text",
             position_x=1,
             position_y=1,
             previous_component=phone_number_hanndle,
         )
-        phone_number_handle_yes_no = SendMessage.objects.create(
+
+        send_message_phone_number = SendMessage.objects.create(
             bot=self.bot,
             chat_id=".from_user.id",
-            text=".text",
+            text="Is your phone number correct? $[phone_number]",
             position_x=1,
             position_y=1,
             previous_component=phone_number_hanndle,
@@ -206,7 +208,7 @@ class CodeTest(TestCase):
         )
 
         Markup.objects.create(
-            parent_component=phone_number_handle_yes_no,
+            parent_component=send_message_phone_number,
             markup_type=Markup.MarkupType.InlineKeyboard,
             buttons=[
                 [{"value": "Yes", "next_component": handle_yes.id}],

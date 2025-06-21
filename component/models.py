@@ -425,3 +425,42 @@ class Markup(models.Model):
         callback_code.append("\n\n")
         base_code.extend(callback_code)
         return keyboard, "\n".join(base_code)
+
+
+class SetData(Component):
+    """Use this method to set data. Returns True on success."""
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self.type = Component.ComponentType.STATE
+        self.component_type = Component.ComponentType.STATE
+
+    data = models.JSONField(help_text="Data to set")
+    key = models.CharField(max_length=255, help_text="Key to set data")
+
+    @property
+    def required_fields(self) -> list:
+        return ["data", "key"]
+
+    def generate_code(self) -> str:
+        underlying_object: SetData = (
+            self.component_content_type.model_class().objects.get(pk=self.pk)
+        )
+
+        code = [
+            f"async def {self.code_function_name}(message: Message, **kwargs):",
+            f"    if message.from_user.id not in data_dict:",
+            "        data_dict[message.from_user.id] = dict()   ",
+            f"    data_dict[message.from_user.id]['{underlying_object.key}'] = message{underlying_object.data}",
+        ]
+
+        for next_component in underlying_object.next_component.all():
+            next_component = (
+                next_component.component_content_type.model_class().objects.get(
+                    pk=next_component.pk,
+                )
+            )
+            code.append(
+                f"    await {next_component.code_function_name}(message, **kwargs)",
+            )
+        return "\n".join(code)
