@@ -203,9 +203,4 @@ class MarkupSerializer(ModelSerializerCustom):
                         f"Button 'value' at row {row_index}, column {button_index} must be a string",
                     )
 
-                if not isinstance(button["next_component"], int):
-                    raise ValidationError(
-                        f"Button 'next_component' at row {row_index}, column {button_index} must be an integer",
-                    )
-
         return value
