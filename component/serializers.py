@@ -175,7 +175,7 @@ class ContentTypeSerializer(serializers.ModelSerializer):
 class MarkupSerializer(ModelSerializerCustom):
     class Meta:
         model = Markup
-        fields = "__all__"
+        exclude = ["bot"]
         read_only_fields = ["component_type", "reply_markup_supported"]
 
     def validate_buttons(self, value):
