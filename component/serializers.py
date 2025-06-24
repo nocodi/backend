@@ -172,11 +172,10 @@ class ContentTypeSerializer(serializers.ModelSerializer):
         ]
 
 
-class MarkupSerializer(ModelSerializerCustom):
+class MarkupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Markup
-        exclude = ["bot"]
-        read_only_fields = ["component_type", "reply_markup_supported"]
+        fields = "__all__"
 
     def validate_buttons(self, value):
         """Validate that buttons follow the correct structure"""
@@ -201,6 +200,14 @@ class MarkupSerializer(ModelSerializerCustom):
                 if not isinstance(button["value"], str):
                     raise ValidationError(
                         f"Button 'value' at row {row_index}, column {button_index} must be a string",
+                    )
+                # next_component is optional
+                if "next_component" in button and not isinstance(
+                    button["next_component"],
+                    int,
+                ):
+                    raise ValidationError(
+                        f"Button 'next_component' at row {row_index}, column {button_index} must be an integer",
                     )
 
         return value

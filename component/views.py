@@ -79,3 +79,10 @@ class MarkupSet(ModelViewSetCustom):
     permission_classes = [IsLoginedPermission, IsBotOwner]
     serializer_class = MarkupSerializer
     queryset = Markup.objects.all()
+
+    def get_queryset(self) -> QuerySet:
+        return (
+            super(ModelViewSetCustom, self)
+            .get_queryset()
+            .filter(parent_component__bot=self.kwargs.get("bot"))
+        )
