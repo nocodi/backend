@@ -60,6 +60,7 @@ class SchemaListView(ListAPIView):
         OpenApiExample(
             "Example",
             value={
+                "id": 1,
                 "buttons": [
                     [
                         {"text": "Button 1", "next_component_id": 1},
