@@ -77,6 +77,7 @@ class ComponentSerializer(serializers.ModelSerializer):
         if hasattr(obj, "markup") and obj.markup is not None:
             markup: Markup = obj.markup
             return {
+                "id": markup.id,
                 "buttons": markup.buttons,
                 "type": markup.markup_type,
             }
