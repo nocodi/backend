@@ -1,5 +1,5 @@
 # 🐳 Base DinD image
-FROM docker.arvancloud.ir/docker:24-dind
+FROM docker:24-dind
 
 # 📦 Install Python, pip, build tools, lib dependencies
 RUN apk add --no-cache \
