@@ -124,6 +124,7 @@ class VerifySignup(APIView):
                         "access_token": create_token_for_iamuser(
                             user_id=user_id,
                         ),
+                        "is_first_login": True,
                     },
                 )
         return Response(status=status.HTTP_400_BAD_REQUEST)
