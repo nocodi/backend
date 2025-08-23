@@ -115,6 +115,7 @@ class VerifySignup(APIView):
                 user_id = IamUser.objects.create(
                     email=redis_data["email"],
                     password=redis_data["password"],
+                    last_login_at=timezone.now(),
                 ).id
                 return Response(
                     status=status.HTTP_201_CREATED,
