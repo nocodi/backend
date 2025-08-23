@@ -6,7 +6,7 @@ import docker
 import requests
 from django.conf import settings
 from django.db.models import QuerySet
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import (
@@ -113,8 +113,13 @@ class Deploy(APIView):
                 "Bot not found or you don't have permission to access it",
             )
 
+        try:
+            code = generate_code(bot_instance)
+        except:
+            raise ValidationError("GenerateCodeFailed")
+
         # Launch the deployment task asynchronously
-        task = deploy_bot.delay(bot)
+        task = deploy_bot.delay(bot, code)
 
         return Response(
             {

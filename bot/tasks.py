@@ -6,17 +6,13 @@ import docker
 from celery import shared_task
 
 from bot.models import Bot
-from bot.services import generate_code
 
 logger = logging.getLogger(__name__)
 
 
 @shared_task
-def deploy_bot(bot_id: int) -> dict:
+def deploy_bot(bot_id: int, code: str) -> dict:
     try:
-        bot_instance = Bot.objects.get(id=bot_id)
-        code = generate_code(bot_instance)
-
         dockerfile_dir = f"./factory/{bot_id}"
         os.makedirs(dockerfile_dir, exist_ok=True)
         dockerfile_path = shutil.copyfile(
