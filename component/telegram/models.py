@@ -216,7 +216,7 @@ class SendMessage(Component):
         blank=True,
         help_text="Unique identifier for the target message thread (topic) of the forum; for forum supergroups only",
     )
-    text = models.CharField(
+    text = models.TextField(
         null=True,
         blank=True,
         max_length=4096,
@@ -378,7 +378,7 @@ class CopyMessage(Component):
         blank=True,
         help_text="New start timestamp for the copied video in the message",
     )
-    caption = models.CharField(
+    caption = models.TextField(
         null=True,
         blank=True,
         max_length=1024,
@@ -493,7 +493,7 @@ class SendPhoto(Component):
         blank=True,
         help_text="Photo to send. Pass a file_id as String to send a photo that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a photo from the Internet, or upload a new photo using multipart/form-data. The photo must be at most 10 MB in size. The photo's width and height must not exceed 10000 in total. Width and height ratio must be at most 20. More information on Sending Files »",
     )
-    caption = models.CharField(
+    caption = models.TextField(
         null=True,
         blank=True,
         max_length=1024,
@@ -574,7 +574,7 @@ class SendDocument(Component):
         blank=True,
         help_text="Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »",
     )
-    caption = models.CharField(
+    caption = models.TextField(
         null=True,
         blank=True,
         max_length=1024,
@@ -668,7 +668,7 @@ class SendVideo(Component):
         blank=True,
         help_text="Start timestamp for the video in the message",
     )
-    caption = models.CharField(
+    caption = models.TextField(
         null=True,
         blank=True,
         max_length=1024,
@@ -761,7 +761,7 @@ class SendAnimation(Component):
         blank=True,
         help_text="Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »",
     )
-    caption = models.CharField(
+    caption = models.TextField(
         null=True,
         blank=True,
         max_length=1024,
@@ -836,7 +836,7 @@ class SendVoice(Component):
         blank=True,
         help_text="Audio file to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. More information on Sending Files »",
     )
-    caption = models.CharField(
+    caption = models.TextField(
         null=True,
         blank=True,
         max_length=1024,
@@ -975,7 +975,7 @@ class SendPaidMedia(Component):
         blank=True,
         help_text="Bot-defined paid media payload, 0-128 bytes. This will not be displayed to the user, use it for your internal processes.",
     )
-    caption = models.CharField(
+    caption = models.TextField(
         null=True,
         blank=True,
         max_length=1024,
@@ -2958,7 +2958,7 @@ class EditMessageText(Component):
         blank=True,
         help_text="Required if chat_id and message_id are not specified. Identifier of the inline message",
     )
-    text = models.CharField(
+    text = models.TextField(
         null=True,
         blank=True,
         max_length=4096,
@@ -3002,7 +3002,7 @@ class EditMessageCaption(Component):
         blank=True,
         help_text="Required if chat_id and message_id are not specified. Identifier of the inline message",
     )
-    caption = models.CharField(
+    caption = models.TextField(
         null=True,
         blank=True,
         max_length=1024,
@@ -3289,7 +3289,7 @@ class SendGift(Component):
         blank=True,
         help_text="Pass True to pay for the gift upgrade from the bot's balance, thereby making the upgrade free for the receiver",
     )
-    text = models.CharField(
+    text = models.TextField(
         null=True,
         blank=True,
         max_length=128,
@@ -3328,7 +3328,7 @@ class GiftPremiumSubscription(Component):
         blank=True,
         help_text="Number of Telegram Stars to pay for the Telegram Premium subscription; must be 1000 for 3 months, 1500 for 6 months, and 2500 for 12 months",
     )
-    text = models.CharField(
+    text = models.TextField(
         null=True,
         blank=True,
         max_length=128,
@@ -3834,7 +3834,7 @@ class PostStory(Component):
         blank=True,
         help_text="Period after which the story is moved to the archive, in seconds; must be one of 6 * 3600, 12 * 3600, 86400, or 2 * 86400",
     )
-    caption = models.CharField(
+    caption = models.TextField(
         null=True,
         blank=True,
         max_length=2048,
@@ -3878,7 +3878,7 @@ class EditStory(Component):
         blank=True,
         help_text="Unique identifier of the story to edit",
     )
-    caption = models.CharField(
+    caption = models.TextField(
         null=True,
         blank=True,
         max_length=2048,
