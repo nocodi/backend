@@ -42,7 +42,8 @@ class CodeTest(TestCase):
         send_message_start = SendMessage.objects.create(
             bot=self.bot,
             chat_id=".from_user.id",
-            text="Hello welcome to the bot $.text with chat id $.chat.id",
+            text="""Hello,
+welcome to the bot $.text with chat id $.chat.id""",
             position_x=1,
             position_y=1,
             previous_component=on_message_component,

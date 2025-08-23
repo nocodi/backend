@@ -117,7 +117,7 @@ class Component(models.Model):
                     v = self.replace_placeholders(v)
                     v = re.sub(r"\$\.(\w+(\.\w+)*)", r"{input_data.\1}", v)
                     param_strings.append(
-                        f"{k}=f'{v}'" if not v.startswith("f") else f"{k}={v}",
+                        f"{k}=f'''{v}'''" if not v.startswith("f") else f"{k}={v}",
                     )
                 else:
                     param_strings.append(f"{k}={v}")
