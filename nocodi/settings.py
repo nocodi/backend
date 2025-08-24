@@ -63,6 +63,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "nocodi.middleware.RatelimitMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -203,3 +204,7 @@ CELERY_TIMEZONE = TIME_ZONE
 from .celery import app as celery_app
 
 __all__ = ("celery_app",)
+
+
+RATE_LIMIT_COUNT = env("RATE_LIMIT_COUNT", default=100)
+RATE_LIMIT_INTERVAL = env("RATE_LIMIT_INTERVAL", default=60)
